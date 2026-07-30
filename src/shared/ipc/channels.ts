@@ -24,7 +24,11 @@ export const IpcChannels = {
     getStatus: 'chat:getStatus',
     getTargetChannel: 'chat:getTargetChannel',
     setTargetChannel: 'chat:setTargetChannel',
-    onStatusChanged: 'chat:onStatusChanged'
+    onStatusChanged: 'chat:onStatusChanged',
+    getAutoConnect: 'chat:getAutoConnect',
+    setAutoConnect: 'chat:setAutoConnect',
+    connect: 'chat:connect',
+    onMessage: 'chat:onMessage'
   },
   automessages: {
     list: 'automessages:list',
@@ -44,6 +48,7 @@ export const IpcChannels = {
     list: 'polls:list',
     create: 'polls:create',
     end: 'polls:end',
+    reset: 'polls:reset',
     getActive: 'polls:getActive',
     onUpdate: 'polls:onUpdate'
   },
@@ -63,7 +68,10 @@ export const IpcChannels = {
     manualAdjust: 'loyalty:manualAdjust',
     updateAccount: 'loyalty:updateAccount',
     importCsv: 'loyalty:importCsv',
-    exportCsv: 'loyalty:exportCsv'
+    exportCsv: 'loyalty:exportCsv',
+    listBlacklist: 'loyalty:listBlacklist',
+    setBlacklisted: 'loyalty:setBlacklisted',
+    renameGame: 'loyalty:renameGame'
   },
   stats: {
     getMessagesPerHour: 'stats:getMessagesPerHour',
