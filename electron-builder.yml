@@ -1,0 +1,26 @@
+appId: com.vinewoodlegacy.streamingbot
+productName: StreamingBot
+directories:
+  buildResources: build
+files:
+  - out/**/*
+  - '!**/.vscode/*'
+  - '!src/*'
+  - '!electron.vite.config.{js,ts,mjs,cjs}'
+asarUnpack:
+  - resources/**
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+  # Code-Signing bewusst noch nicht aktiv (siehe README "Deployment").
+  # Sobald ein Zertifikat vorliegt, hier ergänzen:
+  # certificateFile: ${env.WIN_CSC_LINK}
+  # certificatePassword: ${env.WIN_CSC_KEY_PASSWORD}
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: always
+publish:
+  provider: github
