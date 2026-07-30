@@ -1,6 +1,7 @@
 import type { LoyaltyGame } from './LoyaltyGame'
 import { getOrCreateAccount } from '../../db/repositories/loyalty.repo'
 import { creditLoyalty } from '../loyaltyLedger'
+import { parseBetAmount } from './betParser'
 
 interface GambleConfig {
   winChancePercent: number
@@ -15,18 +16,14 @@ export const gambleGame: LoyaltyGame = {
 
   async handleCommand(ctx) {
     const config = ctx.config as unknown as GambleConfig
-    const amount = Number(ctx.args[0])
-
-    if (!Number.isInteger(amount) || amount < config.minBet || amount > config.maxBet) {
-      await ctx.reply(
-        `@${ctx.userLogin} Nutzung: !gamble <Einsatz> (${config.minBet}-${config.maxBet})`
-      )
-      return
-    }
-
     const account = getOrCreateAccount(ctx.userLogin)
-    if (account.balance < amount) {
-      await ctx.reply(`@${ctx.userLogin} Nicht genug Punkte (Kontostand: ${account.balance}).`)
+    const amount = parseBetAmount(ctx.args[0], account.balance, config.minBet, config.maxBet)
+
+    if (amount === null) {
+      const limit = config.maxBet > 0 ? `${config.minBet}-${config.maxBet}` : `ab ${config.minBet}`
+      await ctx.reply(
+        `@${ctx.userLogin} Nutzung: !gamble <Einsatz|all|xx%> (${limit}, max. Kontostand: ${account.balance})`
+      )
       return
     }
 

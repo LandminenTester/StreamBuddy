@@ -1,6 +1,7 @@
 import type { LoyaltyGame } from './LoyaltyGame'
 import { getOrCreateAccount } from '../../db/repositories/loyalty.repo'
 import { creditLoyalty } from '../loyaltyLedger'
+import { parseBetAmount } from './betParser'
 
 interface DuelConfig {
   acceptWindowSeconds: number
@@ -39,25 +40,20 @@ async function challengeDuel(
   config: DuelConfig
 ): Promise<void> {
   const opponentLogin = ctx.args[0]?.replace('@', '').toLowerCase()
-  const amount = Number(ctx.args[1])
+  const challengerAccount = getOrCreateAccount(ctx.userLogin)
+  const amount = parseBetAmount(
+    ctx.args[1],
+    challengerAccount.balance,
+    config.minBet,
+    config.maxBet
+  )
 
-  if (
-    !opponentLogin ||
-    !Number.isInteger(amount) ||
-    amount < config.minBet ||
-    amount > config.maxBet
-  ) {
-    await ctx.reply(`@${ctx.userLogin} Nutzung: !duel @user <Einsatz>`)
+  if (!opponentLogin || amount === null) {
+    await ctx.reply(`@${ctx.userLogin} Nutzung: !duel @user <Einsatz|all|xx%>`)
     return
   }
   if (opponentLogin === ctx.userLogin.toLowerCase()) {
     await ctx.reply(`@${ctx.userLogin} Du kannst nicht gegen dich selbst antreten.`)
-    return
-  }
-
-  const challengerAccount = getOrCreateAccount(ctx.userLogin)
-  if (challengerAccount.balance < amount) {
-    await ctx.reply(`@${ctx.userLogin} Nicht genug Punkte für diesen Einsatz.`)
     return
   }
 
