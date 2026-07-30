@@ -1,6 +1,7 @@
 import type { ChatUserstate, Client } from 'tmi.js'
-import type { PermissionLevel } from '@shared/types/command'
+import type { Command, PermissionLevel } from '@shared/types/command'
 import { incrementCommandUseCount, listCommands } from '../../db/repositories/commands.repo'
+import { getOrCreateAccount } from '../../db/repositories/loyalty.repo'
 import {
   getGameByTrigger,
   getGameRuntimeConfig,
@@ -42,6 +43,8 @@ export async function handleChatMessage(
   const game = getGameByTrigger(trigger)
   if (game) {
     if (!isGameEnabled(game.id)) return
+    // Geblacklistete Konten (z.B. Bots) sind komplett von Loyalty-Games ausgeschlossen.
+    if (getOrCreateAccount(tags.username ?? '').isBlacklisted) return
     await game.handleCommand({
       userLogin: tags.username ?? '',
       args: parts.slice(1),
@@ -66,9 +69,32 @@ export async function handleChatMessage(
   lastUsedAt.set(command.id, now)
 
   try {
-    await client.say(channel, command.response)
+    await sendCommandResponse(client, channel, tags.username ?? '', command)
     incrementCommandUseCount(command.id)
   } catch (error) {
     logger.error(`Konnte Command-Response für "${command.trigger}" nicht senden`, error)
+  }
+}
+
+/**
+ * Versendet die Command-Antwort gemäß konfigurierter Zustellart. Whisper hängt von
+ * Twitch-seitigen Einschränkungen für den Bot-Account ab (seit 2023 für viele
+ * Accounts eingeschränkt) -- Fehler werden vom Aufrufer geloggt, nicht hier verschluckt.
+ */
+async function sendCommandResponse(
+  client: Client,
+  channel: string,
+  userLogin: string,
+  command: Command
+): Promise<void> {
+  switch (command.deliveryMode) {
+    case 'whisper':
+      await client.whisper(userLogin, command.response)
+      return
+    case 'mention':
+      await client.say(channel, `@${userLogin} ${command.response}`)
+      return
+    default:
+      await client.say(channel, command.response)
   }
 }

@@ -2,7 +2,7 @@
 import { reactive } from 'vue'
 import BaseModal from '@renderer/components/shared/BaseModal.vue'
 import type { CommandFormState } from '@renderer/views/commands/types'
-import { PERMISSION_LABELS } from '@renderer/views/commands/utils'
+import { DELIVERY_MODE_LABELS, PERMISSION_LABELS } from '@renderer/views/commands/utils'
 
 const props = defineProps<{ initial: CommandFormState }>()
 const emit = defineEmits<{ close: []; submit: [form: CommandFormState] }>()
@@ -72,6 +72,22 @@ function handleSubmit(): void {
             class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
           />
         </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-medium text-slate-500">Zustellart</label>
+        <select
+          v-model="form.deliveryMode"
+          class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+        >
+          <option v-for="(label, mode) in DELIVERY_MODE_LABELS" :key="mode" :value="mode">
+            {{ label }}
+          </option>
+        </select>
+        <p v-if="form.deliveryMode === 'whisper'" class="mt-1 text-xs text-amber-600">
+          Twitch schränkt Whispers für viele Bot-Accounts ein -- ggf. funktioniert das nicht
+          zuverlässig, unbedingt testen.
+        </p>
       </div>
 
       <label class="flex items-center gap-2 text-sm">

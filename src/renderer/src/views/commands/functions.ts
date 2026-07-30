@@ -14,6 +14,7 @@ export async function submitCommandForm(
     aliases: parseAliases(form.aliasesInput),
     permissionLevel: form.permissionLevel,
     cooldownSeconds: form.cooldownSeconds,
+    deliveryMode: form.deliveryMode,
     enabled: form.enabled
   }
 

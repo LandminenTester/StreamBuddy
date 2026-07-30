@@ -1,5 +1,12 @@
 export type PermissionLevel = 'everyone' | 'subscriber' | 'moderator' | 'broadcaster'
 
+/**
+ * Wie die Command-Antwort zugestellt wird: öffentlich im Chat, als Erwähnung
+ * (öffentlich, aber sichtbar an den Aufrufer gerichtet) oder als Whisper (privat).
+ * Whisper hängt von Twitch-seitigen Einschränkungen für den Bot-Account ab.
+ */
+export type CommandDeliveryMode = 'public' | 'mention' | 'whisper'
+
 export interface Command {
   id: number
   trigger: string
@@ -7,6 +14,7 @@ export interface Command {
   aliases: string[]
   permissionLevel: PermissionLevel
   cooldownSeconds: number
+  deliveryMode: CommandDeliveryMode
   enabled: boolean
   useCount: number
   createdAt: number
