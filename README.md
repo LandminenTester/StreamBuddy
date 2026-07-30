@@ -4,7 +4,7 @@ Electron-Desktop-App (TypeScript, Vue 3, Tailwind CSS) zur Verwaltung eines Twit
 
 ## Features
 
-- **Twitch-Verbindung**: OAuth (Authorization Code + PKCE) für einen separaten Bot-Account, mit dynamischer, feature-basierter Scope-Anforderung und Reauth-Button bei fehlenden Berechtigungen
+- **Twitch-Verbindung**: OAuth (Device Code Grant Flow) für einen separaten Bot-Account, mit dynamischer, feature-basierter Scope-Anforderung und Reauth-Button bei fehlenden Berechtigungen
 - **Chat-Commands**: Trigger/Aliase, Permission-Level (everyone/subscriber/moderator/broadcaster), Cooldowns
 - **Automessages**: Zeitintervall- oder Nachrichtenanzahl-basiert, mit Rotation mehrerer Nachrichten
 - **Kanalpunkte**: Custom-Reward-Verwaltung (Sync mit Twitch), automatische Aktionen bei Einlösung (Chat-Nachricht/Command), Redemption-Log
@@ -35,10 +35,16 @@ Eigenes App-Icon: `build/icon.ico` ablegen (ansonsten nutzt electron-builder ein
 
 ## Twitch-Setup
 
-1. Eine Twitch-Developer-App unter https://dev.twitch.tv/console/apps anlegen (Client-Type: Public, PKCE).
-2. `.env.example` nach `.env` kopieren und `MAIN_VITE_TWITCH_CLIENT_ID` eintragen.
+1. Eine Twitch-Developer-App unter https://dev.twitch.tv/console/apps anlegen:
+   - **Client-Typ**: `Öffentlich` (Public) -- wichtig, da die App keinen Server hat, der ein Client-Secret sicher verwahren könnte.
+   - **OAuth Redirect URLs**: leer lassen -- der Device Code Grant Flow braucht keine Redirect-URI.
+   - **Kategorie**: z.B. "Chat Bot" (rein informativ für Twitch, ohne funktionale Auswirkung).
+2. `.env.example` nach `.env` kopieren und `MAIN_VITE_TWITCH_CLIENT_ID` mit der erzeugten Client-ID befüllen.
 3. Der verwendete Twitch-Account sollte ein **separater Bot-Account** sein, der als Moderator im Zielkanal eingesetzt ist.
-4. Hinweis: Für die **Kanalpunkte-Verwaltung** (Custom Rewards anlegen/ändern) verlangt Twitch ein Token des Broadcaster-Accounts selbst — ein reiner Moderator-Bot-Token kann nur auf bestehende Redemptions reagieren, aber keine neuen Rewards erstellen.
+4. Beim Verbinden in der App (Einstellungen -> "Mit Twitch verbinden") zeigt die App einen Code an, der auf `https://www.twitch.tv/activate` eingegeben werden muss (öffnet sich automatisch im Standardbrowser).
+5. Hinweis: Für die **Kanalpunkte-Verwaltung** (Custom Rewards anlegen/ändern) verlangt Twitch ein Token des Broadcaster-Accounts selbst — ein reiner Moderator-Bot-Token kann nur auf bestehende Redemptions reagieren, aber keine neuen Rewards erstellen.
+
+**Technischer Hintergrund**: Twitch unterstützt für den klassischen Authorization-Code-Grant kein PKCE (der verlangt immer ein Client-Secret). Für Public Clients ohne Secret ist der **Device Code Grant Flow (DCF)** der von Twitch vorgesehene Weg -- kein lokaler Redirect-Server, kein eingebettetes Login-Fenster nötig.
 
 ## Abhängigkeiten (nicht im fxmanifest-Äquivalent, hier: package.json)
 

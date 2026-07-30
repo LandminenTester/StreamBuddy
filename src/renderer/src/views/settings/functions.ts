@@ -16,9 +16,11 @@ export async function initSettings(
     chatStore.fetchTargetChannel()
   ])
   const unsubscribeAuth = authStore.subscribeToStatusChanges()
+  const unsubscribeDeviceAuth = authStore.subscribeToDeviceAuthPrompt()
   const unsubscribeChat = chatStore.subscribeToStatusChanges()
   return () => {
     unsubscribeAuth()
+    unsubscribeDeviceAuth()
     unsubscribeChat()
   }
 }

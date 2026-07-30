@@ -1,14 +1,20 @@
-import { createServer, type Server } from 'node:http'
-import { randomBytes, createHash } from 'node:crypto'
-import type { BrowserWindow } from 'electron'
-import { createOAuthWindow } from '../../window'
+import { shell } from 'electron'
+import type { DeviceAuthPrompt } from '@shared/types/auth'
 import { storeTokens } from './tokenStore'
 import { getRequiredScopesForEnabledFeatures } from './scopeRegistry'
 import { logger } from '../../logger'
 
-const AUTHORIZE_ENDPOINT = 'https://id.twitch.tv/oauth2/authorize'
+const DEVICE_ENDPOINT = 'https://id.twitch.tv/oauth2/device'
 const TOKEN_ENDPOINT = 'https://id.twitch.tv/oauth2/token'
 const VALIDATE_ENDPOINT = 'https://id.twitch.tv/oauth2/validate'
+
+interface DeviceCodeResponse {
+  device_code: string
+  user_code: string
+  verification_uri: string
+  expires_in: number
+  interval: number
+}
 
 interface TokenResponse {
   access_token: string
@@ -23,56 +29,32 @@ interface ValidateResponse {
   scopes: string[]
 }
 
-function base64UrlEncode(buffer: Buffer): string {
-  return buffer.toString('base64url')
-}
-
-function generatePkcePair(): { verifier: string; challenge: string } {
-  const verifier = base64UrlEncode(randomBytes(32))
-  const challenge = base64UrlEncode(createHash('sha256').update(verifier).digest())
-  return { verifier, challenge }
-}
-
 /**
- * Führt den vollständigen Authorization-Code+PKCE-Flow für den Twitch-Bot-Account
- * aus: BrowserWindow -> Twitch-Login -> lokaler Loopback-Redirect -> Token-Tausch.
- * Fordert die Vereinigungsmenge der Scopes aller aktuell aktivierten Features an
- * (siehe scopeRegistry.ts) -- ein Reauth erweitert bestehende Grants, ohne sie zu invalidieren.
+ * Twitch unterstützt für den Authorization-Code-Grant kein PKCE -- der verlangt
+ * immer ein client_secret. Für Public Clients ohne Secret ist stattdessen der
+ * Device Code Grant Flow (DCF) der korrekte Weg: Device-Code anfordern, dem
+ * Nutzer den User-Code + Verification-URL zeigen (siehe onDeviceCodeReady),
+ * dann auf die Autorisierung pollen.
  */
-export async function runOAuthFlow(): Promise<{ twitchLogin: string; grantedScopes: string[] }> {
+export async function runOAuthFlow(
+  onDeviceCodeReady: (prompt: DeviceAuthPrompt) => void
+): Promise<{ twitchLogin: string; grantedScopes: string[] }> {
   const clientId = import.meta.env.MAIN_VITE_TWITCH_CLIENT_ID
-  const redirectUri = import.meta.env.MAIN_VITE_TWITCH_REDIRECT_URI
-
-  if (!clientId || !redirectUri) {
-    throw new Error(
-      'MAIN_VITE_TWITCH_CLIENT_ID / MAIN_VITE_TWITCH_REDIRECT_URI fehlen (.env aus .env.example anlegen)'
-    )
+  if (!clientId) {
+    throw new Error('MAIN_VITE_TWITCH_CLIENT_ID fehlt (.env aus .env.example anlegen)')
   }
 
-  const redirectUrl = new URL(redirectUri)
-  const port = Number(redirectUrl.port || 80)
-  const { verifier, challenge } = generatePkcePair()
-  const state = base64UrlEncode(randomBytes(16))
   const scopes = getRequiredScopesForEnabledFeatures()
+  const device = await requestDeviceCode(clientId, scopes)
 
-  const authorizeUrl = new URL(AUTHORIZE_ENDPOINT)
-  authorizeUrl.searchParams.set('client_id', clientId)
-  authorizeUrl.searchParams.set('redirect_uri', redirectUri)
-  authorizeUrl.searchParams.set('response_type', 'code')
-  authorizeUrl.searchParams.set('scope', scopes.join(' '))
-  authorizeUrl.searchParams.set('state', state)
-  authorizeUrl.searchParams.set('code_challenge', challenge)
-  authorizeUrl.searchParams.set('code_challenge_method', 'S256')
-  authorizeUrl.searchParams.set('force_verify', 'true')
-
-  const code = await waitForAuthorizationCode(authorizeUrl.toString(), redirectUrl, port, state)
-
-  const tokenResponse = await exchangeCodeForToken({
-    clientId,
-    redirectUri,
-    code,
-    verifier
+  onDeviceCodeReady({
+    userCode: device.user_code,
+    verificationUri: device.verification_uri,
+    expiresInSeconds: device.expires_in
   })
+  void shell.openExternal(device.verification_uri)
+
+  const tokenResponse = await pollForToken(clientId, scopes, device)
 
   const {
     login,
@@ -94,88 +76,58 @@ export async function runOAuthFlow(): Promise<{ twitchLogin: string; grantedScop
   return { twitchLogin: login, grantedScopes }
 }
 
-function waitForAuthorizationCode(
-  authorizeUrl: string,
-  redirectUrl: URL,
-  port: number,
-  expectedState: string
-): Promise<string> {
-  return new Promise((resolve, reject) => {
-    let oauthWindow: BrowserWindow | null = null
-    let server: Server | null = null
-    let settled = false
+async function requestDeviceCode(clientId: string, scopes: string[]): Promise<DeviceCodeResponse> {
+  const body = new URLSearchParams({ client_id: clientId, scopes: scopes.join(' ') })
+  const response = await fetch(DEVICE_ENDPOINT, { method: 'POST', body })
 
-    const cleanup = (): void => {
-      server?.close()
-      if (oauthWindow && !oauthWindow.isDestroyed()) oauthWindow.close()
-    }
-
-    const finish = (result: { ok: true; code: string } | { ok: false; error: Error }): void => {
-      if (settled) return
-      settled = true
-      cleanup()
-      if (result.ok) resolve(result.code)
-      else reject(result.error)
-    }
-
-    server = createServer((req, res) => {
-      const requestUrl = new URL(req.url ?? '/', `http://localhost:${port}`)
-      if (requestUrl.pathname !== redirectUrl.pathname) {
-        res.writeHead(404).end()
-        return
-      }
-
-      const error = requestUrl.searchParams.get('error')
-      const code = requestUrl.searchParams.get('code')
-      const state = requestUrl.searchParams.get('state')
-
-      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' })
-      res.end(
-        error
-          ? '<html><body>Verbindung abgebrochen. Dieses Fenster kann geschlossen werden.</body></html>'
-          : '<html><body>Erfolgreich verbunden. Dieses Fenster kann geschlossen werden.</body></html>'
-      )
-
-      if (error) {
-        finish({ ok: false, error: new Error(`Twitch-OAuth-Fehler: ${error}`) })
-        return
-      }
-      if (!code || state !== expectedState) {
-        finish({ ok: false, error: new Error('Ungültige OAuth-Antwort (state/code fehlt)') })
-        return
-      }
-      finish({ ok: true, code })
-    })
-
-    server.on('error', (error) => finish({ ok: false, error }))
-    server.listen(port, () => {
-      oauthWindow = createOAuthWindow(authorizeUrl)
-      oauthWindow.on('closed', () => {
-        finish({ ok: false, error: new Error('OAuth-Fenster wurde geschlossen') })
-      })
-    })
-  })
+  if (!response.ok) {
+    throw new Error(
+      `Device-Code-Anfrage fehlgeschlagen: ${response.status} ${await response.text()}`
+    )
+  }
+  return (await response.json()) as DeviceCodeResponse
 }
 
-async function exchangeCodeForToken(params: {
-  clientId: string
-  redirectUri: string
-  code: string
-  verifier: string
-}): Promise<TokenResponse> {
-  const body = new URLSearchParams({
-    client_id: params.clientId,
-    code: params.code,
-    grant_type: 'authorization_code',
-    redirect_uri: params.redirectUri,
-    code_verifier: params.verifier
-  })
+async function pollForToken(
+  clientId: string,
+  scopes: string[],
+  device: DeviceCodeResponse
+): Promise<TokenResponse> {
+  let intervalMs = device.interval * 1000
+  const deadline = Date.now() + device.expires_in * 1000
 
-  const response = await fetch(TOKEN_ENDPOINT, { method: 'POST', body })
-  if (!response.ok) {
-    throw new Error(`Token-Tausch fehlgeschlagen: ${response.status} ${await response.text()}`)
+  while (Date.now() < deadline) {
+    await sleep(intervalMs)
+
+    const body = new URLSearchParams({
+      client_id: clientId,
+      scopes: scopes.join(' '),
+      device_code: device.device_code,
+      grant_type: 'urn:ietf:params:oauth:grant-type:device_code'
+    })
+    const response = await fetch(TOKEN_ENDPOINT, { method: 'POST', body })
+
+    if (response.ok) {
+      return (await response.json()) as TokenResponse
+    }
+
+    const errorBody = (await response.json().catch(() => null)) as { message?: string } | null
+    const message = (errorBody?.message ?? '').toLowerCase()
+
+    if (message.includes('authorization_pending')) continue
+    if (message.includes('slow_down')) {
+      intervalMs += 5000
+      continue
+    }
+
+    throw new Error(`Device-Code-Autorisierung fehlgeschlagen: ${response.status} ${message}`)
   }
-  return (await response.json()) as TokenResponse
+
+  throw new Error('Device-Code abgelaufen -- Autorisierung nicht rechtzeitig abgeschlossen')
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 async function validateToken(accessToken: string): Promise<ValidateResponse> {

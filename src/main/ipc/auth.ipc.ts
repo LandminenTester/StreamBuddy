@@ -10,6 +10,7 @@ import {
 } from '../twitch/oauth/authStatus'
 import { connectChatClient, disconnectChatClient } from '../twitch/chat/tmiClient'
 import { syncEventSubConnection, stopEventSub } from '../twitch/eventsub/eventSubClient'
+import { getMainWindow } from '../window'
 import { logger } from '../logger'
 
 export function registerAuthIpc(): void {
@@ -26,7 +27,9 @@ export function registerAuthIpc(): void {
 
   handleTyped(IpcChannels.auth.startOAuth, async () => {
     try {
-      await runOAuthFlow()
+      await runOAuthFlow((prompt) => {
+        getMainWindow()?.webContents.send(IpcChannels.auth.onDeviceCodeReady, prompt)
+      })
       await connectChatClient()
       await syncEventSubConnection()
     } catch (error) {

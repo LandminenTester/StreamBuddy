@@ -77,6 +77,34 @@ function handleSaveChannel(): void {
       </div>
 
       <div
+        v-if="authStore.isConnecting && authStore.deviceAuthPrompt"
+        class="mt-4 rounded-md bg-twitch-purple/10 p-4 text-sm"
+      >
+        <p class="font-medium">Autorisierung auf Twitch abschließen:</p>
+        <p class="mt-2">
+          1. Öffne
+          <a
+            :href="authStore.deviceAuthPrompt.verificationUri"
+            target="_blank"
+            rel="noopener"
+            class="text-twitch-purple underline"
+          >
+            {{ authStore.deviceAuthPrompt.verificationUri }}
+          </a>
+          (öffnet sich automatisch im Browser)
+        </p>
+        <p class="mt-1">
+          2. Gib diesen Code ein:
+          <code
+            class="ml-1 rounded bg-white px-2 py-1 font-mono text-base font-semibold dark:bg-slate-800"
+          >
+            {{ authStore.deviceAuthPrompt.userCode }}
+          </code>
+        </p>
+        <p class="mt-2 text-xs text-slate-500">Wartet auf Bestätigung…</p>
+      </div>
+
+      <div
         v-if="authStore.status.missingScopes.length > 0"
         class="mt-4 rounded-md bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-950 dark:text-amber-200"
       >
