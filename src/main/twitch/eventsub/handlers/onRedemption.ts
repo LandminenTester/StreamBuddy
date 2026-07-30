@@ -26,6 +26,10 @@ export async function handleRedemptionAddEvent(
     return
   }
 
+  logger.info(
+    `Redemption "${localReward.title}" von ${redemption.user_login} empfangen (actionType=${localReward.actionType})`
+  )
+
   const logEntry = logRedemption({
     rewardId: localReward.id,
     twitchRedemptionId: redemption.id,

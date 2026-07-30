@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useChannelPointsStore } from '@renderer/stores/channelPoints.store'
+import { useAuthStore } from '@renderer/stores/auth.store'
 import RewardFormModal from '@renderer/components/channelPoints/RewardFormModal.vue'
 import type { RewardFormState } from './types'
 import { emptyRewardForm } from './types'
@@ -9,14 +10,24 @@ import { deleteRewardById, submitRewardForm } from './functions'
 import type { ChannelPointReward } from '@shared/types/channelPointReward'
 
 const store = useChannelPointsStore()
+const authStore = useAuthStore()
 const isModalOpen = ref(false)
 const activeForm = ref<RewardFormState>(emptyRewardForm())
+
+// channel_points-Feature muss separat in den Einstellungen aktiviert sein, sonst
+// wird die EventSub-Subscription für Redemptions nie registriert -- Rewards mit
+// konfigurierter Aktion würden dann unbemerkt nie feuern (siehe eventSubClient.ts).
+const isChannelPointsFeatureEnabled = computed(() =>
+  authStore.features.some((f) => f.featureKey === 'channel_points' && f.enabled)
+)
+const hasRewardsWithAction = computed(() => store.rewards.some((r) => r.actionType !== 'none'))
 
 let unsubscribe: (() => void) | null = null
 
 onMounted(() => {
   void store.fetchRewards()
   void store.fetchRedemptions()
+  void authStore.fetchFeatures()
   unsubscribe = store.subscribeToRedemptions()
 })
 
@@ -35,8 +46,12 @@ function openEditModal(reward: ChannelPointReward): void {
 }
 
 async function handleSubmit(form: RewardFormState): Promise<void> {
-  await submitRewardForm(store, form)
-  isModalOpen.value = false
+  try {
+    await submitRewardForm(store, form)
+    isModalOpen.value = false
+  } catch {
+    // Modal bleibt offen, Fehler wird über store.error angezeigt (siehe unten).
+  }
 }
 
 async function handleDelete(id: number): Promise<void> {
@@ -60,6 +75,17 @@ async function handleDelete(id: number): Promise<void> {
         >
           Neuer Reward
         </button>
+      </div>
+
+      <p v-if="store.error" class="mt-3 text-sm text-red-600">{{ store.error }}</p>
+
+      <div
+        v-if="!isChannelPointsFeatureEnabled && hasRewardsWithAction"
+        class="mt-3 rounded-md bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-950 dark:text-amber-200"
+      >
+        Das Feature "Kanalpunkte" ist in den Einstellungen deaktiviert. Solange das der Fall ist,
+        werden Einlösungen nicht empfangen und konfigurierte Aktionen (z.B. Chatnachrichten) feuern
+        nie. Aktiviere es unter Einstellungen → Features.
       </div>
 
       <div class="mt-6 overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
