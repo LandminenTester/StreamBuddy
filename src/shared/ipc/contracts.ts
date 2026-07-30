@@ -41,6 +41,8 @@ export interface IpcContracts {
   }
   [IpcChannels.auth.onStatusChanged]: { request: void; response: AuthStatus }
   [IpcChannels.auth.onDeviceCodeReady]: { request: void; response: DeviceAuthPrompt }
+  [IpcChannels.auth.getClientId]: { request: void; response: string | null }
+  [IpcChannels.auth.setClientId]: { request: { clientId: string }; response: void }
 
   [IpcChannels.chat.getStatus]: { request: void; response: ChatConnectionStatus }
   [IpcChannels.chat.getTargetChannel]: { request: void; response: string | null }

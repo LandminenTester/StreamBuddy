@@ -10,11 +10,18 @@ import {
 } from '../twitch/oauth/authStatus'
 import { connectChatClient, disconnectChatClient } from '../twitch/chat/tmiClient'
 import { syncEventSubConnection, stopEventSub } from '../twitch/eventsub/eventSubClient'
+import { getTwitchClientId, setTwitchClientId } from '../twitch/oauth/clientId'
 import { getMainWindow } from '../window'
 import { logger } from '../logger'
 
 export function registerAuthIpc(): void {
   handleTyped(IpcChannels.auth.getStatus, () => getAuthStatus())
+
+  handleTyped(IpcChannels.auth.getClientId, () => getTwitchClientId())
+
+  handleTyped(IpcChannels.auth.setClientId, ({ clientId }) => {
+    setTwitchClientId(clientId)
+  })
 
   handleTyped(IpcChannels.auth.listFeatures, () => listConfigurableFeatures())
 

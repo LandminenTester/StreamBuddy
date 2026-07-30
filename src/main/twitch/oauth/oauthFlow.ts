@@ -2,6 +2,7 @@ import { shell } from 'electron'
 import type { DeviceAuthPrompt } from '@shared/types/auth'
 import { storeTokens } from './tokenStore'
 import { getRequiredScopesForEnabledFeatures } from './scopeRegistry'
+import { requireTwitchClientId } from './clientId'
 import { logger } from '../../logger'
 
 const DEVICE_ENDPOINT = 'https://id.twitch.tv/oauth2/device'
@@ -39,11 +40,7 @@ interface ValidateResponse {
 export async function runOAuthFlow(
   onDeviceCodeReady: (prompt: DeviceAuthPrompt) => void
 ): Promise<{ twitchLogin: string; grantedScopes: string[] }> {
-  const clientId = import.meta.env.MAIN_VITE_TWITCH_CLIENT_ID
-  if (!clientId) {
-    throw new Error('MAIN_VITE_TWITCH_CLIENT_ID fehlt (.env aus .env.example anlegen)')
-  }
-
+  const clientId = requireTwitchClientId()
   const scopes = getRequiredScopesForEnabledFeatures()
   const device = await requestDeviceCode(clientId, scopes)
 

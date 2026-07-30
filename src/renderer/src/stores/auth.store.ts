@@ -17,6 +17,8 @@ export const useAuthStore = defineStore('auth', () => {
   const features = ref<FeatureScopeDefinition[]>([])
   const isConnecting = ref(false)
   const deviceAuthPrompt = ref<DeviceAuthPrompt | null>(null)
+  const clientId = ref('')
+  const isSavingClientId = ref(false)
 
   async function fetchStatus(): Promise<void> {
     status.value = await window.api.invoke('auth:getStatus', undefined)
@@ -24,6 +26,20 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function fetchFeatures(): Promise<void> {
     features.value = await window.api.invoke('auth:listFeatures', undefined)
+  }
+
+  async function fetchClientId(): Promise<void> {
+    clientId.value = (await window.api.invoke('auth:getClientId', undefined)) ?? ''
+  }
+
+  async function saveClientId(value: string): Promise<void> {
+    isSavingClientId.value = true
+    try {
+      await window.api.invoke('auth:setClientId', { clientId: value })
+      clientId.value = value
+    } finally {
+      isSavingClientId.value = false
+    }
   }
 
   async function connect(): Promise<void> {
@@ -64,8 +80,12 @@ export const useAuthStore = defineStore('auth', () => {
     features,
     isConnecting,
     deviceAuthPrompt,
+    clientId,
+    isSavingClientId,
     fetchStatus,
     fetchFeatures,
+    fetchClientId,
+    saveClientId,
     connect,
     disconnect,
     setFeatureEnabled,

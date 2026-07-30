@@ -1,4 +1,5 @@
 import { forceRefresh, getValidAccessToken } from '../oauth/tokenRefresher'
+import { requireTwitchClientId } from '../oauth/clientId'
 
 const HELIX_BASE_URL = 'https://api.twitch.tv/helix'
 
@@ -11,7 +12,7 @@ export async function helixFetch(
   init: RequestInit = {},
   isRetry = false
 ): Promise<Response> {
-  const clientId = import.meta.env.MAIN_VITE_TWITCH_CLIENT_ID
+  const clientId = requireTwitchClientId()
   const tokens = await getValidAccessToken()
 
   const response = await fetch(`${HELIX_BASE_URL}${path}`, {
