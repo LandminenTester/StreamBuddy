@@ -13,7 +13,7 @@ import type {
   ChannelPointRewardInput,
   RedemptionLogEntry
 } from '../types/channelPointReward'
-import type { Poll, PollCreateInput } from '../types/poll'
+import type { Poll, PollCreateInput, PollTemplate, PollTemplateInput } from '../types/poll'
 import type { LoyaltyEarnRule, LoyaltyGameInfo, LoyaltyLeaderboardEntry } from '../types/loyalty'
 import type { ChatMessageStatsBucket, LiveStatsUpdate, ViewerCountSample } from '../types/stats'
 
@@ -75,9 +75,20 @@ export interface IpcContracts {
 
   [IpcChannels.polls.list]: { request: void; response: Poll[] }
   [IpcChannels.polls.create]: { request: PollCreateInput; response: Poll }
-  [IpcChannels.polls.end]: { request: { id: number }; response: Poll }
+  [IpcChannels.polls.end]: {
+    request: { id: number; winnerChoiceIndex?: number | null }
+    response: Poll
+  }
   [IpcChannels.polls.getActive]: { request: void; response: Poll | null }
   [IpcChannels.polls.onUpdate]: { request: void; response: Poll }
+
+  [IpcChannels.pollTemplates.list]: { request: void; response: PollTemplate[] }
+  [IpcChannels.pollTemplates.create]: { request: PollTemplateInput; response: PollTemplate }
+  [IpcChannels.pollTemplates.update]: {
+    request: { id: number; input: PollTemplateInput }
+    response: PollTemplate
+  }
+  [IpcChannels.pollTemplates.delete]: { request: { id: number }; response: void }
 
   [IpcChannels.loyalty.getLeaderboard]: { request: void; response: LoyaltyLeaderboardEntry[] }
   [IpcChannels.loyalty.listEarnRules]: { request: void; response: LoyaltyEarnRule[] }
@@ -91,6 +102,19 @@ export interface IpcContracts {
     request: { gameId: string; config: Record<string, unknown> }
     response: LoyaltyGameInfo[]
   }
+  [IpcChannels.loyalty.manualAdjust]: {
+    request: { userLogins: string[] | 'all'; amount: number }
+    response: LoyaltyLeaderboardEntry[]
+  }
+  [IpcChannels.loyalty.updateAccount]: {
+    request: { userLogin: string; balance: number }
+    response: LoyaltyLeaderboardEntry[]
+  }
+  [IpcChannels.loyalty.importCsv]: {
+    request: void
+    response: { importedCount: number; errors: string[] } | null
+  }
+  [IpcChannels.loyalty.exportCsv]: { request: void; response: { exportedCount: number } | null }
 
   [IpcChannels.stats.getMessagesPerHour]: {
     request: { sinceMs: number }
