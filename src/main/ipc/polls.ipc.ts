@@ -1,16 +1,28 @@
 import { IpcChannels } from '@shared/ipc/channels'
 import { handleTyped } from './handleTyped'
+import type { Poll } from '@shared/types/poll'
 import {
   createDraftPoll,
   deletePoll,
   getActivePoll,
   getPollById,
   listPolls,
-  markPollActive
+  markPollActive,
+  markPollEnded
 } from '../db/repositories/polls.repo'
 import { createTwitchPoll, endTwitchPoll } from '../twitch/helix/polls.api'
 import { getUserIdByLogin } from '../twitch/helix/users.api'
 import { getSetting } from '../db/repositories/appSettings.repo'
+
+const END_STATUS_MAP: Record<
+  string,
+  Extract<Poll['status'], 'completed' | 'terminated' | 'archived'>
+> = {
+  completed: 'completed',
+  terminated: 'terminated',
+  archived: 'archived',
+  moderated: 'terminated'
+}
 
 async function resolveBroadcasterId(): Promise<string> {
   const targetChannel = getSetting('target_channel')
@@ -48,13 +60,24 @@ export function registerPollsIpc(): void {
     }
   })
 
-  handleTyped(IpcChannels.polls.end, async ({ id }) => {
+  handleTyped(IpcChannels.polls.end, async ({ id, winnerChoiceIndex }) => {
     const poll = getPollById(id)
     if (!poll.twitchPollId) {
       throw new Error('Poll wurde nie bei Twitch gestartet')
     }
     const broadcasterId = await resolveBroadcasterId()
-    await endTwitchPoll(broadcasterId, poll.twitchPollId)
+    const twitchPoll = await endTwitchPoll(broadcasterId, poll.twitchPollId)
+
+    // Lokalen Status direkt aus der Twitch-Antwort setzen, statt nur auf den
+    // asynchronen channel.poll.end-EventSub-Webhook zu warten -- sonst bleibt
+    // die Umfrage im Bot als "aktiv" stehen, obwohl sie auf Twitch bereits endete.
+    const status = END_STATUS_MAP[twitchPoll.status.toLowerCase()] ?? 'terminated'
+    const choices = twitchPoll.choices.map((choice) => ({
+      title: choice.title,
+      votes: choice.votes
+    }))
+    markPollEnded(poll.twitchPollId, status, choices, winnerChoiceIndex ?? null)
+
     return getPollById(id)
   })
 }

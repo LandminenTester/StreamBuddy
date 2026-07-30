@@ -44,15 +44,31 @@ const END_STATUS_MAP: Record<
   moderated: 'terminated'
 }
 
+function highestVoteChoiceIndex(choices: PollChoice[]): number | null {
+  if (choices.length === 0) return 0
+  let bestIndex = 0
+  for (let i = 1; i < choices.length; i++) {
+    if (choices[i].votes > choices[bestIndex].votes) bestIndex = i
+  }
+  return bestIndex
+}
+
 export function handlePollEndEvent(event: Record<string, unknown>): void {
   const payload = event as unknown as PollEndEvent
   const status = END_STATUS_MAP[payload.status.toLowerCase()] ?? 'terminated'
 
-  if (!getPollByTwitchId(payload.id)) {
+  const existingPoll = getPollByTwitchId(payload.id)
+  if (!existingPoll) {
     logger.warn(`Poll-End-Event für unbekannte Poll-ID "${payload.id}" ignoriert`)
     return
   }
 
-  markPollEnded(payload.id, status, toChoices(payload.choices))
+  const choices = toChoices(payload.choices)
+  // Falls der manuelle "Beenden"-Handler bereits einen Gewinner gesetzt hat (siehe
+  // polls.ipc.ts), nicht überschreiben -- sonst würde dieser spätere Webhook die
+  // manuelle Auswahl mit einem Auto-Ergebnis wieder verwerfen.
+  const winnerChoiceIndex = existingPoll.winnerChoiceIndex ?? highestVoteChoiceIndex(choices)
+
+  markPollEnded(payload.id, status, choices, winnerChoiceIndex)
   broadcastPollUpdate(payload.id)
 }

@@ -10,6 +10,7 @@ interface PollRow {
   duration_seconds: number
   channel_points_voting_enabled: number
   channel_points_per_vote: number
+  winner_choice_index: number | null
   started_at: number | null
   ended_at: number | null
   created_at: number
@@ -25,6 +26,7 @@ function toDomain(row: PollRow): Poll {
     durationSeconds: row.duration_seconds,
     channelPointsVotingEnabled: Boolean(row.channel_points_voting_enabled),
     channelPointsPerVote: row.channel_points_per_vote,
+    winnerChoiceIndex: row.winner_choice_index,
     startedAt: row.started_at,
     endedAt: row.ended_at,
     createdAt: row.created_at
@@ -86,11 +88,16 @@ export function updatePollProgress(twitchPollId: string, choices: PollChoice[]):
 export function markPollEnded(
   twitchPollId: string,
   status: Extract<Poll['status'], 'completed' | 'terminated' | 'archived'>,
-  choices: PollChoice[]
+  choices: PollChoice[],
+  winnerChoiceIndex: number | null = null
 ): void {
   getDb()
-    .prepare('UPDATE polls SET status = ?, choices = ?, ended_at = ? WHERE twitch_poll_id = ?')
-    .run(status, JSON.stringify(choices), Date.now(), twitchPollId)
+    .prepare(
+      `UPDATE polls
+         SET status = ?, choices = ?, winner_choice_index = ?, ended_at = ?
+       WHERE twitch_poll_id = ?`
+    )
+    .run(status, JSON.stringify(choices), winnerChoiceIndex, Date.now(), twitchPollId)
 }
 
 export function getPollById(id: number): Poll {

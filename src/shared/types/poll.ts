@@ -14,6 +14,7 @@ export interface Poll {
   durationSeconds: number
   channelPointsVotingEnabled: boolean
   channelPointsPerVote: number
+  winnerChoiceIndex: number | null
   startedAt: number | null
   endedAt: number | null
   createdAt: number
@@ -26,3 +27,15 @@ export interface PollCreateInput {
   channelPointsVotingEnabled: boolean
   channelPointsPerVote: number
 }
+
+export interface PollTemplate {
+  id: number
+  title: string
+  choices: string[]
+  durationSeconds: number
+  channelPointsVotingEnabled: boolean
+  channelPointsPerVote: number
+  createdAt: number
+}
+
+export type PollTemplateInput = Omit<PollTemplate, 'id' | 'createdAt'>

@@ -24,8 +24,8 @@ export const usePollsStore = defineStore('polls', () => {
     }
   }
 
-  async function endPoll(id: number): Promise<void> {
-    const updated = await window.api.invoke('polls:end', { id })
+  async function endPoll(id: number, winnerChoiceIndex?: number | null): Promise<void> {
+    const updated = await window.api.invoke('polls:end', { id, winnerChoiceIndex })
     const index = polls.value.findIndex((p) => p.id === id)
     if (index !== -1) polls.value[index] = updated
   }
