@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.1](https://github.com/LandminenTester/StreamingBot/compare/v1.3.0...v1.3.1) (2026-07-30)
+
+
+### Bug Fixes
+
+* **ci:** exe-Upload reparieren, Pipeline auf einen Workflow konsolidieren ([c6668ca](https://github.com/LandminenTester/StreamingBot/commit/c6668ca2b0b3f23a9b69da46470ab3e8013c804c))
+* **ci:** exe-Upload und Pipeline zu einem einzigen Workflow konsolidieren ([9ea6d29](https://github.com/LandminenTester/StreamingBot/commit/9ea6d29c362dcb0e50db46f7d46c079831cf813e))
+
 ## [1.3.0](https://github.com/LandminenTester/StreamingBot/compare/v1.2.0...v1.3.0) (2026-07-30)
 
 
