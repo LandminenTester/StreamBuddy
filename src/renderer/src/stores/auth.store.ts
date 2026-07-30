@@ -1,6 +1,11 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import type { AuthStatus, FeatureKey, FeatureScopeDefinition } from '@shared/types/auth'
+import type {
+  AuthStatus,
+  DeviceAuthPrompt,
+  FeatureKey,
+  FeatureScopeDefinition
+} from '@shared/types/auth'
 
 export const useAuthStore = defineStore('auth', () => {
   const status = ref<AuthStatus>({
@@ -11,6 +16,7 @@ export const useAuthStore = defineStore('auth', () => {
   })
   const features = ref<FeatureScopeDefinition[]>([])
   const isConnecting = ref(false)
+  const deviceAuthPrompt = ref<DeviceAuthPrompt | null>(null)
 
   async function fetchStatus(): Promise<void> {
     status.value = await window.api.invoke('auth:getStatus', undefined)
@@ -22,10 +28,12 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function connect(): Promise<void> {
     isConnecting.value = true
+    deviceAuthPrompt.value = null
     try {
       status.value = await window.api.invoke('auth:startOAuth', undefined)
     } finally {
       isConnecting.value = false
+      deviceAuthPrompt.value = null
     }
   }
 
@@ -45,15 +53,23 @@ export const useAuthStore = defineStore('auth', () => {
     })
   }
 
+  function subscribeToDeviceAuthPrompt(): () => void {
+    return window.api.on('auth:onDeviceCodeReady', (prompt) => {
+      deviceAuthPrompt.value = prompt
+    })
+  }
+
   return {
     status,
     features,
     isConnecting,
+    deviceAuthPrompt,
     fetchStatus,
     fetchFeatures,
     connect,
     disconnect,
     setFeatureEnabled,
-    subscribeToStatusChanges
+    subscribeToStatusChanges,
+    subscribeToDeviceAuthPrompt
   }
 })

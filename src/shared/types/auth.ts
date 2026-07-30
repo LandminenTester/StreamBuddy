@@ -13,3 +13,10 @@ export interface AuthStatus {
   /** Scopes, die für mind. ein aktiviertes Feature fehlen -> Reauth nötig. */
   missingScopes: string[]
 }
+
+/** Device-Code-Grant-Flow: Nutzer muss diesen Code auf der Verification-URL eingeben. */
+export interface DeviceAuthPrompt {
+  userCode: string
+  verificationUri: string
+  expiresInSeconds: number
+}

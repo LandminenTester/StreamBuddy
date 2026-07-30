@@ -51,24 +51,3 @@ export function createMainWindow(): BrowserWindow {
 export function getMainWindow(): BrowserWindow | null {
   return mainWindow
 }
-
-/**
- * Erstellt ein separates, kurzlebiges Fenster für den Twitch-OAuth-Flow.
- * Wird in Phase 2 (src/main/twitch/oauth/oauthFlow.ts) genutzt.
- */
-export function createOAuthWindow(url: string): BrowserWindow {
-  const oauthWindow = new BrowserWindow({
-    width: 500,
-    height: 700,
-    parent: mainWindow ?? undefined,
-    modal: true,
-    autoHideMenuBar: true,
-    webPreferences: {
-      contextIsolation: true,
-      sandbox: true
-    }
-  })
-
-  oauthWindow.loadURL(url)
-  return oauthWindow
-}

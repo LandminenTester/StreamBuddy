@@ -1,6 +1,11 @@
 import { IpcChannels } from './channels'
 import type { Command, CommandInput } from '../types/command'
-import type { AuthStatus, FeatureKey, FeatureScopeDefinition } from '../types/auth'
+import type {
+  AuthStatus,
+  DeviceAuthPrompt,
+  FeatureKey,
+  FeatureScopeDefinition
+} from '../types/auth'
 import type { ChatConnectionStatus } from '../types/chat'
 import type { Automessage, AutomessageInput } from '../types/automessage'
 import type {
@@ -35,6 +40,7 @@ export interface IpcContracts {
     response: AuthStatus
   }
   [IpcChannels.auth.onStatusChanged]: { request: void; response: AuthStatus }
+  [IpcChannels.auth.onDeviceCodeReady]: { request: void; response: DeviceAuthPrompt }
 
   [IpcChannels.chat.getStatus]: { request: void; response: ChatConnectionStatus }
   [IpcChannels.chat.getTargetChannel]: { request: void; response: string | null }
