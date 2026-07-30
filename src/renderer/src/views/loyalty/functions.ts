@@ -49,3 +49,11 @@ export async function saveGameConfig(
 ): Promise<void> {
   await store.updateGameConfig(gameId, config)
 }
+
+export async function renameGame(
+  store: LoyaltyStore,
+  gameId: string,
+  displayName: string
+): Promise<void> {
+  await store.renameGame(gameId, displayName)
+}

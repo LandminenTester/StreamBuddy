@@ -4,6 +4,7 @@ import type { Poll } from '@shared/types/poll'
 import {
   createDraftPoll,
   deletePoll,
+  forceResetPoll,
   getActivePoll,
   getPollById,
   listPolls,
@@ -80,4 +81,6 @@ export function registerPollsIpc(): void {
 
     return getPollById(id)
   })
+
+  handleTyped(IpcChannels.polls.reset, ({ id }) => forceResetPoll(id))
 }

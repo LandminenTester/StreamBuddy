@@ -100,6 +100,18 @@ export function markPollEnded(
     .run(status, JSON.stringify(choices), winnerChoiceIndex, Date.now(), twitchPollId)
 }
 
+/**
+ * Setzt eine Umfrage lokal auf 'archived', ohne Twitch zu kontaktieren -- für den
+ * Fall, dass die DB einen längst nicht mehr existierenden Poll als aktiv zeigt
+ * (z.B. verpasster channel.poll.end-Webhook, Twitch-Poll manuell/extern beendet).
+ */
+export function forceResetPoll(id: number): Poll {
+  getDb()
+    .prepare("UPDATE polls SET status = 'archived', ended_at = ? WHERE id = ?")
+    .run(Date.now(), id)
+  return getPollById(id)
+}
+
 export function getPollById(id: number): Poll {
   const row = getDb().prepare<[number], PollRow>('SELECT * FROM polls WHERE id = ?').get(id)
   if (!row) {

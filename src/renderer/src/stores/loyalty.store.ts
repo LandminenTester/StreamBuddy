@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import type {
+  LoyaltyAccount,
   LoyaltyEarnRule,
   LoyaltyGameInfo,
   LoyaltyLeaderboardEntry
@@ -10,6 +11,7 @@ export const useLoyaltyStore = defineStore('loyalty', () => {
   const leaderboard = ref<LoyaltyLeaderboardEntry[]>([])
   const earnRules = ref<LoyaltyEarnRule[]>([])
   const games = ref<LoyaltyGameInfo[]>([])
+  const blacklist = ref<LoyaltyAccount[]>([])
   const error = ref<string | null>(null)
 
   async function fetchLeaderboard(): Promise<void> {
@@ -66,10 +68,29 @@ export const useLoyaltyStore = defineStore('loyalty', () => {
     return window.api.invoke('loyalty:exportCsv', undefined)
   }
 
+  async function renameGame(gameId: string, displayName: string): Promise<void> {
+    games.value = await window.api.invoke('loyalty:renameGame', { gameId, displayName })
+  }
+
+  async function fetchBlacklist(): Promise<void> {
+    blacklist.value = await window.api.invoke('loyalty:listBlacklist', undefined)
+  }
+
+  async function setBlacklisted(userLogin: string, blacklisted: boolean): Promise<void> {
+    blacklist.value = await window.api.invoke('loyalty:setBlacklisted', {
+      userLogin,
+      blacklisted
+    })
+    // Ein neu geblacklisteter Nutzer muss sofort aus der Rangliste verschwinden,
+    // ein entfernter taucht dort erst nach dem nächsten Fetch wieder auf.
+    await fetchLeaderboard()
+  }
+
   return {
     leaderboard,
     earnRules,
     games,
+    blacklist,
     error,
     fetchLeaderboard,
     fetchEarnRules,
@@ -77,9 +98,12 @@ export const useLoyaltyStore = defineStore('loyalty', () => {
     fetchGames,
     setGameEnabled,
     updateGameConfig,
+    renameGame,
     manualAdjust,
     updateAccount,
     importCsv,
-    exportCsv
+    exportCsv,
+    fetchBlacklist,
+    setBlacklisted
   }
 })

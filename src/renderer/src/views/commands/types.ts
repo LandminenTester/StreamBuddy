@@ -1,4 +1,4 @@
-import type { PermissionLevel } from '@shared/types/command'
+import type { CommandDeliveryMode, PermissionLevel } from '@shared/types/command'
 
 export interface CommandFormState {
   id: number | null
@@ -7,6 +7,7 @@ export interface CommandFormState {
   aliasesInput: string
   permissionLevel: PermissionLevel
   cooldownSeconds: number
+  deliveryMode: CommandDeliveryMode
   enabled: boolean
 }
 
@@ -18,6 +19,7 @@ export function emptyCommandForm(): CommandFormState {
     aliasesInput: '',
     permissionLevel: 'everyone',
     cooldownSeconds: 5,
+    deliveryMode: 'public',
     enabled: true
   }
 }

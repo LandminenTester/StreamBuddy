@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useLoyaltyStore } from '@renderer/stores/loyalty.store'
 import AccountEditModal from '@renderer/components/loyalty/AccountEditModal.vue'
 import type { AccountEditFormState } from './types'
@@ -7,6 +7,7 @@ import { EARN_RULE_LABELS, GAME_LABELS, numericConfigEntries } from './utils'
 import {
   applyPointsToAll,
   applyPointsToSelection,
+  renameGame,
   saveEarnRule,
   saveGameConfig,
   submitAccountEdit,
@@ -16,15 +17,25 @@ import {
 const store = useLoyaltyStore()
 const selectedLogins = ref<Set<string>>(new Set())
 const pointsAmount = ref(100)
+const searchQuery = ref('')
+
+const filteredLeaderboard = computed(() => {
+  const query = searchQuery.value.trim().toLowerCase()
+  if (!query) return store.leaderboard
+  return store.leaderboard.filter((entry) => entry.userLogin.toLowerCase().includes(query))
+})
 const isEditModalOpen = ref(false)
 const activeEditForm = ref<AccountEditFormState>({ userLogin: '', balance: 0 })
 const importResultMessage = ref<string | null>(null)
 const exportResultMessage = ref<string | null>(null)
 
+const isBlacklistOpen = ref(false)
+
 onMounted(() => {
   void store.fetchLeaderboard()
   void store.fetchEarnRules()
   void store.fetchGames()
+  void store.fetchBlacklist()
 })
 
 function handleRuleChange(index: number): void {
@@ -38,6 +49,11 @@ function handleToggleGame(gameId: string, event: Event): void {
 
 function handleConfigFieldChange(gameId: string, config: Record<string, unknown>): void {
   void saveGameConfig(store, gameId, config)
+}
+
+function handleRenameGame(gameId: string, event: Event): void {
+  const displayName = (event.target as HTMLInputElement).value
+  void renameGame(store, gameId, displayName)
 }
 
 function toggleSelection(userLogin: string, event: Event): void {
@@ -82,6 +98,15 @@ async function handleExportCsv(): Promise<void> {
   if (!result) return
   exportResultMessage.value = `${result.exportedCount} Konten exportiert.`
 }
+
+async function handleBlacklist(userLogin: string): Promise<void> {
+  selectedLogins.value.delete(userLogin)
+  await store.setBlacklisted(userLogin, true)
+}
+
+async function handleUnblacklist(userLogin: string): Promise<void> {
+  await store.setBlacklisted(userLogin, false)
+}
 </script>
 
 <template>
@@ -119,6 +144,15 @@ async function handleExportCsv(): Promise<void> {
         {{ exportResultMessage }}
       </p>
       <p v-if="store.error" class="mt-2 text-xs text-red-600">{{ store.error }}</p>
+
+      <div class="mt-3">
+        <input
+          v-model="searchQuery"
+          type="text"
+          placeholder="Nutzer suchen…"
+          class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+        />
+      </div>
 
       <div
         class="mt-3 flex flex-wrap items-center gap-2 rounded-md bg-slate-50 p-2 text-xs dark:bg-slate-900"
@@ -166,7 +200,13 @@ async function handleExportCsv(): Promise<void> {
           Noch keine Loyalty-Konten vorhanden.
         </li>
         <li
-          v-for="entry in store.leaderboard"
+          v-else-if="filteredLeaderboard.length === 0"
+          class="py-4 text-center text-sm text-slate-500"
+        >
+          Keine Treffer für "{{ searchQuery }}".
+        </li>
+        <li
+          v-for="entry in filteredLeaderboard"
           :key="entry.userLogin"
           class="flex items-center justify-between rounded-md px-2 py-1.5 text-sm odd:bg-slate-50 dark:odd:bg-slate-900"
         >
@@ -188,9 +228,49 @@ async function handleExportCsv(): Promise<void> {
             >
               Bearbeiten
             </button>
+            <button
+              class="text-xs text-slate-500 hover:text-red-600"
+              @click="handleBlacklist(entry.userLogin)"
+            >
+              Blacklisten
+            </button>
           </span>
         </li>
       </ol>
+    </section>
+
+    <section class="rounded-lg border border-slate-200 p-4 dark:border-slate-800">
+      <button
+        class="flex w-full items-center justify-between text-left"
+        @click="isBlacklistOpen = !isBlacklistOpen"
+      >
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">
+          Blacklist ({{ store.blacklist.length }})
+        </h2>
+        <span class="text-xs text-slate-400">{{ isBlacklistOpen ? '▲' : '▼' }}</span>
+      </button>
+      <p class="mt-1 text-xs text-slate-500">
+        Geblacklistete Nutzer verdienen keine Punkte, erscheinen nicht in der Rangliste und können
+        keine Loyalty-Games spielen.
+      </p>
+      <ul v-if="isBlacklistOpen" class="mt-3 space-y-1">
+        <li v-if="store.blacklist.length === 0" class="py-2 text-center text-sm text-slate-500">
+          Keine Nutzer geblacklistet.
+        </li>
+        <li
+          v-for="account in store.blacklist"
+          :key="account.userLogin"
+          class="flex items-center justify-between rounded-md px-2 py-1.5 text-sm odd:bg-slate-50 dark:odd:bg-slate-900"
+        >
+          <span>{{ account.userLogin }}</span>
+          <button
+            class="text-xs text-slate-500 hover:text-twitch-purple"
+            @click="handleUnblacklist(account.userLogin)"
+          >
+            Entfernen
+          </button>
+        </li>
+      </ul>
     </section>
 
     <AccountEditModal
@@ -260,13 +340,20 @@ async function handleExportCsv(): Promise<void> {
           class="rounded-md border border-slate-100 p-3 dark:border-slate-800"
         >
           <div class="flex items-center justify-between">
-            <div>
-              <p class="font-medium">{{ GAME_LABELS[game.gameId] ?? game.gameId }}</p>
-              <p class="text-xs text-slate-500">{{ game.commandTrigger }}</p>
+            <div class="min-w-0">
+              <p class="text-xs text-slate-500">{{ GAME_LABELS[game.gameId] ?? game.gameId }}</p>
+              <input
+                type="text"
+                :value="game.displayName ?? ''"
+                :placeholder="GAME_LABELS[game.gameId] ?? game.gameId"
+                class="mt-0.5 w-48 rounded-md border border-slate-300 px-2 py-1 font-medium dark:border-slate-700 dark:bg-slate-900"
+                @change="handleRenameGame(game.gameId, $event)"
+              />
+              <p class="mt-1 text-xs text-slate-500">{{ game.commandTrigger }}</p>
             </div>
             <input
               type="checkbox"
-              class="h-5 w-5 accent-twitch-purple"
+              class="h-5 w-5 shrink-0 accent-twitch-purple"
               :checked="game.enabled"
               @change="handleToggleGame(game.gameId, $event)"
             />
@@ -277,7 +364,7 @@ async function handleExportCsv(): Promise<void> {
               :key="key"
               class="text-xs text-slate-500"
             >
-              {{ key }}
+              {{ key }}<span v-if="key === 'maxBet'"> (0 = kein Limit)</span>
               <input
                 v-model.number="game.config[key]"
                 type="number"

@@ -2,7 +2,7 @@ import tmi from 'tmi.js'
 import type { ChatConnectionStatus } from '@shared/types/chat'
 import { readTokens } from '../oauth/tokenStore'
 import { getValidAccessToken } from '../oauth/tokenRefresher'
-import { getSetting } from '../../db/repositories/appSettings.repo'
+import { getSetting, setSetting } from '../../db/repositories/appSettings.repo'
 import { handleChatMessage } from './commandRouter'
 import {
   recordChatLineForAutomessages,
@@ -12,6 +12,10 @@ import {
 import { attachPresenceTracking, clearPresence } from './presenceTracker'
 import { recordChatMessageForStats } from './messageCounter'
 import { startViewTimeTicker, stopViewTimeTicker } from '../../loyalty/earnRules/onViewTimeTick'
+import {
+  startRouletteScheduler,
+  stopRouletteScheduler
+} from '../../loyalty/games/rouletteScheduler'
 import { startViewerCountPoller, stopViewerCountPoller } from '../../stats/viewerCountPoller'
 import { getMainWindow } from '../../window'
 import { IpcChannels } from '@shared/ipc/channels'
@@ -39,12 +43,30 @@ export async function sendChatMessage(message: string): Promise<void> {
   await client.say(status.channel, message)
 }
 
+/** Liest die Auto-Connect-Einstellung (Default: aktiviert, falls nie gesetzt). */
+export function isAutoConnectEnabled(): boolean {
+  return getSetting('chat_autoconnect') !== 'false'
+}
+
+export function setAutoConnectEnabled(enabled: boolean): void {
+  setSetting('chat_autoconnect', enabled ? 'true' : 'false')
+}
+
 /**
  * Baut die tmi.js-Verbindung zum konfigurierten Ziel-Channel auf, mit dem
  * gespeicherten Bot-Account-Token. Reconnect übernimmt tmi.js selbst
  * (options.connection.reconnect), inkl. exponentiellem Backoff.
+ *
+ * `manual`: true für explizit vom Nutzer ausgelöste Verbindungsversuche (Klick auf
+ * "Jetzt verbinden", Zielkanal speichern, OAuth-Erfolg) -- diese ignorieren die
+ * Auto-Connect-Einstellung bewusst. Der automatische Aufruf beim App-Start respektiert sie.
  */
-export async function connectChatClient(): Promise<void> {
+export async function connectChatClient(options: { manual?: boolean } = {}): Promise<void> {
+  if (!options.manual && !isAutoConnectEnabled()) {
+    setStatus({ connected: false, channel: null, lastError: 'Auto-Connect deaktiviert' })
+    return
+  }
+
   const tokens = readTokens()
   const targetChannel = getSetting('target_channel')
 
@@ -77,6 +99,7 @@ export async function connectChatClient(): Promise<void> {
       attachPresenceTracking(client)
       startViewTimeTicker()
       startViewerCountPoller()
+      startRouletteScheduler(client, targetChannel)
     }
   })
 
@@ -85,6 +108,7 @@ export async function connectChatClient(): Promise<void> {
     stopAutomessageScheduler()
     stopViewTimeTicker()
     stopViewerCountPoller()
+    stopRouletteScheduler()
     clearPresence()
   })
 
@@ -92,6 +116,14 @@ export async function connectChatClient(): Promise<void> {
     if (self || !client) return
     recordChatLineForAutomessages()
     recordChatMessageForStats((tags.username ?? '').toLowerCase())
+    getMainWindow()?.webContents.send(IpcChannels.chat.onMessage, {
+      id: tags.id ?? `${Date.now()}-${Math.random()}`,
+      username: tags.username ?? '',
+      displayName: tags['display-name'] ?? tags.username ?? '',
+      color: tags.color ?? null,
+      message,
+      timestamp: Date.now()
+    })
     void handleChatMessage(client, channel, tags, message)
   })
 
@@ -117,6 +149,7 @@ export async function disconnectChatClient(): Promise<void> {
   stopAutomessageScheduler()
   stopViewTimeTicker()
   stopViewerCountPoller()
+  stopRouletteScheduler()
   clearPresence()
   setStatus({ connected: false, channel: null, lastError: null })
 }

@@ -30,6 +30,12 @@ export const usePollsStore = defineStore('polls', () => {
     if (index !== -1) polls.value[index] = updated
   }
 
+  async function resetPoll(id: number): Promise<void> {
+    const updated = await window.api.invoke('polls:reset', { id })
+    const index = polls.value.findIndex((p) => p.id === id)
+    if (index !== -1) polls.value[index] = updated
+  }
+
   function subscribeToUpdates(): () => void {
     return window.api.on('polls:onUpdate', (updatedPoll) => {
       const index = polls.value.findIndex((p) => p.id === updatedPoll.id)
@@ -38,5 +44,14 @@ export const usePollsStore = defineStore('polls', () => {
     })
   }
 
-  return { polls, isCreating, error, fetchPolls, createPoll, endPoll, subscribeToUpdates }
+  return {
+    polls,
+    isCreating,
+    error,
+    fetchPolls,
+    createPoll,
+    endPoll,
+    resetPoll,
+    subscribeToUpdates
+  }
 })

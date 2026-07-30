@@ -6,7 +6,7 @@ import type {
   FeatureKey,
   FeatureScopeDefinition
 } from '../types/auth'
-import type { ChatConnectionStatus } from '../types/chat'
+import type { ChatConnectionStatus, ChatFeedMessage } from '../types/chat'
 import type { Automessage, AutomessageInput } from '../types/automessage'
 import type {
   ChannelPointReward,
@@ -14,7 +14,12 @@ import type {
   RedemptionLogEntry
 } from '../types/channelPointReward'
 import type { Poll, PollCreateInput, PollTemplate, PollTemplateInput } from '../types/poll'
-import type { LoyaltyEarnRule, LoyaltyGameInfo, LoyaltyLeaderboardEntry } from '../types/loyalty'
+import type {
+  LoyaltyAccount,
+  LoyaltyEarnRule,
+  LoyaltyGameInfo,
+  LoyaltyLeaderboardEntry
+} from '../types/loyalty'
 import type { ChatMessageStatsBucket, LiveStatsUpdate, ViewerCountSample } from '../types/stats'
 
 /**
@@ -51,6 +56,10 @@ export interface IpcContracts {
     response: ChatConnectionStatus
   }
   [IpcChannels.chat.onStatusChanged]: { request: void; response: ChatConnectionStatus }
+  [IpcChannels.chat.getAutoConnect]: { request: void; response: boolean }
+  [IpcChannels.chat.setAutoConnect]: { request: { enabled: boolean }; response: boolean }
+  [IpcChannels.chat.connect]: { request: void; response: ChatConnectionStatus }
+  [IpcChannels.chat.onMessage]: { request: void; response: ChatFeedMessage }
 
   [IpcChannels.automessages.list]: { request: void; response: Automessage[] }
   [IpcChannels.automessages.create]: { request: AutomessageInput; response: Automessage }
@@ -79,6 +88,7 @@ export interface IpcContracts {
     request: { id: number; winnerChoiceIndex?: number | null }
     response: Poll
   }
+  [IpcChannels.polls.reset]: { request: { id: number }; response: Poll }
   [IpcChannels.polls.getActive]: { request: void; response: Poll | null }
   [IpcChannels.polls.onUpdate]: { request: void; response: Poll }
 
@@ -115,6 +125,15 @@ export interface IpcContracts {
     response: { importedCount: number; errors: string[] } | null
   }
   [IpcChannels.loyalty.exportCsv]: { request: void; response: { exportedCount: number } | null }
+  [IpcChannels.loyalty.listBlacklist]: { request: void; response: LoyaltyAccount[] }
+  [IpcChannels.loyalty.setBlacklisted]: {
+    request: { userLogin: string; blacklisted: boolean }
+    response: LoyaltyAccount[]
+  }
+  [IpcChannels.loyalty.renameGame]: {
+    request: { gameId: string; displayName: string }
+    response: LoyaltyGameInfo[]
+  }
 
   [IpcChannels.stats.getMessagesPerHour]: {
     request: { sinceMs: number }

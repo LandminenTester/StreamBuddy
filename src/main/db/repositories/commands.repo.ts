@@ -8,6 +8,7 @@ interface CommandRow {
   aliases: string
   permission_level: Command['permissionLevel']
   cooldown_seconds: number
+  delivery_mode: Command['deliveryMode']
   enabled: number
   use_count: number
   created_at: number
@@ -22,6 +23,7 @@ function toDomain(row: CommandRow): Command {
     aliases: JSON.parse(row.aliases) as string[],
     permissionLevel: row.permission_level,
     cooldownSeconds: row.cooldown_seconds,
+    deliveryMode: row.delivery_mode,
     enabled: Boolean(row.enabled),
     useCount: row.use_count,
     createdAt: row.created_at,
@@ -38,8 +40,8 @@ export function createCommand(input: CommandInput): Command {
   const now = Date.now()
   const result = getDb()
     .prepare(
-      `INSERT INTO commands (trigger, response, aliases, permission_level, cooldown_seconds, enabled, created_at, updated_at)
-       VALUES (@trigger, @response, @aliases, @permissionLevel, @cooldownSeconds, @enabled, @now, @now)`
+      `INSERT INTO commands (trigger, response, aliases, permission_level, cooldown_seconds, delivery_mode, enabled, created_at, updated_at)
+       VALUES (@trigger, @response, @aliases, @permissionLevel, @cooldownSeconds, @deliveryMode, @enabled, @now, @now)`
     )
     .run({
       trigger: input.trigger,
@@ -47,6 +49,7 @@ export function createCommand(input: CommandInput): Command {
       aliases: JSON.stringify(input.aliases),
       permissionLevel: input.permissionLevel,
       cooldownSeconds: input.cooldownSeconds,
+      deliveryMode: input.deliveryMode,
       enabled: input.enabled ? 1 : 0,
       now
     })
@@ -62,7 +65,7 @@ export function updateCommand(id: number, patch: Partial<CommandInput>): Command
     .prepare(
       `UPDATE commands SET trigger = @trigger, response = @response, aliases = @aliases,
          permission_level = @permissionLevel, cooldown_seconds = @cooldownSeconds,
-         enabled = @enabled, updated_at = @now
+         delivery_mode = @deliveryMode, enabled = @enabled, updated_at = @now
        WHERE id = @id`
     )
     .run({
@@ -72,6 +75,7 @@ export function updateCommand(id: number, patch: Partial<CommandInput>): Command
       aliases: JSON.stringify(merged.aliases),
       permissionLevel: merged.permissionLevel,
       cooldownSeconds: merged.cooldownSeconds,
+      deliveryMode: merged.deliveryMode,
       enabled: merged.enabled ? 1 : 0,
       now: Date.now()
     })

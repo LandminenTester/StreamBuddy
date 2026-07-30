@@ -1,9 +1,10 @@
 import type { LoyaltyGame } from './LoyaltyGame'
 import { gambleGame } from './gambleGame'
 import { duelGame } from './duelGame'
+import { rouletteGame } from './rouletteGame'
 import { listGameConfigs, seedDefaultGameConfig } from '../../db/repositories/loyalty.repo'
 
-const GAMES: readonly LoyaltyGame[] = [gambleGame, duelGame]
+const GAMES: readonly LoyaltyGame[] = [gambleGame, duelGame, rouletteGame]
 
 export function getAllGames(): readonly LoyaltyGame[] {
   return GAMES

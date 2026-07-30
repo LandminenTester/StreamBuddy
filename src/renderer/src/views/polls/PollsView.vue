@@ -75,6 +75,11 @@ async function confirmEnding(): Promise<void> {
   cancelEnding()
 }
 
+async function handleReset(id: number): Promise<void> {
+  await store.resetPoll(id)
+  if (endingPollId.value === id) cancelEnding()
+}
+
 function openCreateTemplateModal(): void {
   activeTemplateForm.value = emptyPollTemplateForm()
   isTemplateModalOpen.value = true
@@ -118,13 +123,21 @@ async function handleSendTemplate(template: PollTemplate): Promise<void> {
     <section v-if="activePoll" class="rounded-lg border border-slate-200 p-4 dark:border-slate-800">
       <div class="flex items-center justify-between">
         <h2 class="font-medium">{{ activePoll.title }}</h2>
-        <button
-          v-if="endingPollId !== activePoll.id"
-          class="rounded-md border border-red-300 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 dark:border-red-800 dark:hover:bg-red-950"
-          @click="startEnding(activePoll.id)"
-        >
-          Beenden
-        </button>
+        <div v-if="endingPollId !== activePoll.id" class="flex items-center gap-2">
+          <button
+            class="rounded-md border border-red-300 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 dark:border-red-800 dark:hover:bg-red-950"
+            @click="startEnding(activePoll.id)"
+          >
+            Beenden
+          </button>
+          <button
+            class="rounded-md border border-slate-300 px-3 py-1.5 text-sm text-slate-500 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800"
+            title="Setzt die Umfrage nur lokal zurück, ohne Twitch zu kontaktieren -- für den Fall, dass sie auf Twitch längst nicht mehr existiert."
+            @click="handleReset(activePoll.id)"
+          >
+            Zurücksetzen
+          </button>
+        </div>
       </div>
       <div class="mt-3">
         <PollResultsBars :poll="activePoll" />

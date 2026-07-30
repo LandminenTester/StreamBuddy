@@ -4,6 +4,9 @@ import migration002 from './002_channel_points.sql?raw'
 import migration003 from './003_loyalty.sql?raw'
 import migration004 from './004_app_settings.sql?raw'
 import migration005 from './005_poll_winner_and_templates.sql?raw'
+import migration006 from './006_commands_delivery_mode.sql?raw'
+import migration007 from './007_loyalty_blacklist.sql?raw'
+import migration008 from './008_loyalty_game_display_name.sql?raw'
 import { logger } from '../../logger'
 
 /** Migrationen in Reihenfolge, Index+1 entspricht der Ziel-`user_version`. */
@@ -12,7 +15,10 @@ const MIGRATIONS: readonly string[] = [
   migration002,
   migration003,
   migration004,
-  migration005
+  migration005,
+  migration006,
+  migration007,
+  migration008
 ]
 
 /**
