@@ -24,3 +24,8 @@ nsis:
   createDesktopShortcut: always
 publish:
   provider: github
+  # release-please veroeffentlicht das GitHub-Release bereits vor diesem Build
+  # (nicht als Draft). Ohne releaseType: release erwartet electron-builder ein
+  # Draft-Release mit diesem Tag und bricht den Asset-Upload sonst mit
+  # "existing type not compatible with publishing type" stillschweigend ab.
+  releaseType: release
