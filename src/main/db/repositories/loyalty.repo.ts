@@ -15,6 +15,7 @@ interface AccountRow {
   total_earned: number
   total_wagered: number
   last_seen_at: number | null
+  is_blacklisted: number
 }
 
 function accountToDomain(row: AccountRow): LoyaltyAccount {
@@ -24,7 +25,8 @@ function accountToDomain(row: AccountRow): LoyaltyAccount {
     balance: row.balance,
     totalEarned: row.total_earned,
     totalWagered: row.total_wagered,
-    lastSeenAt: row.last_seen_at
+    lastSeenAt: row.last_seen_at,
+    isBlacklisted: Boolean(row.is_blacklisted)
   }
 }
 
@@ -94,7 +96,9 @@ export function applyTransaction(
 
 export function getLeaderboard(limit = 25): LoyaltyLeaderboardEntry[] {
   const rows = getDb()
-    .prepare<[number], AccountRow>('SELECT * FROM loyalty_accounts ORDER BY balance DESC LIMIT ?')
+    .prepare<[number], AccountRow>(
+      'SELECT * FROM loyalty_accounts WHERE is_blacklisted = 0 ORDER BY balance DESC LIMIT ?'
+    )
     .all(limit)
 
   return rows.map((row, index) => ({
@@ -104,12 +108,30 @@ export function getLeaderboard(limit = 25): LoyaltyLeaderboardEntry[] {
   }))
 }
 
-/** Alle Loyalty-Konten ohne Limit -- für CSV-Export und "an alle"-Massenaktionen. */
+/** Alle nicht geblacklisteten Loyalty-Konten ohne Limit -- für CSV-Export und "an alle"-Massenaktionen. */
 export function listAllAccounts(): LoyaltyAccount[] {
   return getDb()
-    .prepare<[], AccountRow>('SELECT * FROM loyalty_accounts ORDER BY balance DESC')
+    .prepare<[], AccountRow>(
+      'SELECT * FROM loyalty_accounts WHERE is_blacklisted = 0 ORDER BY balance DESC'
+    )
     .all()
     .map(accountToDomain)
+}
+
+/** Nur die geblacklisteten Konten -- tauchen sonst nirgends mehr auf, daher eigene Liste. */
+export function listBlacklistedAccounts(): LoyaltyAccount[] {
+  return getDb()
+    .prepare<[], AccountRow>(
+      'SELECT * FROM loyalty_accounts WHERE is_blacklisted = 1 ORDER BY user_login ASC'
+    )
+    .all()
+    .map(accountToDomain)
+}
+
+export function setAccountBlacklisted(userLogin: string, blacklisted: boolean): void {
+  getDb()
+    .prepare('UPDATE loyalty_accounts SET is_blacklisted = ? WHERE user_login = ?')
+    .run(blacklisted ? 1 : 0, userLogin.toLowerCase())
 }
 
 interface EarnRuleRow {
@@ -164,29 +186,40 @@ export function upsertEarnRule(rule: LoyaltyEarnRule): void {
 
 export function listGameConfigs(): LoyaltyGameConfig[] {
   return getDb()
-    .prepare<[], { game_id: string; enabled: number; config: string }>(
+    .prepare<[], { game_id: string; enabled: number; config: string; display_name: string | null }>(
       'SELECT * FROM loyalty_games_config'
     )
     .all()
     .map((row) => ({
       gameId: row.game_id,
       enabled: Boolean(row.enabled),
-      config: JSON.parse(row.config) as Record<string, unknown>
+      config: JSON.parse(row.config) as Record<string, unknown>,
+      displayName: row.display_name
     }))
 }
 
 export function upsertGameConfig(
   gameId: string,
   enabled: boolean,
-  config: Record<string, unknown>
+  config: Record<string, unknown>,
+  displayName?: string | null
 ): void {
+  const existing = listGameConfigs().find((c) => c.gameId === gameId)
+  const resolvedDisplayName =
+    displayName !== undefined ? displayName : (existing?.displayName ?? null)
+
   getDb()
     .prepare(
-      `INSERT INTO loyalty_games_config (game_id, enabled, config)
-       VALUES (@gameId, @enabled, @config)
-       ON CONFLICT (game_id) DO UPDATE SET enabled = @enabled, config = @config`
+      `INSERT INTO loyalty_games_config (game_id, enabled, config, display_name)
+       VALUES (@gameId, @enabled, @config, @displayName)
+       ON CONFLICT (game_id) DO UPDATE SET enabled = @enabled, config = @config, display_name = @displayName`
     )
-    .run({ gameId, enabled: enabled ? 1 : 0, config: JSON.stringify(config) })
+    .run({
+      gameId,
+      enabled: enabled ? 1 : 0,
+      config: JSON.stringify(config),
+      displayName: resolvedDisplayName
+    })
 }
 
 /** Legt eine Default-Game-Config nur an, falls noch keine existiert. */

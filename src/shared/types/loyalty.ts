@@ -8,6 +8,7 @@ export interface LoyaltyAccount {
   totalEarned: number
   totalWagered: number
   lastSeenAt: number | null
+  isBlacklisted: boolean
 }
 
 export interface LoyaltyTransaction {
@@ -30,6 +31,7 @@ export interface LoyaltyGameConfig {
   gameId: string
   enabled: boolean
   config: Record<string, unknown>
+  displayName: string | null
 }
 
 export interface LoyaltyGameInfo extends LoyaltyGameConfig {

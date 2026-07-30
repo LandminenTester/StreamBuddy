@@ -9,7 +9,8 @@ export const EARN_RULE_LABELS: Record<LoyaltyEarnRule['reason'], string> = {
 
 export const GAME_LABELS: Record<string, string> = {
   gamble: 'Gamble',
-  duel: 'Duell'
+  duel: 'Duell',
+  roulette: 'Roulette'
 }
 
 /** Nur numerische Config-Felder eines Spiels sind über die generische UI editierbar. */

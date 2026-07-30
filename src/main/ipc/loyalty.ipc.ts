@@ -5,9 +5,12 @@ import { IpcChannels } from '@shared/ipc/channels'
 import { handleTyped } from './handleTyped'
 import {
   getLeaderboard,
+  getOrCreateAccount,
   listAllAccounts,
+  listBlacklistedAccounts,
   listEarnRules,
   listGameConfigs,
+  setAccountBlacklisted,
   upsertEarnRule,
   upsertGameConfig
 } from '../db/repositories/loyalty.repo'
@@ -27,7 +30,8 @@ function listGamesWithInfo(): LoyaltyGameInfo[] {
       gameId: game.id,
       commandTrigger: game.commandTrigger,
       enabled: stored?.enabled ?? true,
-      config: getGameRuntimeConfig(game.id)
+      config: getGameRuntimeConfig(game.id),
+      displayName: stored?.displayName ?? null
     }
   })
 }
@@ -56,6 +60,13 @@ export function registerLoyaltyIpc(): void {
   handleTyped(IpcChannels.loyalty.updateGameConfig, ({ gameId, config }) => {
     const existingEnabled = listGameConfigs().find((c) => c.gameId === gameId)?.enabled ?? true
     upsertGameConfig(gameId, existingEnabled, config)
+    return listGamesWithInfo()
+  })
+
+  handleTyped(IpcChannels.loyalty.renameGame, ({ gameId, displayName }) => {
+    const existing = listGameConfigs().find((c) => c.gameId === gameId)
+    const config = existing?.config ?? getGameRuntimeConfig(gameId)
+    upsertGameConfig(gameId, existing?.enabled ?? true, config, displayName.trim() || null)
     return listGamesWithInfo()
   })
 
@@ -131,5 +142,13 @@ export function registerLoyaltyIpc(): void {
     await writeFile(result.filePath, serializeLoyaltyCsv(accounts), 'utf-8')
 
     return { exportedCount: accounts.length }
+  })
+
+  handleTyped(IpcChannels.loyalty.listBlacklist, () => listBlacklistedAccounts())
+
+  handleTyped(IpcChannels.loyalty.setBlacklisted, ({ userLogin, blacklisted }) => {
+    getOrCreateAccount(userLogin)
+    setAccountBlacklisted(userLogin, blacklisted)
+    return listBlacklistedAccounts()
   })
 }

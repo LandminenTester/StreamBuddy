@@ -9,14 +9,21 @@ import {
  * Einzige Schreibstelle für Loyalty-Kontostände. Jede Gutschrift/Abbuchung
  * erzeugt einen Ledger-Eintrag + atomare Balance-Fortschreibung (siehe
  * loyalty.repo.applyTransaction, in einer SQLite-Transaktion).
+ *
+ * Geblacklistete Konten (siehe loyalty.repo.setAccountBlacklisted) verdienen und
+ * verlieren hierüber keine Punkte mehr -- betrifft automatisches Earn (Follow/Sub/
+ * View-Time) und Game-Payouts. Manuelle Anpassungen laufen bewusst NICHT über
+ * creditLoyalty/debitLoyalty (siehe applyManualAdjustment/setAccountBalance unten),
+ * damit Admins geblacklistete Konten weiterhin gezielt bearbeiten können.
  */
 export function creditLoyalty(
   userLogin: string,
   amount: number,
   reason: LoyaltyTransactionReason,
   gameId: string | null = null
-): LoyaltyTransaction {
+): LoyaltyTransaction | null {
   const account = getOrCreateAccount(userLogin)
+  if (account.isBlacklisted) return null
   return applyTransaction(account.id, amount, reason, gameId)
 }
 
@@ -30,8 +37,9 @@ export function debitLoyalty(
   amount: number,
   reason: LoyaltyTransactionReason,
   gameId: string | null = null
-): LoyaltyTransaction {
+): LoyaltyTransaction | null {
   const account = getOrCreateAccount(userLogin)
+  if (account.isBlacklisted) return null
   if (account.balance < amount) {
     throw new Error(`Unzureichender Kontostand für ${userLogin}: ${account.balance} < ${amount}`)
   }
