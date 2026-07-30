@@ -1,6 +1,6 @@
 {
   "name": "streaming-bot",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Twitch Streaming Bot Desktop App (Electron + Vue 3)",
   "main": "./out/main/index.js",
   "author": "Vinewood Legacy",
