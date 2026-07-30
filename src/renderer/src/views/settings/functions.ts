@@ -14,7 +14,8 @@ export async function initSettings(
     authStore.fetchFeatures(),
     authStore.fetchClientId(),
     chatStore.fetchStatus(),
-    chatStore.fetchTargetChannel()
+    chatStore.fetchTargetChannel(),
+    chatStore.fetchAutoConnect()
   ])
   const unsubscribeAuth = authStore.subscribeToStatusChanges()
   const unsubscribeDeviceAuth = authStore.subscribeToDeviceAuthPrompt()

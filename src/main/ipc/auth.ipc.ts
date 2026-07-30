@@ -37,7 +37,7 @@ export function registerAuthIpc(): void {
       await runOAuthFlow((prompt) => {
         getMainWindow()?.webContents.send(IpcChannels.auth.onDeviceCodeReady, prompt)
       })
-      await connectChatClient()
+      await connectChatClient({ manual: true })
       await syncEventSubConnection()
     } catch (error) {
       logger.error('Twitch-OAuth-Flow fehlgeschlagen', error)

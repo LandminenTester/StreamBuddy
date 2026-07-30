@@ -38,6 +38,15 @@ function handleSaveClientId(): void {
   if (!clientIdInput.value.trim()) return
   void authStore.saveClientId(clientIdInput.value.trim())
 }
+
+function handleToggleAutoConnect(event: Event): void {
+  const enabled = (event.target as HTMLInputElement).checked
+  void chatStore.setAutoConnect(enabled)
+}
+
+function handleConnectNow(): void {
+  void chatStore.connectNow()
+}
 </script>
 
 <template>
@@ -224,6 +233,26 @@ function handleSaveClientId(): void {
           <span v-if="chatStore.status.lastError">({{ chatStore.status.lastError }})</span>
         </span>
       </p>
+
+      <div class="mt-3 flex items-center justify-between gap-4">
+        <label class="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            class="h-4 w-4 shrink-0 accent-twitch-purple"
+            :checked="chatStore.autoConnect"
+            @change="handleToggleAutoConnect"
+          />
+          Automatisch verbinden (beim App-Start)
+        </label>
+        <button
+          v-if="!chatStore.autoConnect"
+          class="rounded-md border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:hover:bg-slate-800"
+          :disabled="chatStore.isConnecting"
+          @click="handleConnectNow"
+        >
+          {{ chatStore.isConnecting ? 'Verbinde…' : 'Jetzt verbinden' }}
+        </button>
+      </div>
     </section>
 
     <section class="rounded-lg border border-slate-200 p-4 dark:border-slate-800">
@@ -233,9 +262,9 @@ function handleSaveClientId(): void {
         <li
           v-for="feature in authStore.features"
           :key="feature.featureKey"
-          class="flex items-center justify-between py-3"
+          class="flex items-center justify-between gap-4 py-3"
         >
-          <div>
+          <div class="min-w-0">
             <p class="font-medium">
               {{ labelForFeature(feature.featureKey)?.title ?? feature.featureKey }}
             </p>
@@ -245,7 +274,7 @@ function handleSaveClientId(): void {
           </div>
           <input
             type="checkbox"
-            class="h-5 w-5 accent-twitch-purple"
+            class="h-5 w-5 shrink-0 accent-twitch-purple"
             :checked="feature.enabled"
             @change="handleToggle(feature.featureKey, $event)"
           />
