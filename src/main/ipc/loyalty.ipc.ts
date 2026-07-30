@@ -1,8 +1,11 @@
+import { dialog } from 'electron'
+import { readFile, writeFile } from 'fs/promises'
 import type { LoyaltyGameInfo } from '@shared/types/loyalty'
 import { IpcChannels } from '@shared/ipc/channels'
 import { handleTyped } from './handleTyped'
 import {
   getLeaderboard,
+  listAllAccounts,
   listEarnRules,
   listGameConfigs,
   upsertEarnRule,
@@ -10,7 +13,11 @@ import {
 } from '../db/repositories/loyalty.repo'
 import { startViewTimeTicker } from '../loyalty/earnRules/onViewTimeTick'
 import { getAllGames, getGameRuntimeConfig } from '../loyalty/games/gameRegistry'
+import { applyManualAdjustment, setAccountBalance } from '../loyalty/loyaltyLedger'
+import { parseLoyaltyCsv, serializeLoyaltyCsv } from '../loyalty/csv'
 import { getChatStatus } from '../twitch/chat/tmiClient'
+import { getMainWindow } from '../window'
+import { logger } from '../logger'
 
 function listGamesWithInfo(): LoyaltyGameInfo[] {
   const configs = listGameConfigs()
@@ -50,5 +57,79 @@ export function registerLoyaltyIpc(): void {
     const existingEnabled = listGameConfigs().find((c) => c.gameId === gameId)?.enabled ?? true
     upsertGameConfig(gameId, existingEnabled, config)
     return listGamesWithInfo()
+  })
+
+  handleTyped(IpcChannels.loyalty.manualAdjust, ({ userLogins, amount }) => {
+    if (typeof amount !== 'number' || !Number.isFinite(amount) || amount === 0) {
+      throw new Error('Betrag muss eine Zahl ungleich 0 sein')
+    }
+    if (userLogins !== 'all' && userLogins.length === 0) {
+      throw new Error('Keine Nutzer ausgewählt')
+    }
+    applyManualAdjustment(userLogins, amount)
+    return getLeaderboard()
+  })
+
+  handleTyped(IpcChannels.loyalty.updateAccount, ({ userLogin, balance }) => {
+    if (typeof balance !== 'number' || !Number.isFinite(balance) || balance < 0) {
+      throw new Error('Kontostand muss eine Zahl >= 0 sein')
+    }
+    setAccountBalance(userLogin, balance)
+    return getLeaderboard()
+  })
+
+  handleTyped(IpcChannels.loyalty.importCsv, async () => {
+    const window = getMainWindow()
+    const result = window
+      ? await dialog.showOpenDialog(window, {
+          title: 'Loyalty-Rangliste per CSV importieren',
+          filters: [{ name: 'CSV', extensions: ['csv'] }],
+          properties: ['openFile']
+        })
+      : await dialog.showOpenDialog({
+          title: 'Loyalty-Rangliste per CSV importieren',
+          filters: [{ name: 'CSV', extensions: ['csv'] }],
+          properties: ['openFile']
+        })
+
+    if (result.canceled || result.filePaths.length === 0) return null
+
+    const content = await readFile(result.filePaths[0], 'utf-8')
+    const { rows, errors } = parseLoyaltyCsv(content)
+
+    let importedCount = 0
+    for (const row of rows) {
+      try {
+        setAccountBalance(row.userLogin, row.balance)
+        importedCount++
+      } catch (error) {
+        logger.error(`CSV-Import: Konnte Konto "${row.userLogin}" nicht setzen`, error)
+        errors.push(`${row.userLogin}: ${(error as Error).message}`)
+      }
+    }
+
+    return { importedCount, errors }
+  })
+
+  handleTyped(IpcChannels.loyalty.exportCsv, async () => {
+    const window = getMainWindow()
+    const result = window
+      ? await dialog.showSaveDialog(window, {
+          title: 'Loyalty-Rangliste als CSV exportieren',
+          defaultPath: 'loyalty-rangliste.csv',
+          filters: [{ name: 'CSV', extensions: ['csv'] }]
+        })
+      : await dialog.showSaveDialog({
+          title: 'Loyalty-Rangliste als CSV exportieren',
+          defaultPath: 'loyalty-rangliste.csv',
+          filters: [{ name: 'CSV', extensions: ['csv'] }]
+        })
+
+    if (result.canceled || !result.filePath) return null
+
+    const accounts = listAllAccounts()
+    await writeFile(result.filePath, serializeLoyaltyCsv(accounts), 'utf-8')
+
+    return { exportedCount: accounts.length }
   })
 }

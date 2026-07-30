@@ -104,6 +104,14 @@ export function getLeaderboard(limit = 25): LoyaltyLeaderboardEntry[] {
   }))
 }
 
+/** Alle Loyalty-Konten ohne Limit -- für CSV-Export und "an alle"-Massenaktionen. */
+export function listAllAccounts(): LoyaltyAccount[] {
+  return getDb()
+    .prepare<[], AccountRow>('SELECT * FROM loyalty_accounts ORDER BY balance DESC')
+    .all()
+    .map(accountToDomain)
+}
+
 interface EarnRuleRow {
   reason: LoyaltyEarnRule['reason']
   points: number

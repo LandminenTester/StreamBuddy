@@ -10,6 +10,7 @@ export const useLoyaltyStore = defineStore('loyalty', () => {
   const leaderboard = ref<LoyaltyLeaderboardEntry[]>([])
   const earnRules = ref<LoyaltyEarnRule[]>([])
   const games = ref<LoyaltyGameInfo[]>([])
+  const error = ref<string | null>(null)
 
   async function fetchLeaderboard(): Promise<void> {
     leaderboard.value = await window.api.invoke('loyalty:getLeaderboard', undefined)
@@ -35,15 +36,50 @@ export const useLoyaltyStore = defineStore('loyalty', () => {
     games.value = await window.api.invoke('loyalty:updateGameConfig', { gameId, config })
   }
 
+  async function manualAdjust(userLogins: string[] | 'all', amount: number): Promise<void> {
+    error.value = null
+    try {
+      leaderboard.value = await window.api.invoke('loyalty:manualAdjust', { userLogins, amount })
+    } catch (err) {
+      error.value = (err as Error).message
+    }
+  }
+
+  async function updateAccount(userLogin: string, balance: number): Promise<void> {
+    error.value = null
+    try {
+      leaderboard.value = await window.api.invoke('loyalty:updateAccount', { userLogin, balance })
+    } catch (err) {
+      error.value = (err as Error).message
+    }
+  }
+
+  async function importCsv(): Promise<{ importedCount: number; errors: string[] } | null> {
+    error.value = null
+    const result = await window.api.invoke('loyalty:importCsv', undefined)
+    if (result) await fetchLeaderboard()
+    return result
+  }
+
+  async function exportCsv(): Promise<{ exportedCount: number } | null> {
+    error.value = null
+    return window.api.invoke('loyalty:exportCsv', undefined)
+  }
+
   return {
     leaderboard,
     earnRules,
     games,
+    error,
     fetchLeaderboard,
     fetchEarnRules,
     updateEarnRule,
     fetchGames,
     setGameEnabled,
-    updateGameConfig
+    updateGameConfig,
+    manualAdjust,
+    updateAccount,
+    importCsv,
+    exportCsv
   }
 })
