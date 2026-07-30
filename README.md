@@ -39,7 +39,7 @@ Eigenes App-Icon: `build/icon.ico` ablegen (ansonsten nutzt electron-builder ein
    - **Client-Typ**: `Öffentlich` (Public) -- wichtig, da die App keinen Server hat, der ein Client-Secret sicher verwahren könnte.
    - **OAuth Redirect URLs**: leer lassen -- der Device Code Grant Flow braucht keine Redirect-URI.
    - **Kategorie**: z.B. "Chat Bot" (rein informativ für Twitch, ohne funktionale Auswirkung).
-2. `.env.example` nach `.env` kopieren und `MAIN_VITE_TWITCH_CLIENT_ID` mit der erzeugten Client-ID befüllen.
+2. Die erzeugte **Client-ID** in der App unter Einstellungen -> "Twitch-Client-ID" eintragen und speichern. Die Client-ID liegt lokal in der SQLite-DB, nicht in einer `.env`-Datei -- sie kann jederzeit über die UI geändert werden, auch in der fertig gebauten App, ohne Neubau.
 3. Der verwendete Twitch-Account sollte ein **separater Bot-Account** sein, der als Moderator im Zielkanal eingesetzt ist.
 4. Beim Verbinden in der App (Einstellungen -> "Mit Twitch verbinden") zeigt die App einen Code an, der auf `https://www.twitch.tv/activate` eingegeben werden muss (öffnet sich automatisch im Standardbrowser).
 5. Hinweis: Für die **Kanalpunkte-Verwaltung** (Custom Rewards anlegen/ändern) verlangt Twitch ein Token des Broadcaster-Accounts selbst — ein reiner Moderator-Bot-Token kann nur auf bestehende Redemptions reagieren, aber keine neuen Rewards erstellen.

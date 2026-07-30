@@ -15,3 +15,11 @@ export function emptyPollForm(): PollFormState {
     channelPointsPerVote: 0
   }
 }
+
+export interface PollTemplateFormState extends PollFormState {
+  id: number | null
+}
+
+export function emptyPollTemplateForm(): PollTemplateFormState {
+  return { id: null, ...emptyPollForm() }
+}

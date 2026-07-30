@@ -10,6 +10,7 @@ export const useChannelPointsStore = defineStore('channelPoints', () => {
   const rewards = ref<ChannelPointReward[]>([])
   const redemptions = ref<RedemptionLogEntry[]>([])
   const isLoading = ref(false)
+  const error = ref<string | null>(null)
 
   async function fetchRewards(): Promise<void> {
     isLoading.value = true
@@ -25,8 +26,14 @@ export const useChannelPointsStore = defineStore('channelPoints', () => {
   }
 
   async function createReward(input: ChannelPointRewardInput): Promise<void> {
-    const created = await window.api.invoke('channelPoints:create', input)
-    rewards.value.push(created)
+    error.value = null
+    try {
+      const created = await window.api.invoke('channelPoints:create', input)
+      rewards.value.push(created)
+    } catch (err) {
+      error.value = (err as Error).message
+      throw err
+    }
   }
 
   async function updateReward(id: number, patch: Partial<ChannelPointRewardInput>): Promise<void> {
@@ -50,6 +57,7 @@ export const useChannelPointsStore = defineStore('channelPoints', () => {
     rewards,
     redemptions,
     isLoading,
+    error,
     fetchRewards,
     fetchRedemptions,
     createReward,

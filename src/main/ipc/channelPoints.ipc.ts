@@ -45,8 +45,16 @@ export function registerChannelPointsIpc(): void {
       setRewardTwitchSync(created.id, twitchReward.id, Date.now())
       return getRewardById(created.id)
     } catch (error) {
+      // Nicht verschlucken: ohne twitchRewardId würden Redemptions dieser Belohnung
+      // später von handleRedemptionAddEvent unauffindbar sein (nur ein logger.warn,
+      // Aktion feuert nie). Lieber die DB-Zeile zurücknehmen und den Fehler an die UI
+      // durchreichen, damit der Nutzer den Reward erneut anlegt statt scheinbar
+      // funktionsfähig im nicht-synchronisierten Zustand zu belassen.
+      deleteReward(created.id)
       logger.error('Twitch-Reward-Sync bei create fehlgeschlagen', error)
-      return created
+      throw new Error(
+        `Reward konnte nicht mit Twitch synchronisiert werden: ${(error as Error).message}`
+      )
     }
   })
 

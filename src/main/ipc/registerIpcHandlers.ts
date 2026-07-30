@@ -4,6 +4,7 @@ import { registerChatIpc } from './chat.ipc'
 import { registerAutomessagesIpc } from './automessages.ipc'
 import { registerChannelPointsIpc } from './channelPoints.ipc'
 import { registerPollsIpc } from './polls.ipc'
+import { registerPollTemplatesIpc } from './pollTemplates.ipc'
 import { registerLoyaltyIpc } from './loyalty.ipc'
 import { registerStatsIpc } from './stats.ipc'
 
@@ -19,6 +20,7 @@ export function registerIpcHandlers(): void {
   registerAutomessagesIpc()
   registerChannelPointsIpc()
   registerPollsIpc()
+  registerPollTemplatesIpc()
   registerLoyaltyIpc()
   registerStatsIpc()
 }

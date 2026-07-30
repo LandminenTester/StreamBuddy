@@ -112,7 +112,12 @@ function handleMessage(raw: string): void {
     const eventData = message.payload.event
 
     if (eventType === 'channel.channel_points_custom_reward_redemption.add' && broadcasterId) {
-      void handleRedemptionAddEvent(eventData, broadcasterId)
+      // Fire-and-forget, aber ohne try/catch würde ein Fehler hier (z.B. beim
+      // Chat-Nachricht-Senden) als unhandled promise rejection verschwinden --
+      // unsichtbar für den Nutzer, kein Log, kein Hinweis auf den Fehlschlag.
+      handleRedemptionAddEvent(eventData, broadcasterId).catch((error) => {
+        logger.error('Verarbeitung der Channel-Points-Redemption fehlgeschlagen', error)
+      })
     } else if (eventType === 'channel.poll.progress') {
       handlePollProgressEvent(eventData)
     } else if (eventType === 'channel.poll.end') {

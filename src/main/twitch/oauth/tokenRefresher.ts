@@ -1,4 +1,5 @@
 import { readTokens, storeTokens, type DecryptedTokens } from './tokenStore'
+import { requireTwitchClientId } from './clientId'
 import { logger } from '../../logger'
 
 const TOKEN_ENDPOINT = 'https://id.twitch.tv/oauth2/token'
@@ -13,7 +14,7 @@ interface TokenResponse {
 }
 
 async function refreshAccessToken(current: DecryptedTokens): Promise<DecryptedTokens> {
-  const clientId = import.meta.env.MAIN_VITE_TWITCH_CLIENT_ID
+  const clientId = requireTwitchClientId()
 
   const body = new URLSearchParams({
     client_id: clientId,

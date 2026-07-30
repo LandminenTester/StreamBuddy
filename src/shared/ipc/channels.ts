@@ -16,7 +16,9 @@ export const IpcChannels = {
     listFeatures: 'auth:listFeatures',
     setFeatureEnabled: 'auth:setFeatureEnabled',
     onStatusChanged: 'auth:onStatusChanged',
-    onDeviceCodeReady: 'auth:onDeviceCodeReady'
+    onDeviceCodeReady: 'auth:onDeviceCodeReady',
+    getClientId: 'auth:getClientId',
+    setClientId: 'auth:setClientId'
   },
   chat: {
     getStatus: 'chat:getStatus',
@@ -45,13 +47,23 @@ export const IpcChannels = {
     getActive: 'polls:getActive',
     onUpdate: 'polls:onUpdate'
   },
+  pollTemplates: {
+    list: 'pollTemplates:list',
+    create: 'pollTemplates:create',
+    update: 'pollTemplates:update',
+    delete: 'pollTemplates:delete'
+  },
   loyalty: {
     getLeaderboard: 'loyalty:getLeaderboard',
     listEarnRules: 'loyalty:listEarnRules',
     updateEarnRule: 'loyalty:updateEarnRule',
     listGames: 'loyalty:listGames',
     setGameEnabled: 'loyalty:setGameEnabled',
-    updateGameConfig: 'loyalty:updateGameConfig'
+    updateGameConfig: 'loyalty:updateGameConfig',
+    manualAdjust: 'loyalty:manualAdjust',
+    updateAccount: 'loyalty:updateAccount',
+    importCsv: 'loyalty:importCsv',
+    exportCsv: 'loyalty:exportCsv'
   },
   stats: {
     getMessagesPerHour: 'stats:getMessagesPerHour',

@@ -7,6 +7,7 @@ import { logger } from '../logger'
 export async function runRedemptionAction(reward: ChannelPointReward): Promise<void> {
   if (reward.actionType === 'chat_message' && reward.actionPayload?.message) {
     await sendChatMessage(reward.actionPayload.message)
+    logger.info(`Redemption-Aktion: Chatnachricht für Reward "${reward.title}" gesendet`)
     return
   }
 
@@ -14,8 +15,16 @@ export async function runRedemptionAction(reward: ChannelPointReward): Promise<v
     try {
       const command = getCommandById(reward.actionPayload.commandId)
       await sendChatMessage(command.response)
+      logger.info(`Redemption-Aktion: Command für Reward "${reward.title}" ausgelöst`)
     } catch (error) {
       logger.error(`Redemption-Aktion: Command nicht gefunden für Reward "${reward.title}"`, error)
     }
+    return
+  }
+
+  if (reward.actionType !== 'none') {
+    logger.warn(
+      `Redemption-Aktion für Reward "${reward.title}" übersprungen: actionType=${reward.actionType}, aber keine gültige actionPayload konfiguriert`
+    )
   }
 }

@@ -12,6 +12,7 @@ export async function initSettings(
   await Promise.all([
     authStore.fetchStatus(),
     authStore.fetchFeatures(),
+    authStore.fetchClientId(),
     chatStore.fetchStatus(),
     chatStore.fetchTargetChannel()
   ])
