@@ -65,7 +65,7 @@ async function handleDelete(id: number): Promise<void> {
       <div class="flex items-center justify-between">
         <div>
           <h1 class="text-2xl font-semibold">Kanalpunkte</h1>
-          <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+          <p class="mt-1 text-sm text-slate-500 dark:text-neutral-400">
             Custom Rewards verwalten und auf Einlösungen reagieren.
           </p>
         </div>
@@ -88,9 +88,9 @@ async function handleDelete(id: number): Promise<void> {
         nie. Aktiviere es unter Einstellungen → Features.
       </div>
 
-      <div class="mt-6 overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
+      <div class="mt-6 overflow-x-auto rounded-lg border border-slate-200 dark:border-neutral-800">
         <table class="w-full text-left text-sm">
-          <thead class="bg-slate-50 text-xs uppercase text-slate-500 dark:bg-slate-900">
+          <thead class="bg-slate-50 text-xs uppercase text-slate-500 dark:bg-neutral-900">
             <tr>
               <th class="px-4 py-2">Titel</th>
               <th class="px-4 py-2">Kosten</th>
@@ -99,7 +99,7 @@ async function handleDelete(id: number): Promise<void> {
               <th class="px-4 py-2" />
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+          <tbody class="divide-y divide-slate-100 dark:divide-neutral-800">
             <tr v-if="store.rewards.length === 0">
               <td colspan="5" class="px-4 py-6 text-center text-slate-500">
                 Noch keine Rewards angelegt.
@@ -121,7 +121,7 @@ async function handleDelete(id: number): Promise<void> {
                   :class="
                     reward.isEnabled
                       ? 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300'
-                      : 'bg-slate-100 text-slate-500 dark:bg-slate-800'
+                      : 'bg-slate-100 text-slate-500 dark:bg-neutral-800'
                   "
                 >
                   {{ reward.isEnabled ? 'Aktiv' : 'Deaktiviert' }}
@@ -154,14 +154,14 @@ async function handleDelete(id: number): Promise<void> {
       <ul class="mt-3 space-y-2">
         <li
           v-if="store.redemptions.length === 0"
-          class="rounded-lg border border-slate-200 p-4 text-center text-sm text-slate-500 dark:border-slate-800"
+          class="rounded-lg border border-slate-200 p-4 text-center text-sm text-slate-500 dark:border-neutral-800"
         >
           Noch keine Einlösungen.
         </li>
         <li
           v-for="entry in store.redemptions"
           :key="entry.id"
-          class="flex items-center justify-between rounded-lg border border-slate-200 px-4 py-2 text-sm dark:border-slate-800"
+          class="flex items-center justify-between rounded-lg border border-slate-200 px-4 py-2 text-sm dark:border-neutral-800"
         >
           <span
             >{{ entry.userLogin

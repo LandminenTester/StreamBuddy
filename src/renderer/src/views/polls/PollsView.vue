@@ -115,12 +115,15 @@ async function handleSendTemplate(template: PollTemplate): Promise<void> {
   <div class="space-y-8">
     <div>
       <h1 class="text-2xl font-semibold">Umfragen</h1>
-      <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+      <p class="mt-1 text-sm text-slate-500 dark:text-neutral-400">
         Twitch-Polls erstellen und Ergebnisse live verfolgen.
       </p>
     </div>
 
-    <section v-if="activePoll" class="rounded-lg border border-slate-200 p-4 dark:border-slate-800">
+    <section
+      v-if="activePoll"
+      class="rounded-lg border border-slate-200 p-4 dark:border-neutral-800"
+    >
       <div class="flex items-center justify-between">
         <h2 class="font-medium">{{ activePoll.title }}</h2>
         <div v-if="endingPollId !== activePoll.id" class="flex items-center gap-2">
@@ -131,7 +134,7 @@ async function handleSendTemplate(template: PollTemplate): Promise<void> {
             Beenden
           </button>
           <button
-            class="rounded-md border border-slate-300 px-3 py-1.5 text-sm text-slate-500 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800"
+            class="rounded-md border border-slate-300 px-3 py-1.5 text-sm text-slate-500 hover:bg-slate-50 dark:border-neutral-700 dark:hover:bg-neutral-800"
             title="Setzt die Umfrage nur lokal zurück, ohne Twitch zu kontaktieren -- für den Fall, dass sie auf Twitch längst nicht mehr existiert."
             @click="handleReset(activePoll.id)"
           >
@@ -145,7 +148,7 @@ async function handleSendTemplate(template: PollTemplate): Promise<void> {
 
       <div
         v-if="endingPollId === activePoll.id"
-        class="mt-3 rounded-md border border-slate-200 p-3 dark:border-slate-800"
+        class="mt-3 rounded-md border border-slate-200 p-3 dark:border-neutral-800"
       >
         <p class="text-xs font-medium text-slate-500">Gewinner auswählen und Umfrage beenden:</p>
         <div class="mt-2 space-y-1">
@@ -165,7 +168,7 @@ async function handleSendTemplate(template: PollTemplate): Promise<void> {
         </div>
         <div class="mt-3 flex justify-end gap-2">
           <button
-            class="rounded-md border border-slate-300 px-3 py-1.5 text-sm dark:border-slate-700"
+            class="rounded-md border border-slate-300 px-3 py-1.5 text-sm dark:border-neutral-700"
             @click="cancelEnding"
           >
             Abbrechen
@@ -180,7 +183,7 @@ async function handleSendTemplate(template: PollTemplate): Promise<void> {
       </div>
     </section>
 
-    <section v-else class="rounded-lg border border-slate-200 p-4 dark:border-slate-800">
+    <section v-else class="rounded-lg border border-slate-200 p-4 dark:border-neutral-800">
       <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Neue Umfrage</h2>
       <form class="mt-3 space-y-3" @submit.prevent="handleCreate">
         <div>
@@ -189,7 +192,7 @@ async function handleSendTemplate(template: PollTemplate): Promise<void> {
             v-model="form.title"
             type="text"
             required
-            class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+            class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
           />
         </div>
         <div>
@@ -200,7 +203,7 @@ async function handleSendTemplate(template: PollTemplate): Promise<void> {
             v-model="form.choicesInput"
             rows="4"
             required
-            class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+            class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
           />
         </div>
         <div>
@@ -210,7 +213,7 @@ async function handleSendTemplate(template: PollTemplate): Promise<void> {
             type="number"
             min="15"
             max="1800"
-            class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+            class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
           />
         </div>
         <label class="flex items-center gap-2 text-sm">
@@ -227,7 +230,7 @@ async function handleSendTemplate(template: PollTemplate): Promise<void> {
             v-model.number="form.channelPointsPerVote"
             type="number"
             min="1"
-            class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+            class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
           />
         </div>
 
@@ -243,7 +246,7 @@ async function handleSendTemplate(template: PollTemplate): Promise<void> {
           </button>
           <button
             type="button"
-            class="rounded-md border border-slate-300 px-4 py-2 text-sm dark:border-slate-700"
+            class="rounded-md border border-slate-300 px-4 py-2 text-sm dark:border-neutral-700"
             @click="handleSaveAsTemplate"
           >
             Als Template speichern
@@ -252,13 +255,13 @@ async function handleSendTemplate(template: PollTemplate): Promise<void> {
       </form>
     </section>
 
-    <section class="rounded-lg border border-slate-200 p-4 dark:border-slate-800">
+    <section class="rounded-lg border border-slate-200 p-4 dark:border-neutral-800">
       <div class="flex items-center justify-between">
         <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">
           Umfrage-Templates
         </h2>
         <button
-          class="rounded-md border border-slate-300 px-3 py-1.5 text-xs dark:border-slate-700"
+          class="rounded-md border border-slate-300 px-3 py-1.5 text-xs dark:border-neutral-700"
           @click="openCreateTemplateModal"
         >
           Neues Template
@@ -274,7 +277,7 @@ async function handleSendTemplate(template: PollTemplate): Promise<void> {
         <li
           v-for="template in templatesStore.templates"
           :key="template.id"
-          class="flex items-center justify-between rounded-md border border-slate-100 px-3 py-2 text-sm dark:border-slate-800"
+          class="flex items-center justify-between rounded-md border border-slate-100 px-3 py-2 text-sm dark:border-neutral-800"
         >
           <div>
             <p class="font-medium">{{ template.title }}</p>
@@ -316,14 +319,14 @@ async function handleSendTemplate(template: PollTemplate): Promise<void> {
       <ul class="mt-3 space-y-2">
         <li
           v-if="pastPolls.length === 0"
-          class="rounded-lg border border-slate-200 p-4 text-center text-sm text-slate-500 dark:border-slate-800"
+          class="rounded-lg border border-slate-200 p-4 text-center text-sm text-slate-500 dark:border-neutral-800"
         >
           Noch keine vergangenen Umfragen.
         </li>
         <li
           v-for="poll in pastPolls"
           :key="poll.id"
-          class="rounded-lg border border-slate-200 p-4 dark:border-slate-800"
+          class="rounded-lg border border-slate-200 p-4 dark:border-neutral-800"
         >
           <div class="flex items-center justify-between">
             <span class="font-medium">{{ poll.title }}</span>

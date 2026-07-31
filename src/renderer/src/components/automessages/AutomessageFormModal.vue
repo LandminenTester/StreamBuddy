@@ -29,7 +29,7 @@ function handleSubmit(): void {
           rows="4"
           required
           placeholder="Folge dem Kanal für Benachrichtigungen!"
-          class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+          class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
         />
       </div>
 
@@ -37,7 +37,7 @@ function handleSubmit(): void {
         <label class="block text-xs font-medium text-slate-500">Modus</label>
         <select
           v-model="form.mode"
-          class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+          class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
         >
           <option v-for="(label, mode) in MODE_LABELS" :key="mode" :value="mode">
             {{ label }}
@@ -51,7 +51,7 @@ function handleSubmit(): void {
           v-model.number="form.intervalMinutes"
           type="number"
           min="1"
-          class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+          class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
         />
       </div>
 
@@ -61,7 +61,7 @@ function handleSubmit(): void {
           v-model.number="form.messageCountThreshold"
           type="number"
           min="1"
-          class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+          class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
         />
       </div>
 
@@ -73,7 +73,7 @@ function handleSubmit(): void {
           v-model.number="form.minChatLinesSinceLast"
           type="number"
           min="0"
-          class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+          class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
         />
       </div>
 
@@ -85,7 +85,7 @@ function handleSubmit(): void {
       <div class="flex justify-end gap-2 pt-2">
         <button
           type="button"
-          class="rounded-md border border-slate-300 px-4 py-2 text-sm dark:border-slate-700"
+          class="rounded-md border border-slate-300 px-4 py-2 text-sm dark:border-neutral-700"
           @click="emit('close')"
         >
           Abbrechen

@@ -198,7 +198,7 @@ function colorEmoji(color: string): string {
   <div class="space-y-6">
     <div>
       <h1 class="text-2xl font-semibold">Loyalty</h1>
-      <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+      <p class="mt-1 text-sm text-slate-500 dark:text-neutral-400">
         Eigene Kanal-Währung, verdienbar durch Follows, Subs, Gifted Subs und View-Time -- nur
         während der Stream live ist.
       </p>
@@ -208,19 +208,19 @@ function colorEmoji(color: string): string {
 
     <section
       v-show="activeTab === 'leaderboard'"
-      class="rounded-lg border border-slate-200 p-4 dark:border-slate-800"
+      class="rounded-lg border border-slate-200 p-4 dark:border-neutral-800"
     >
       <div class="flex flex-wrap items-center justify-between gap-3">
         <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Rangliste</h2>
         <div class="flex flex-wrap items-center gap-2">
           <button
-            class="rounded-md border border-slate-300 px-3 py-1.5 text-xs dark:border-slate-700"
+            class="rounded-md border border-slate-300 px-3 py-1.5 text-xs dark:border-neutral-700"
             @click="handleImportCsv"
           >
             CSV importieren
           </button>
           <button
-            class="rounded-md border border-slate-300 px-3 py-1.5 text-xs dark:border-slate-700"
+            class="rounded-md border border-slate-300 px-3 py-1.5 text-xs dark:border-neutral-700"
             @click="handleExportCsv"
           >
             CSV exportieren
@@ -241,12 +241,12 @@ function colorEmoji(color: string): string {
           v-model="searchQuery"
           type="text"
           placeholder="Nutzer suchen…"
-          class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+          class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
         />
       </div>
 
       <div
-        class="mt-3 flex flex-wrap items-center gap-2 rounded-md bg-slate-50 p-2 text-xs dark:bg-slate-900"
+        class="mt-3 flex flex-wrap items-center gap-2 rounded-md bg-slate-50 p-2 text-xs dark:bg-neutral-900"
       >
         <label class="flex items-center gap-1.5">
           Punkte
@@ -254,7 +254,7 @@ function colorEmoji(color: string): string {
             v-model.number="pointsAmount"
             type="number"
             min="1"
-            class="w-20 rounded-md border border-slate-300 px-2 py-1 dark:border-slate-700 dark:bg-slate-800"
+            class="w-20 rounded-md border border-slate-300 px-2 py-1 dark:border-neutral-700 dark:bg-neutral-800"
           />
         </label>
         <button
@@ -271,7 +271,7 @@ function colorEmoji(color: string): string {
         >
           Ausgewählten entziehen
         </button>
-        <span class="mx-1 text-slate-300 dark:text-slate-700">|</span>
+        <span class="mx-1 text-slate-300 dark:text-neutral-700">|</span>
         <button
           class="rounded-md bg-twitch-purple px-3 py-1.5 font-medium text-white hover:opacity-90"
           @click="handleApplyToAll('give')"
@@ -299,7 +299,7 @@ function colorEmoji(color: string): string {
         <li
           v-for="entry in filteredLeaderboard"
           :key="entry.userLogin"
-          class="flex items-center justify-between rounded-md px-2 py-1.5 text-sm odd:bg-slate-50 dark:odd:bg-slate-900"
+          class="flex items-center justify-between rounded-md px-2 py-1.5 text-sm odd:bg-slate-50 dark:odd:bg-neutral-900"
         >
           <span class="flex items-center gap-3">
             <input
@@ -339,7 +339,7 @@ function colorEmoji(color: string): string {
 
     <section
       v-show="activeTab === 'blacklist'"
-      class="rounded-lg border border-slate-200 p-4 dark:border-slate-800"
+      class="rounded-lg border border-slate-200 p-4 dark:border-neutral-800"
     >
       <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">
         Blacklist ({{ store.blacklist.length }})
@@ -355,7 +355,7 @@ function colorEmoji(color: string): string {
         <li
           v-for="account in store.blacklist"
           :key="account.userLogin"
-          class="flex items-center justify-between rounded-md px-2 py-1.5 text-sm odd:bg-slate-50 dark:odd:bg-slate-900"
+          class="flex items-center justify-between rounded-md px-2 py-1.5 text-sm odd:bg-slate-50 dark:odd:bg-neutral-900"
         >
           <span>{{ account.userLogin }}</span>
           <button
@@ -370,7 +370,7 @@ function colorEmoji(color: string): string {
 
     <section
       v-show="activeTab === 'earnRules'"
-      class="rounded-lg border border-slate-200 p-4 dark:border-slate-800"
+      class="rounded-lg border border-slate-200 p-4 dark:border-neutral-800"
     >
       <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Earn-Rules</h2>
       <table class="mt-3 w-full text-left text-sm">
@@ -386,7 +386,7 @@ function colorEmoji(color: string): string {
           <tr
             v-for="(rule, index) in store.earnRules"
             :key="rule.reason"
-            class="border-t border-slate-100 dark:border-slate-800"
+            class="border-t border-slate-100 dark:border-neutral-800"
           >
             <td class="py-2">{{ EARN_RULE_LABELS[rule.reason] }}</td>
             <td class="py-2">
@@ -394,7 +394,7 @@ function colorEmoji(color: string): string {
                 v-model.number="rule.points"
                 type="number"
                 min="0"
-                class="w-24 rounded-md border border-slate-300 px-2 py-1 dark:border-slate-700 dark:bg-slate-900"
+                class="w-24 rounded-md border border-slate-300 px-2 py-1 dark:border-neutral-700 dark:bg-neutral-900"
                 @change="handleRuleChange(index)"
               />
             </td>
@@ -404,7 +404,7 @@ function colorEmoji(color: string): string {
                 v-model.number="rule.cooldownSeconds"
                 type="number"
                 min="30"
-                class="w-24 rounded-md border border-slate-300 px-2 py-1 dark:border-slate-700 dark:bg-slate-900"
+                class="w-24 rounded-md border border-slate-300 px-2 py-1 dark:border-neutral-700 dark:bg-neutral-900"
                 @change="handleRuleChange(index)"
               />
               <span v-else class="text-slate-400">–</span>
@@ -423,7 +423,7 @@ function colorEmoji(color: string): string {
     </section>
 
     <div v-show="activeTab === 'games'" class="space-y-6">
-      <section class="rounded-lg border border-slate-200 p-4 dark:border-slate-800">
+      <section class="rounded-lg border border-slate-200 p-4 dark:border-neutral-800">
         <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">
           Offline-Meldungen
         </h2>
@@ -434,7 +434,7 @@ function colorEmoji(color: string): string {
         <textarea
           v-model="offlineMessagesInput"
           rows="4"
-          class="mt-2 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+          class="mt-2 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
           @change="handleSaveOfflineMessages"
         />
       </section>
@@ -448,7 +448,7 @@ function colorEmoji(color: string): string {
 
       <section
         v-if="activeGame"
-        class="rounded-lg border border-slate-200 p-4 dark:border-slate-800"
+        class="rounded-lg border border-slate-200 p-4 dark:border-neutral-800"
       >
         <div class="flex items-center justify-between">
           <div class="min-w-0">
@@ -459,7 +459,7 @@ function colorEmoji(color: string): string {
               type="text"
               :value="activeGame.displayName ?? ''"
               :placeholder="GAME_LABELS[activeGame.gameId] ?? activeGame.gameId"
-              class="mt-0.5 w-48 rounded-md border border-slate-300 px-2 py-1 font-medium dark:border-slate-700 dark:bg-slate-900"
+              class="mt-0.5 w-48 rounded-md border border-slate-300 px-2 py-1 font-medium dark:border-neutral-700 dark:bg-neutral-900"
               @change="handleRenameGame(activeGame.gameId, $event)"
             />
           </div>
@@ -485,7 +485,7 @@ function colorEmoji(color: string): string {
               <input
                 v-model.number="activeGame.config[key]"
                 type="number"
-                class="mt-1 block w-24 rounded-md border border-slate-300 px-2 py-1 text-sm dark:border-slate-700 dark:bg-slate-900"
+                class="mt-1 block w-24 rounded-md border border-slate-300 px-2 py-1 text-sm dark:border-neutral-700 dark:bg-neutral-900"
                 @change="handleConfigFieldChange(activeGame.gameId, activeGame.config)"
               />
             </label>
@@ -504,7 +504,7 @@ function colorEmoji(color: string): string {
               <input
                 type="text"
                 :value="command.trigger"
-                class="mt-1 block w-28 rounded-md border border-slate-300 px-2 py-1 text-sm dark:border-slate-700 dark:bg-slate-900"
+                class="mt-1 block w-28 rounded-md border border-slate-300 px-2 py-1 text-sm dark:border-neutral-700 dark:bg-neutral-900"
                 @change="
                   handleTriggerChange(
                     activeGame.gameId,
@@ -528,7 +528,7 @@ function colorEmoji(color: string): string {
               <textarea
                 :value="resolvedTextVariants(activeGame, slot).join('\n')"
                 rows="3"
-                class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+                class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
                 @change="handleTextSlotChange(activeGame.gameId, activeGame.texts, slot, $event)"
               />
             </div>
@@ -583,7 +583,7 @@ function colorEmoji(color: string): string {
               <tr
                 v-for="entry in store.gameHistory"
                 :key="entry.id"
-                class="border-t border-slate-100 dark:border-slate-800"
+                class="border-t border-slate-100 dark:border-neutral-800"
               >
                 <td class="py-1 text-xs text-slate-500">{{ formatDate(entry.createdAt) }}</td>
                 <td class="py-1">{{ entry.userLogin }}</td>

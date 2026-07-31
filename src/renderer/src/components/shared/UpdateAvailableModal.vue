@@ -28,7 +28,7 @@ function handleInstallUpdate(): void {
           <span class="font-medium">{{ appInfoStore.updateStatus.version }}</span>
           ist verfügbar.
         </p>
-        <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+        <p class="mt-1 text-xs text-slate-500 dark:text-neutral-400">
           {{ updateStatusLabel(appInfoStore.updateStatus) }}
         </p>
       </div>
@@ -36,7 +36,7 @@ function handleInstallUpdate(): void {
       <div v-if="newVersionEntry" class="custom-scrollbar max-h-72 overflow-y-auto pr-1">
         <ChangelogList :entries="[newVersionEntry]" />
       </div>
-      <p v-else class="text-xs text-slate-500 dark:text-slate-400">
+      <p v-else class="text-xs text-slate-500 dark:text-neutral-400">
         Changelog für diese Version wird geladen…
       </p>
 
@@ -51,7 +51,7 @@ function handleInstallUpdate(): void {
       <div class="flex items-center justify-end gap-2">
         <button
           type="button"
-          class="rounded-md border border-slate-300 px-3 py-2 text-sm hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800"
+          class="rounded-md border border-slate-300 px-3 py-2 text-sm hover:bg-slate-50 dark:border-neutral-700 dark:hover:bg-neutral-800"
           @click="emit('close')"
         >
           Später

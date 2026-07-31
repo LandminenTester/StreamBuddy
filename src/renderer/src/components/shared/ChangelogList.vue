@@ -18,7 +18,7 @@ defineProps<{ entries: ChangelogEntry[] }>()
         <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">
           {{ section.title }}
         </p>
-        <ul class="mt-1 list-disc space-y-0.5 pl-5 text-xs text-slate-600 dark:text-slate-300">
+        <ul class="mt-1 list-disc space-y-0.5 pl-5 text-xs text-slate-600 dark:text-neutral-300">
           <li v-for="(item, index) in section.items" :key="index">
             <strong v-if="item.scope">{{ item.scope }}:</strong> {{ item.text }}
           </li>

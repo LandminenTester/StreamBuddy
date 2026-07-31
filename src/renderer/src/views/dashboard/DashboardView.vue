@@ -33,7 +33,9 @@ const viewerChart = computed(() => viewerSamplesToChartData(statsStore.viewerSam
   <div class="space-y-8">
     <div>
       <h1 class="text-2xl font-semibold">Dashboard</h1>
-      <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Stats-Übersicht und Bot-Status.</p>
+      <p class="mt-1 text-sm text-slate-500 dark:text-neutral-400">
+        Stats-Übersicht und Bot-Status.
+      </p>
     </div>
 
     <div class="grid grid-cols-1 gap-4">
@@ -43,14 +45,14 @@ const viewerChart = computed(() => viewerSamplesToChartData(statsStore.viewerSam
       />
     </div>
 
-    <section class="rounded-lg border border-slate-200 p-4 dark:border-slate-800">
+    <section class="rounded-lg border border-slate-200 p-4 dark:border-neutral-800">
       <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Twitch-Chat</h2>
       <div class="mt-3">
         <ChatFeedPanel />
       </div>
     </section>
 
-    <section class="rounded-lg border border-slate-200 p-4 dark:border-slate-800">
+    <section class="rounded-lg border border-slate-200 p-4 dark:border-neutral-800">
       <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">
         Viewer-Count (24h)
       </h2>
@@ -59,7 +61,7 @@ const viewerChart = computed(() => viewerSamplesToChartData(statsStore.viewerSam
       </div>
     </section>
 
-    <section class="rounded-lg border border-slate-200 p-4 dark:border-slate-800">
+    <section class="rounded-lg border border-slate-200 p-4 dark:border-neutral-800">
       <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">
         Messages pro Stunde (24h)
       </h2>

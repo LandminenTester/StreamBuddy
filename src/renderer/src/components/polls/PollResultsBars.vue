@@ -14,7 +14,7 @@ defineProps<{ poll: Poll }>()
           >{{ choice.votes }} ({{ votePercentage(poll, choice.votes) }}%)</span
         >
       </div>
-      <div class="mt-1 h-2 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+      <div class="mt-1 h-2 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-neutral-800">
         <div
           class="h-full rounded-full bg-twitch-purple transition-all"
           :style="{ width: `${votePercentage(poll, choice.votes)}%` }"

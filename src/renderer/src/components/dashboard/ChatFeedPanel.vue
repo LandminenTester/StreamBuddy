@@ -20,7 +20,7 @@ watch(
 <template>
   <div
     ref="scrollContainer"
-    class="h-80 overflow-y-auto rounded-md border border-slate-100 bg-slate-50 p-3 text-sm dark:border-slate-800 dark:bg-slate-900"
+    class="h-80 overflow-y-auto rounded-md border border-slate-100 bg-slate-50 p-3 text-sm dark:border-neutral-800 dark:bg-neutral-900"
   >
     <p v-if="store.messages.length === 0" class="py-6 text-center text-slate-500">
       Noch keine Chat-Nachrichten empfangen.

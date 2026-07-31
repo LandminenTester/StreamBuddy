@@ -23,14 +23,14 @@ function handleSubmit(): void {
           type="number"
           min="0"
           required
-          class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+          class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
         />
       </div>
 
       <div class="flex justify-end gap-2 pt-2">
         <button
           type="button"
-          class="rounded-md border border-slate-300 px-4 py-2 text-sm dark:border-slate-700"
+          class="rounded-md border border-slate-300 px-4 py-2 text-sm dark:border-neutral-700"
           @click="emit('close')"
         >
           Abbrechen

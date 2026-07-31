@@ -22,7 +22,7 @@ function handleInstallUpdate(): void {
       <div class="flex items-center justify-between gap-4">
         <div>
           <p class="font-medium">Version {{ appInfoStore.version || '–' }}</p>
-          <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+          <p class="mt-1 text-xs text-slate-500 dark:text-neutral-400">
             {{ updateStatusLabel(appInfoStore.updateStatus) }}
           </p>
         </div>
@@ -36,7 +36,7 @@ function handleInstallUpdate(): void {
           </button>
           <button
             v-else
-            class="rounded-md border border-slate-300 px-3 py-2 text-sm hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:hover:bg-slate-800"
+            class="rounded-md border border-slate-300 px-3 py-2 text-sm hover:bg-slate-50 disabled:opacity-50 dark:border-neutral-700 dark:hover:bg-neutral-800"
             :disabled="appInfoStore.updateStatus.state === 'checking'"
             @click="handleCheckForUpdate"
           >
@@ -54,14 +54,14 @@ function handleInstallUpdate(): void {
 
       <dl
         v-if="appInfoStore.metadata"
-        class="grid grid-cols-2 gap-x-4 gap-y-2 border-t border-slate-100 pt-3 text-sm dark:border-slate-800"
+        class="grid grid-cols-2 gap-x-4 gap-y-2 border-t border-slate-100 pt-3 text-sm dark:border-neutral-800"
       >
-        <dt class="text-slate-500 dark:text-slate-400">Ersteller</dt>
+        <dt class="text-slate-500 dark:text-neutral-400">Ersteller</dt>
         <dd>{{ appInfoStore.metadata.author }}</dd>
-        <dt class="text-slate-500 dark:text-slate-400">Lizenz</dt>
+        <dt class="text-slate-500 dark:text-neutral-400">Lizenz</dt>
         <dd>{{ appInfoStore.metadata.license }}</dd>
         <template v-if="appInfoStore.metadata.repositoryUrl">
-          <dt class="text-slate-500 dark:text-slate-400">Repository</dt>
+          <dt class="text-slate-500 dark:text-neutral-400">Repository</dt>
           <dd class="min-w-0 break-all">
             <a
               :href="appInfoStore.metadata.repositoryUrl"
@@ -75,7 +75,7 @@ function handleInstallUpdate(): void {
         </template>
       </dl>
 
-      <div class="border-t border-slate-100 pt-3 dark:border-slate-800">
+      <div class="border-t border-slate-100 pt-3 dark:border-neutral-800">
         <p class="mb-2 text-sm font-medium">Changelog</p>
         <div class="custom-scrollbar max-h-80 overflow-y-auto pr-1">
           <ChangelogList :entries="appInfoStore.changelog" />

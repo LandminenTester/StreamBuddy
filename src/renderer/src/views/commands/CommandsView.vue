@@ -41,7 +41,7 @@ async function handleDelete(id: number): Promise<void> {
     <div class="flex items-center justify-between">
       <div>
         <h1 class="text-2xl font-semibold">Commands</h1>
-        <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+        <p class="mt-1 text-sm text-slate-500 dark:text-neutral-400">
           Chat-Befehle mit Berechtigung, Cooldown und Aliasen.
         </p>
       </div>
@@ -53,9 +53,9 @@ async function handleDelete(id: number): Promise<void> {
       </button>
     </div>
 
-    <div class="mt-6 overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
+    <div class="mt-6 overflow-x-auto rounded-lg border border-slate-200 dark:border-neutral-800">
       <table class="w-full text-left text-sm">
-        <thead class="bg-slate-50 text-xs uppercase text-slate-500 dark:bg-slate-900">
+        <thead class="bg-slate-50 text-xs uppercase text-slate-500 dark:bg-neutral-900">
           <tr>
             <th class="px-4 py-2">Trigger</th>
             <th class="px-4 py-2">Berechtigung</th>
@@ -65,7 +65,7 @@ async function handleDelete(id: number): Promise<void> {
             <th class="px-4 py-2" />
           </tr>
         </thead>
-        <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+        <tbody class="divide-y divide-slate-100 dark:divide-neutral-800">
           <tr v-if="store.commands.length === 0">
             <td colspan="6" class="px-4 py-6 text-center text-slate-500">
               Noch keine Commands angelegt.
@@ -82,7 +82,7 @@ async function handleDelete(id: number): Promise<void> {
                 :class="
                   command.enabled
                     ? 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300'
-                    : 'bg-slate-100 text-slate-500 dark:bg-slate-800'
+                    : 'bg-slate-100 text-slate-500 dark:bg-neutral-800'
                 "
               >
                 {{ command.enabled ? 'Aktiv' : 'Deaktiviert' }}
