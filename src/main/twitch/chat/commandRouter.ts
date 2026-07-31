@@ -1,7 +1,7 @@
 import type { ChatUserstate, Client } from 'tmi.js'
 import type { Command, PermissionLevel } from '@shared/types/command'
 import { incrementCommandUseCount, listCommands } from '../../db/repositories/commands.repo'
-import { getOrCreateAccount } from '../../db/repositories/loyalty.repo'
+import { getOrCreateAccount, setAccountBlacklisted } from '../../db/repositories/loyalty.repo'
 import { pickRandomMessage } from '../../db/repositories/botMessages.repo'
 import {
   getGameByTrigger,
@@ -13,6 +13,9 @@ import { isStreamLive } from '../../stats/viewerCountPoller'
 import { logger } from '../../logger'
 
 const PERMISSION_ORDER: PermissionLevel[] = ['everyone', 'subscriber', 'moderator', 'broadcaster']
+
+/** Fixer, nicht umbenennbarer Trigger fuer den eingebauten Mod-Command. */
+const BLACKLIST_TRIGGER = '!blacklist'
 
 /** Cooldown-Tracking pro Command, rein in-memory (nicht persistiert, resettet bei App-Neustart). */
 const lastUsedAt = new Map<number, number>()
@@ -42,6 +45,18 @@ export async function handleChatMessage(
 
   const parts = message.trim().split(/\s+/)
   const trigger = parts[0].toLowerCase()
+
+  // Eingebauter Mod-Command, ausserhalb des Game-/Custom-Command-Systems, damit er nie
+  // durch einen umbenannten Custom-Command ueberschattet werden kann.
+  if (trigger === BLACKLIST_TRIGGER) {
+    if (!hasRequiredPermission(getUserPermissionLevel(tags), 'moderator')) return
+    const targetLogin = parts[1]?.replace(/^@/, '').toLowerCase()
+    if (!targetLogin) return
+    getOrCreateAccount(targetLogin)
+    setAccountBlacklisted(targetLogin, true)
+    await client.say(channel, `🚫 ${targetLogin} wurde blacklisted.`)
+    return
+  }
 
   const match = getGameByTrigger(trigger)
   if (match) {
