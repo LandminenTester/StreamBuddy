@@ -2,6 +2,7 @@
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { useAppInfoStore } from '@renderer/stores/appInfo.store'
 import AboutModal from './AboutModal.vue'
+import ThemeToggle from './ThemeToggle.vue'
 import UpdateAvailableModal from './UpdateAvailableModal.vue'
 
 const navItems = [
@@ -71,6 +72,7 @@ function closeUpdateModal(): void {
       </nav>
       <footer class="border-t border-slate-200 px-4 py-3 dark:border-slate-800">
         <p class="text-xs text-slate-500 dark:text-slate-400">Erstellt von Landminen Tester</p>
+        <ThemeToggle class="mt-2" />
         <button
           type="button"
           class="mt-1 text-xs font-medium text-twitch-purple hover:underline"

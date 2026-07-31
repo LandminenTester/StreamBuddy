@@ -29,3 +29,5 @@ export interface AppMetadata {
   license: string
   repositoryUrl: string | null
 }
+
+export type AppTheme = 'light' | 'dark'

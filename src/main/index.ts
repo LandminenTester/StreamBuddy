@@ -8,6 +8,7 @@ import { connectChatClient } from './twitch/chat/tmiClient'
 import { syncEventSubConnection } from './twitch/eventsub/eventSubClient'
 import { seedLoyaltyDefaults } from './loyalty/seedDefaults'
 import { checkForUpdate, initUpdater } from './updater'
+import { applyTheme, getTheme } from './theme'
 import { logger } from './logger'
 
 app.whenReady().then(() => {
@@ -18,6 +19,7 @@ app.whenReady().then(() => {
   })
 
   getDb()
+  applyTheme(getTheme())
   syncFeatureScopes()
   seedLoyaltyDefaults()
   registerIpcHandlers()
