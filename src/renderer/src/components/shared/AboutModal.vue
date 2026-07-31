@@ -17,7 +17,7 @@ function handleInstallUpdate(): void {
 </script>
 
 <template>
-  <BaseModal title="Über StreamerBot" @close="emit('close')">
+  <BaseModal title="Über StreamerBot" max-width="max-w-2xl" @close="emit('close')">
     <div class="space-y-4">
       <div class="flex items-center justify-between gap-4">
         <div>
@@ -62,7 +62,7 @@ function handleInstallUpdate(): void {
         <dd>{{ appInfoStore.metadata.license }}</dd>
         <template v-if="appInfoStore.metadata.repositoryUrl">
           <dt class="text-slate-500 dark:text-slate-400">Repository</dt>
-          <dd>
+          <dd class="min-w-0 break-all">
             <a
               :href="appInfoStore.metadata.repositoryUrl"
               target="_blank"
@@ -77,7 +77,7 @@ function handleInstallUpdate(): void {
 
       <div class="border-t border-slate-100 pt-3 dark:border-slate-800">
         <p class="mb-2 text-sm font-medium">Changelog</p>
-        <div class="max-h-80 overflow-y-auto">
+        <div class="custom-scrollbar max-h-80 overflow-y-auto pr-1">
           <ChangelogList :entries="appInfoStore.changelog" />
         </div>
       </div>

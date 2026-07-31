@@ -20,7 +20,7 @@ function handleInstallUpdate(): void {
 </script>
 
 <template>
-  <BaseModal title="Update verfügbar" @close="emit('close')">
+  <BaseModal title="Update verfügbar" max-width="max-w-2xl" @close="emit('close')">
     <div class="space-y-4">
       <div>
         <p class="text-sm">
@@ -33,7 +33,7 @@ function handleInstallUpdate(): void {
         </p>
       </div>
 
-      <div v-if="newVersionEntry" class="max-h-72 overflow-y-auto">
+      <div v-if="newVersionEntry" class="custom-scrollbar max-h-72 overflow-y-auto pr-1">
         <ChangelogList :entries="[newVersionEntry]" />
       </div>
       <p v-else class="text-xs text-slate-500 dark:text-slate-400">
