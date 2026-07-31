@@ -1,11 +1,11 @@
-### [1.8.0](https://github.com/LandminenTester/StreamingBot/compare/v1.7.1...v1.8.0) (2026-07-31)
+# Changelog
+
+## [1.8.0](https://github.com/LandminenTester/StreamingBot/compare/v1.7.1...v1.8.0) (2026-07-31)
 
 
 ### Features
 
 * Pipeline-Vereinfachung, stiller Updater, Plus-Button-Listen ([#25](https://github.com/LandminenTester/StreamingBot/issues/25)) ([0ce1b45](https://github.com/LandminenTester/StreamingBot/commit/0ce1b455a34073719c938b9d8c8e1493bf27268f))
-
- Changelog
 
 ## [1.7.1](https://github.com/LandminenTester/StreamingBot/compare/v1.7.0...v1.7.1) (2026-07-31)
 
