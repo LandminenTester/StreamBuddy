@@ -4,6 +4,7 @@
   "description": "Twitch Streaming Bot Desktop App (Electron + Vue 3)",
   "main": "./out/main/index.js",
   "author": "Vinewood Legacy",
+  "license": "GPL-3.0-or-later",
   "repository": {
     "type": "git",
     "url": "https://github.com/LandminenTester/StreamingBot.git"
