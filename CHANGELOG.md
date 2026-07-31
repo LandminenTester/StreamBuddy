@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.5.0](https://github.com/LandminenTester/StreamingBot/compare/v1.4.0...v1.5.0) (2026-07-31)
+
+
+### Features
+
+* **settings:** Update-Checker-UI und Changelog-Anzeige ([8b1afa6](https://github.com/LandminenTester/StreamingBot/commit/8b1afa6a634237bf78528bfe5a663e185ff5a34b))
+* **update:** Auto-Update-Backend (electron-updater) + Changelog-Parser ([ef34f80](https://github.com/LandminenTester/StreamingBot/commit/ef34f80aed55897cffd7d548b35aadacc6722a3f))
+
 ## [1.4.0](https://github.com/LandminenTester/StreamingBot/compare/v1.3.1...v1.4.0) (2026-07-31)
 
 
