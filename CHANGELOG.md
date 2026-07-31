@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.1](https://github.com/LandminenTester/StreamingBot/compare/v1.6.0...v1.6.1) (2026-07-31)
+
+
+### Bug Fixes
+
+* **app:** About/Update-Modal verbreitern, Custom-Scrollbar, Changelog-Links vollstaendig entfernen ([#19](https://github.com/LandminenTester/StreamingBot/issues/19)) ([ecda7f6](https://github.com/LandminenTester/StreamingBot/commit/ecda7f6c56ff9a32984c6d42090a721f5ce56b12))
+
 ## [1.6.0](https://github.com/LandminenTester/StreamingBot/compare/v1.5.1...v1.6.0) (2026-07-31)
 
 
