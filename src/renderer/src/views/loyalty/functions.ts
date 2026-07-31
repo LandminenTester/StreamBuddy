@@ -57,3 +57,48 @@ export async function renameGame(
 ): Promise<void> {
   await store.renameGame(gameId, displayName)
 }
+
+export async function updateGameTrigger(
+  store: LoyaltyStore,
+  gameId: string,
+  existingTriggers: Record<string, string>,
+  commandKey: string,
+  newTrigger: string
+): Promise<void> {
+  const trimmed = newTrigger.trim()
+  if (!trimmed) return
+  await store.updateGameTriggers(gameId, { ...existingTriggers, [commandKey]: trimmed })
+}
+
+export async function updateGameTextSlot(
+  store: LoyaltyStore,
+  gameId: string,
+  existingTexts: Record<string, string[]>,
+  slot: string,
+  variantsInput: string
+): Promise<void> {
+  const variants = variantsInput
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0)
+  await store.updateGameTexts(gameId, { ...existingTexts, [slot]: variants })
+}
+
+export async function selectGame(store: LoyaltyStore, gameId: string): Promise<void> {
+  await Promise.all([
+    store.fetchGameHistory(gameId),
+    store.fetchGameStats(gameId),
+    gameId === 'roulette' ? store.fetchRouletteColors() : Promise.resolve()
+  ])
+}
+
+export async function saveOfflineMessages(
+  store: LoyaltyStore,
+  messagesInput: string
+): Promise<void> {
+  const messages = messagesInput
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0)
+  await store.setOfflineMessages(messages)
+}

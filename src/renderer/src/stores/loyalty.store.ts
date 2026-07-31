@@ -3,9 +3,12 @@ import { ref } from 'vue'
 import type {
   LoyaltyAccount,
   LoyaltyEarnRule,
+  LoyaltyGameHistoryEntry,
   LoyaltyGameInfo,
+  LoyaltyGameStats,
   LoyaltyLeaderboardEntry
 } from '@shared/types/loyalty'
+import type { RouletteColor } from '@shared/types/roulette'
 
 export const useLoyaltyStore = defineStore('loyalty', () => {
   const leaderboard = ref<LoyaltyLeaderboardEntry[]>([])
@@ -13,6 +16,10 @@ export const useLoyaltyStore = defineStore('loyalty', () => {
   const games = ref<LoyaltyGameInfo[]>([])
   const blacklist = ref<LoyaltyAccount[]>([])
   const error = ref<string | null>(null)
+  const gameHistory = ref<LoyaltyGameHistoryEntry[]>([])
+  const gameStats = ref<LoyaltyGameStats | null>(null)
+  const rouletteColors = ref<RouletteColor[]>([])
+  const offlineMessages = ref<string[]>([])
 
   async function fetchLeaderboard(): Promise<void> {
     leaderboard.value = await window.api.invoke('loyalty:getLeaderboard', undefined)
@@ -86,12 +93,47 @@ export const useLoyaltyStore = defineStore('loyalty', () => {
     await fetchLeaderboard()
   }
 
+  async function updateGameTriggers(
+    gameId: string,
+    commandTriggers: Record<string, string>
+  ): Promise<void> {
+    games.value = await window.api.invoke('loyalty:updateGameTriggers', { gameId, commandTriggers })
+  }
+
+  async function updateGameTexts(gameId: string, texts: Record<string, string[]>): Promise<void> {
+    games.value = await window.api.invoke('loyalty:updateGameTexts', { gameId, texts })
+  }
+
+  async function fetchGameHistory(gameId: string, limit?: number): Promise<void> {
+    gameHistory.value = await window.api.invoke('loyalty:listGameHistory', { gameId, limit })
+  }
+
+  async function fetchGameStats(gameId: string): Promise<void> {
+    gameStats.value = await window.api.invoke('loyalty:getGameStats', { gameId })
+  }
+
+  async function fetchRouletteColors(limit?: number): Promise<void> {
+    rouletteColors.value = await window.api.invoke('loyalty:listRouletteColors', { limit })
+  }
+
+  async function fetchOfflineMessages(): Promise<void> {
+    offlineMessages.value = await window.api.invoke('loyalty:getOfflineMessages', undefined)
+  }
+
+  async function setOfflineMessages(messages: string[]): Promise<void> {
+    offlineMessages.value = await window.api.invoke('loyalty:setOfflineMessages', { messages })
+  }
+
   return {
     leaderboard,
     earnRules,
     games,
     blacklist,
     error,
+    gameHistory,
+    gameStats,
+    rouletteColors,
+    offlineMessages,
     fetchLeaderboard,
     fetchEarnRules,
     updateEarnRule,
@@ -104,6 +146,13 @@ export const useLoyaltyStore = defineStore('loyalty', () => {
     importCsv,
     exportCsv,
     fetchBlacklist,
-    setBlacklisted
+    setBlacklisted,
+    updateGameTriggers,
+    updateGameTexts,
+    fetchGameHistory,
+    fetchGameStats,
+    fetchRouletteColors,
+    fetchOfflineMessages,
+    setOfflineMessages
   }
 })

@@ -1,41 +1,87 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useLoyaltyStore } from '@renderer/stores/loyalty.store'
 import AccountEditModal from '@renderer/components/loyalty/AccountEditModal.vue'
+import TabBar from '@renderer/components/shared/TabBar.vue'
+import StatsCard from '@renderer/components/shared/StatsCard.vue'
 import type { AccountEditFormState } from './types'
-import { EARN_RULE_LABELS, GAME_LABELS, numericConfigEntries } from './utils'
+import {
+  EARN_RULE_LABELS,
+  GAME_LABELS,
+  TEXT_SLOT_LABELS,
+  gameDisplayName,
+  gameTextSlots,
+  numericConfigEntries,
+  resolvedTextVariants
+} from './utils'
 import {
   applyPointsToAll,
   applyPointsToSelection,
   renameGame,
   saveEarnRule,
   saveGameConfig,
+  saveOfflineMessages,
+  selectGame,
   submitAccountEdit,
-  toggleGame
+  toggleGame,
+  updateGameTextSlot,
+  updateGameTrigger
 } from './functions'
 
 const store = useLoyaltyStore()
 const selectedLogins = ref<Set<string>>(new Set())
 const pointsAmount = ref(100)
 const searchQuery = ref('')
+const isEditModalOpen = ref(false)
+const activeEditForm = ref<AccountEditFormState>({ userLogin: '', balance: 0 })
+const importResultMessage = ref<string | null>(null)
+const exportResultMessage = ref<string | null>(null)
+
+const MAIN_TABS = [
+  { key: 'leaderboard', label: 'Rangliste' },
+  { key: 'blacklist', label: 'Blacklist' },
+  { key: 'earnRules', label: 'Earn-Rules' },
+  { key: 'games', label: 'Games' }
+]
+const activeTab = ref('leaderboard')
+
+const activeGameId = ref('')
+const gameTabs = computed(() =>
+  store.games.map((game) => ({ key: game.gameId, label: gameDisplayName(game) }))
+)
+const activeGame = computed(() => store.games.find((g) => g.gameId === activeGameId.value) ?? null)
+
+const offlineMessagesInput = ref('')
+watch(
+  () => store.offlineMessages,
+  (messages) => {
+    offlineMessagesInput.value = messages.join('\n')
+  },
+  { immediate: true }
+)
+
+watch(
+  () => store.games,
+  (games) => {
+    if (!activeGameId.value && games.length > 0) {
+      void handleSelectGame(games[0].gameId)
+    }
+  },
+  { immediate: true }
+)
 
 const filteredLeaderboard = computed(() => {
   const query = searchQuery.value.trim().toLowerCase()
   if (!query) return store.leaderboard
   return store.leaderboard.filter((entry) => entry.userLogin.toLowerCase().includes(query))
 })
-const isEditModalOpen = ref(false)
-const activeEditForm = ref<AccountEditFormState>({ userLogin: '', balance: 0 })
-const importResultMessage = ref<string | null>(null)
-const exportResultMessage = ref<string | null>(null)
-
-const isBlacklistOpen = ref(false)
 
 onMounted(() => {
   void store.fetchLeaderboard()
   void store.fetchEarnRules()
   void store.fetchGames()
   void store.fetchBlacklist()
+  void store.fetchOfflineMessages()
 })
 
 function handleRuleChange(index: number): void {
@@ -54,6 +100,35 @@ function handleConfigFieldChange(gameId: string, config: Record<string, unknown>
 function handleRenameGame(gameId: string, event: Event): void {
   const displayName = (event.target as HTMLInputElement).value
   void renameGame(store, gameId, displayName)
+}
+
+function handleTriggerChange(
+  gameId: string,
+  existingTriggers: Record<string, string>,
+  commandKey: string,
+  event: Event
+): void {
+  const value = (event.target as HTMLInputElement).value
+  void updateGameTrigger(store, gameId, existingTriggers, commandKey, value)
+}
+
+function handleTextSlotChange(
+  gameId: string,
+  existingTexts: Record<string, string[]>,
+  slot: string,
+  event: Event
+): void {
+  const value = (event.target as HTMLTextAreaElement).value
+  void updateGameTextSlot(store, gameId, existingTexts, slot, value)
+}
+
+async function handleSelectGame(gameId: string): Promise<void> {
+  activeGameId.value = gameId
+  await selectGame(store, gameId)
+}
+
+function handleSaveOfflineMessages(): void {
+  void saveOfflineMessages(store, offlineMessagesInput.value)
 }
 
 function toggleSelection(userLogin: string, event: Event): void {
@@ -107,18 +182,34 @@ async function handleBlacklist(userLogin: string): Promise<void> {
 async function handleUnblacklist(userLogin: string): Promise<void> {
   await store.setBlacklisted(userLogin, false)
 }
+
+function formatDate(timestamp: number): string {
+  return new Date(timestamp).toLocaleString('de-DE')
+}
+
+function colorEmoji(color: string): string {
+  if (color === 'rot') return '🔴'
+  if (color === 'schwarz') return '⚫'
+  return '🟢'
+}
 </script>
 
 <template>
-  <div class="space-y-8">
+  <div class="space-y-6">
     <div>
       <h1 class="text-2xl font-semibold">Loyalty</h1>
       <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
-        Eigene Kanal-Währung, verdienbar durch Follows, Subs, Gifted Subs und View-Time.
+        Eigene Kanal-Währung, verdienbar durch Follows, Subs, Gifted Subs und View-Time -- nur
+        während der Stream live ist.
       </p>
     </div>
 
-    <section class="rounded-lg border border-slate-200 p-4 dark:border-slate-800">
+    <TabBar v-model="activeTab" :tabs="MAIN_TABS" />
+
+    <section
+      v-show="activeTab === 'leaderboard'"
+      class="rounded-lg border border-slate-200 p-4 dark:border-slate-800"
+    >
       <div class="flex flex-wrap items-center justify-between gap-3">
         <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Rangliste</h2>
         <div class="flex flex-wrap items-center gap-2">
@@ -239,21 +330,25 @@ async function handleUnblacklist(userLogin: string): Promise<void> {
       </ol>
     </section>
 
-    <section class="rounded-lg border border-slate-200 p-4 dark:border-slate-800">
-      <button
-        class="flex w-full items-center justify-between text-left"
-        @click="isBlacklistOpen = !isBlacklistOpen"
-      >
-        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">
-          Blacklist ({{ store.blacklist.length }})
-        </h2>
-        <span class="text-xs text-slate-400">{{ isBlacklistOpen ? '▲' : '▼' }}</span>
-      </button>
+    <AccountEditModal
+      v-if="isEditModalOpen"
+      :initial="activeEditForm"
+      @close="isEditModalOpen = false"
+      @submit="handleEditSubmit"
+    />
+
+    <section
+      v-show="activeTab === 'blacklist'"
+      class="rounded-lg border border-slate-200 p-4 dark:border-slate-800"
+    >
+      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">
+        Blacklist ({{ store.blacklist.length }})
+      </h2>
       <p class="mt-1 text-xs text-slate-500">
         Geblacklistete Nutzer verdienen keine Punkte, erscheinen nicht in der Rangliste und können
         keine Loyalty-Games spielen.
       </p>
-      <ul v-if="isBlacklistOpen" class="mt-3 space-y-1">
+      <ul class="mt-3 space-y-1">
         <li v-if="store.blacklist.length === 0" class="py-2 text-center text-sm text-slate-500">
           Keine Nutzer geblacklistet.
         </li>
@@ -273,14 +368,10 @@ async function handleUnblacklist(userLogin: string): Promise<void> {
       </ul>
     </section>
 
-    <AccountEditModal
-      v-if="isEditModalOpen"
-      :initial="activeEditForm"
-      @close="isEditModalOpen = false"
-      @submit="handleEditSubmit"
-    />
-
-    <section class="rounded-lg border border-slate-200 p-4 dark:border-slate-800">
+    <section
+      v-show="activeTab === 'earnRules'"
+      class="rounded-lg border border-slate-200 p-4 dark:border-slate-800"
+    >
       <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Earn-Rules</h2>
       <table class="mt-3 w-full text-left text-sm">
         <thead class="text-xs uppercase text-slate-500">
@@ -331,50 +422,183 @@ async function handleUnblacklist(userLogin: string): Promise<void> {
       </table>
     </section>
 
-    <section class="rounded-lg border border-slate-200 p-4 dark:border-slate-800">
-      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Loyalty-Games</h2>
-      <ul class="mt-3 space-y-4">
-        <li
-          v-for="game in store.games"
-          :key="game.gameId"
-          class="rounded-md border border-slate-100 p-3 dark:border-slate-800"
-        >
-          <div class="flex items-center justify-between">
-            <div class="min-w-0">
-              <p class="text-xs text-slate-500">{{ GAME_LABELS[game.gameId] ?? game.gameId }}</p>
-              <input
-                type="text"
-                :value="game.displayName ?? ''"
-                :placeholder="GAME_LABELS[game.gameId] ?? game.gameId"
-                class="mt-0.5 w-48 rounded-md border border-slate-300 px-2 py-1 font-medium dark:border-slate-700 dark:bg-slate-900"
-                @change="handleRenameGame(game.gameId, $event)"
-              />
-              <p class="mt-1 text-xs text-slate-500">{{ game.commandTrigger }}</p>
-            </div>
+    <div v-show="activeTab === 'games'" class="space-y-6">
+      <section class="rounded-lg border border-slate-200 p-4 dark:border-slate-800">
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">
+          Offline-Meldungen
+        </h2>
+        <p class="mt-1 text-xs text-slate-500">
+          Wird zufällig gesendet, wenn ein Loyalty-Game genutzt wird, während der Stream offline ist
+          -- eine Variante pro Zeile.
+        </p>
+        <textarea
+          v-model="offlineMessagesInput"
+          rows="4"
+          class="mt-2 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+          @change="handleSaveOfflineMessages"
+        />
+      </section>
+
+      <TabBar
+        v-if="gameTabs.length > 0"
+        :model-value="activeGameId"
+        :tabs="gameTabs"
+        @update:model-value="handleSelectGame"
+      />
+
+      <section
+        v-if="activeGame"
+        class="rounded-lg border border-slate-200 p-4 dark:border-slate-800"
+      >
+        <div class="flex items-center justify-between">
+          <div class="min-w-0">
+            <p class="text-xs text-slate-500">
+              {{ GAME_LABELS[activeGame.gameId] ?? activeGame.gameId }}
+            </p>
             <input
-              type="checkbox"
-              class="h-5 w-5 shrink-0 accent-twitch-purple"
-              :checked="game.enabled"
-              @change="handleToggleGame(game.gameId, $event)"
+              type="text"
+              :value="activeGame.displayName ?? ''"
+              :placeholder="GAME_LABELS[activeGame.gameId] ?? activeGame.gameId"
+              class="mt-0.5 w-48 rounded-md border border-slate-300 px-2 py-1 font-medium dark:border-slate-700 dark:bg-slate-900"
+              @change="handleRenameGame(activeGame.gameId, $event)"
             />
           </div>
-          <div class="mt-3 flex flex-wrap gap-3">
+          <input
+            type="checkbox"
+            class="h-5 w-5 shrink-0 accent-twitch-purple"
+            :checked="activeGame.enabled"
+            @change="handleToggleGame(activeGame.gameId, $event)"
+          />
+        </div>
+
+        <div class="mt-4">
+          <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Einstellungen
+          </h3>
+          <div class="mt-2 flex flex-wrap gap-3">
             <label
-              v-for="[key] in numericConfigEntries(game.config)"
+              v-for="[key] in numericConfigEntries(activeGame.config)"
               :key="key"
               class="text-xs text-slate-500"
             >
               {{ key }}<span v-if="key === 'maxBet'"> (0 = kein Limit)</span>
               <input
-                v-model.number="game.config[key]"
+                v-model.number="activeGame.config[key]"
                 type="number"
                 class="mt-1 block w-24 rounded-md border border-slate-300 px-2 py-1 text-sm dark:border-slate-700 dark:bg-slate-900"
-                @change="handleConfigFieldChange(game.gameId, game.config)"
+                @change="handleConfigFieldChange(activeGame.gameId, activeGame.config)"
               />
             </label>
           </div>
-        </li>
-      </ul>
-    </section>
+        </div>
+
+        <div class="mt-4">
+          <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500">Befehle</h3>
+          <div class="mt-2 flex flex-wrap gap-3">
+            <label
+              v-for="command in activeGame.commands"
+              :key="command.key"
+              class="text-xs text-slate-500"
+            >
+              {{ command.key }}
+              <input
+                type="text"
+                :value="command.trigger"
+                class="mt-1 block w-28 rounded-md border border-slate-300 px-2 py-1 text-sm dark:border-slate-700 dark:bg-slate-900"
+                @change="
+                  handleTriggerChange(
+                    activeGame.gameId,
+                    activeGame.commandTriggers,
+                    command.key,
+                    $event
+                  )
+                "
+              />
+            </label>
+          </div>
+        </div>
+
+        <div v-if="gameTextSlots(activeGame).length > 0" class="mt-4">
+          <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Ansagetexte (eine Variante pro Zeile)
+          </h3>
+          <div class="mt-2 space-y-3">
+            <div v-for="slot in gameTextSlots(activeGame)" :key="slot">
+              <label class="text-xs text-slate-500">{{ TEXT_SLOT_LABELS[slot] ?? slot }}</label>
+              <textarea
+                :value="resolvedTextVariants(activeGame, slot).join('\n')"
+                rows="3"
+                class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+                @change="handleTextSlotChange(activeGame.gameId, activeGame.texts, slot, $event)"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div
+          v-if="activeGame.gameId === 'roulette' && store.rouletteColors.length > 0"
+          class="mt-4"
+        >
+          <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Letzte Farben
+          </h3>
+          <p class="mt-1 text-lg leading-none">
+            <span v-for="(color, index) in store.rouletteColors" :key="index">
+              {{ colorEmoji(color) }}
+            </span>
+          </p>
+        </div>
+
+        <div class="mt-4">
+          <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500">Statistik</h3>
+          <div class="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <StatsCard label="Wins" :value="String(store.gameStats?.winCount ?? 0)" />
+            <StatsCard label="Losses" :value="String(store.gameStats?.lossCount ?? 0)" />
+            <StatsCard
+              label="Gewinnquote"
+              :value="`${store.gameStats?.actualWinRatePercent ?? 0}%`"
+            />
+            <StatsCard
+              label="Netto"
+              :value="`${(store.gameStats?.totalWon ?? 0) - (store.gameStats?.totalLost ?? 0)}`"
+            />
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500">Verlauf</h3>
+          <table class="mt-2 w-full text-left text-sm">
+            <thead class="text-xs uppercase text-slate-500">
+              <tr>
+                <th class="py-1">Zeit</th>
+                <th class="py-1">Nutzer</th>
+                <th class="py-1">Ergebnis</th>
+                <th class="py-1">Betrag</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-if="store.gameHistory.length === 0">
+                <td colspan="4" class="py-4 text-center text-slate-500">Noch keine Einträge.</td>
+              </tr>
+              <tr
+                v-for="entry in store.gameHistory"
+                :key="entry.id"
+                class="border-t border-slate-100 dark:border-slate-800"
+              >
+                <td class="py-1 text-xs text-slate-500">{{ formatDate(entry.createdAt) }}</td>
+                <td class="py-1">{{ entry.userLogin }}</td>
+                <td class="py-1">{{ entry.reason === 'game_win' ? 'Gewonnen' : 'Verloren' }}</td>
+                <td
+                  class="py-1 font-medium"
+                  :class="entry.amount >= 0 ? 'text-green-600' : 'text-red-600'"
+                >
+                  {{ entry.amount >= 0 ? '+' : '' }}{{ entry.amount }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
   </div>
 </template>
