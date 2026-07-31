@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.0](https://github.com/LandminenTester/StreamingBot/compare/v1.5.1...v1.6.0) (2026-07-31)
+
+
+### Features
+
+* **app:** Footer mit Über-StreamerBot-Modal, Fenstertitel, automatisches Update-Modal ([#17](https://github.com/LandminenTester/StreamingBot/issues/17)) ([d328a2b](https://github.com/LandminenTester/StreamingBot/commit/d328a2b4e7d02188fbdff3e161872f935c888065))
+
 ## [1.5.1](https://github.com/LandminenTester/StreamingBot/compare/v1.5.0...v1.5.1) (2026-07-31)
 
 
