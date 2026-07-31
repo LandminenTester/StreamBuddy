@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.1](https://github.com/LandminenTester/StreamingBot/compare/v1.8.0...v1.8.1) (2026-07-31)
+
+
+### Bug Fixes
+
+* **ci:** Tag-Push und CRLF-Bug in der Release-Pipeline beheben ([#26](https://github.com/LandminenTester/StreamingBot/issues/26)) ([23638a3](https://github.com/LandminenTester/StreamingBot/commit/23638a38a841e37a9f0dbd979bfb3c974d221c67))
+
 ## [1.8.0](https://github.com/LandminenTester/StreamingBot/compare/v1.7.1...v1.8.0) (2026-07-31)
 
 
