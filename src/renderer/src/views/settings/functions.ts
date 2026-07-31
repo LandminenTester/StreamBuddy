@@ -20,6 +20,7 @@ export async function initSettings(
     chatStore.fetchTargetChannel(),
     chatStore.fetchAutoConnect(),
     appInfoStore.fetchVersion(),
+    appInfoStore.fetchMetadata(),
     appInfoStore.fetchChangelog()
   ])
   const unsubscribeAuth = authStore.subscribeToStatusChanges()

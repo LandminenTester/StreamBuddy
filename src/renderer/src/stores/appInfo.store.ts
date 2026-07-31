@@ -1,14 +1,19 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import type { ChangelogEntry, UpdateStatus } from '@shared/types/appInfo'
+import type { AppMetadata, ChangelogEntry, UpdateStatus } from '@shared/types/appInfo'
 
 export const useAppInfoStore = defineStore('appInfo', () => {
   const version = ref('')
+  const metadata = ref<AppMetadata | null>(null)
   const changelog = ref<ChangelogEntry[]>([])
   const updateStatus = ref<UpdateStatus>({ state: 'idle' })
 
   async function fetchVersion(): Promise<void> {
     version.value = await window.api.invoke('app:getVersion', undefined)
+  }
+
+  async function fetchMetadata(): Promise<void> {
+    metadata.value = await window.api.invoke('app:getMetadata', undefined)
   }
 
   async function fetchChangelog(): Promise<void> {
@@ -31,9 +36,11 @@ export const useAppInfoStore = defineStore('appInfo', () => {
 
   return {
     version,
+    metadata,
     changelog,
     updateStatus,
     fetchVersion,
+    fetchMetadata,
     fetchChangelog,
     checkForUpdate,
     installUpdate,
