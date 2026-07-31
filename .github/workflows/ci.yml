@@ -9,10 +9,18 @@ permissions:
   contents: write
 
 jobs:
-  build:
+  # Ein einziger Job fuer alles: PRs und Pushes auf Nicht-main-Branches durchlaufen nur die
+  # Checks (Typecheck/Lint/Test/Build). Ein Push auf main haengt direkt im selben Lauf die
+  # Release-Schritte an (kein zweiter Job, keine doppelte Installation/Build) -- Version +
+  # Changelog werden aus den Conventional-Commits seit dem letzten Tag berechnet
+  # (scripts/release.mjs), committet/getaggt, das GitHub-Release veroeffentlicht und der
+  # bereits gebaute Windows-Installer direkt angehaengt.
+  ci:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
@@ -34,29 +42,9 @@ jobs:
       - name: Build
         run: npm run build
 
-  # Läuft nur nach einem gruenen build-Job und nur bei einem Push auf main (nicht bei PRs).
-  # Ermittelt Version + Changelog direkt aus den Conventional-Commits seit dem letzten Tag
-  # (kein Review-PR mehr, siehe scripts/release.mjs), committet/taggt, veroeffentlicht das
-  # GitHub-Release und haengt den Windows-Installer direkt an -- ein einziger linearer Lauf.
-  release:
-    needs: build
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
       - name: Compute version and changelog
         id: release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: node scripts/release.mjs
 
       - name: Commit and tag release
@@ -67,17 +55,14 @@ jobs:
           git add package.json CHANGELOG.md
           git commit -m "chore(main): release ${{ steps.release.outputs.version }}"
           git tag ${{ steps.release.outputs.tag }}
-          git push origin main --follow-tags
+          git push origin main
+          git push origin ${{ steps.release.outputs.tag }}
 
       - name: Create GitHub Release
         if: steps.release.outputs.released == 'true'
         run: gh release create ${{ steps.release.outputs.tag }} --title ${{ steps.release.outputs.tag }} --notes-file .release-notes.md
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build
-        if: steps.release.outputs.released == 'true'
-        run: npm run build
 
       - name: Package and publish (Windows NSIS-Installer -> GitHub Release)
         if: steps.release.outputs.released == 'true'

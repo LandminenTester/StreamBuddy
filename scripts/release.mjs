@@ -124,11 +124,18 @@ function main() {
   )
   writeFileSync(PACKAGE_JSON_PATH, updatedPkg)
 
-  const changelog = readFileSync(CHANGELOG_PATH, 'utf-8')
+  // Windows-Runner checken mit CRLF aus -- rein textuell in \n normalisieren, damit die
+  // Kopfzeilen-Erkennung nicht an \r\n\r\n vorbeisucht, dann konsistent zurueckkonvertieren.
+  const rawChangelog = readFileSync(CHANGELOG_PATH, 'utf-8')
+  const usesCrlf = rawChangelog.includes('\r\n')
+  const changelog = rawChangelog.replace(/\r\n/g, '\n')
   const headerEnd = changelog.indexOf('\n\n') + 2
   const updatedChangelog =
     changelog.slice(0, headerEnd) + entry + '\n' + changelog.slice(headerEnd)
-  writeFileSync(CHANGELOG_PATH, updatedChangelog)
+  writeFileSync(
+    CHANGELOG_PATH,
+    usesCrlf ? updatedChangelog.replace(/\n/g, '\r\n') : updatedChangelog
+  )
 
   writeFileSync(RELEASE_NOTES_PATH, entry)
 
