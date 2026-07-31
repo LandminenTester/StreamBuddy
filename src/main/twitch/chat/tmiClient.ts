@@ -17,6 +17,7 @@ import {
   stopRouletteScheduler
 } from '../../loyalty/games/rouletteScheduler'
 import { startViewerCountPoller, stopViewerCountPoller } from '../../stats/viewerCountPoller'
+import { startAdSchedulePoller, stopAdSchedulePoller } from '../ads/adSchedulePoller'
 import { getMainWindow } from '../../window'
 import { IpcChannels } from '@shared/ipc/channels'
 import { logger } from '../../logger'
@@ -100,6 +101,7 @@ export async function connectChatClient(options: { manual?: boolean } = {}): Pro
       startViewTimeTicker()
       startViewerCountPoller()
       startRouletteScheduler(client, targetChannel)
+      startAdSchedulePoller()
     }
   })
 
@@ -109,6 +111,7 @@ export async function connectChatClient(options: { manual?: boolean } = {}): Pro
     stopViewTimeTicker()
     stopViewerCountPoller()
     stopRouletteScheduler()
+    stopAdSchedulePoller()
     clearPresence()
   })
 
@@ -150,6 +153,7 @@ export async function disconnectChatClient(): Promise<void> {
   stopViewTimeTicker()
   stopViewerCountPoller()
   stopRouletteScheduler()
+  stopAdSchedulePoller()
   clearPresence()
   setStatus({ connected: false, channel: null, lastError: null })
 }

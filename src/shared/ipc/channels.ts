@@ -44,7 +44,10 @@ export const IpcChannels = {
     list: 'automessages:list',
     create: 'automessages:create',
     update: 'automessages:update',
-    delete: 'automessages:delete'
+    delete: 'automessages:delete',
+    getAdMessageSettings: 'automessages:getAdMessageSettings',
+    setAdMessageSettings: 'automessages:setAdMessageSettings',
+    getAdScheduleStatus: 'automessages:getAdScheduleStatus'
   },
   channelPoints: {
     list: 'channelPoints:list',
