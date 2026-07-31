@@ -73,3 +73,8 @@ export function stopViewerCountPoller(): void {
   pollTimer = null
   isCurrentlyLive = false
 }
+
+/** Aktueller Live-Status des Ziel-Kanals, gespeist aus dem laufenden Viewer-Count-Poll. */
+export function isStreamLive(): boolean {
+  return isCurrentlyLive
+}

@@ -1,5 +1,6 @@
 import { listEarnRules } from '../../db/repositories/loyalty.repo'
 import { creditLoyalty } from '../loyaltyLedger'
+import { isStreamLive } from '../../stats/viewerCountPoller'
 import { logger } from '../../logger'
 
 interface GiftSubEvent {
@@ -10,7 +11,7 @@ interface GiftSubEvent {
 
 export function handleGiftSubEarnEvent(event: Record<string, unknown>): void {
   const payload = event as unknown as GiftSubEvent
-  if (payload.is_anonymous || !payload.user_login) return
+  if (payload.is_anonymous || !payload.user_login || !isStreamLive()) return
 
   const rule = listEarnRules().find((r) => r.reason === 'gift_sub')
   if (!rule?.enabled) return

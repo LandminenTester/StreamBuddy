@@ -1,5 +1,6 @@
 import { listEarnRules } from '../../db/repositories/loyalty.repo'
 import { creditLoyalty } from '../loyaltyLedger'
+import { isStreamLive } from '../../stats/viewerCountPoller'
 import { logger } from '../../logger'
 
 interface FollowEvent {
@@ -8,6 +9,7 @@ interface FollowEvent {
 
 export function handleFollowEarnEvent(event: Record<string, unknown>): void {
   const payload = event as unknown as FollowEvent
+  if (!isStreamLive()) return
   const rule = listEarnRules().find((r) => r.reason === 'follow')
   if (!rule?.enabled) return
 
