@@ -329,6 +329,29 @@ function handleInstallUpdate(): void {
         Streams ausführen.
       </p>
 
+      <dl
+        v-if="appInfoStore.metadata"
+        class="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 border-t border-slate-100 pt-3 text-sm dark:border-slate-800"
+      >
+        <dt class="text-slate-500 dark:text-slate-400">Ersteller</dt>
+        <dd>{{ appInfoStore.metadata.author }}</dd>
+        <dt class="text-slate-500 dark:text-slate-400">Lizenz</dt>
+        <dd>{{ appInfoStore.metadata.license }}</dd>
+        <template v-if="appInfoStore.metadata.repositoryUrl">
+          <dt class="text-slate-500 dark:text-slate-400">Repository</dt>
+          <dd>
+            <a
+              :href="appInfoStore.metadata.repositoryUrl"
+              target="_blank"
+              rel="noopener"
+              class="text-twitch-purple underline"
+            >
+              {{ appInfoStore.metadata.repositoryUrl.replace('https://', '') }}
+            </a>
+          </dd>
+        </template>
+      </dl>
+
       <button
         type="button"
         class="mt-4 flex w-full items-center justify-between text-left"

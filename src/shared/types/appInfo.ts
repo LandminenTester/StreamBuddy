@@ -23,3 +23,9 @@ export interface UpdateStatus {
   percent?: number
   message?: string
 }
+
+export interface AppMetadata {
+  author: string
+  license: string
+  repositoryUrl: string | null
+}

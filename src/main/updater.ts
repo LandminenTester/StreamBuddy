@@ -1,9 +1,13 @@
 import { app } from 'electron'
-import { autoUpdater } from 'electron-updater'
+import electronUpdater from 'electron-updater'
 import type { UpdateStatus } from '@shared/types/appInfo'
 import { IpcChannels } from '@shared/ipc/channels'
 import { getMainWindow } from './window'
 import { logger } from './logger'
+
+// electron-updater ist ein CommonJS-Modul; unter ESM gibt es keinen benannten
+// `autoUpdater`-Export, daher muss ueber den Default-Export destrukturiert werden.
+const { autoUpdater } = electronUpdater
 
 let currentStatus: UpdateStatus = { state: 'idle' }
 
