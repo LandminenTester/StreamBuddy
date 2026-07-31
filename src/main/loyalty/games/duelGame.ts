@@ -1,4 +1,4 @@
-import type { LoyaltyGame } from './LoyaltyGame'
+import type { LoyaltyGame, LoyaltyGameContext } from './LoyaltyGame'
 import { getOrCreateAccount } from '../../db/repositories/loyalty.repo'
 import { creditLoyalty } from '../loyaltyLedger'
 import { parseBetAmount } from './betParser'
@@ -18,27 +18,24 @@ interface PendingDuel {
 /** Offene Duell-Anfragen, keyed by Login des herausgeforderten Gegners. */
 const pendingDuels = new Map<string, PendingDuel>()
 
-export const duelGame: LoyaltyGame = {
-  id: 'duel',
-  commandTrigger: '!duel',
-  defaultConfig: { acceptWindowSeconds: 60, minBet: 10, maxBet: 1000 } satisfies DuelConfig,
+async function handleDuel(ctx: LoyaltyGameContext): Promise<void> {
+  const config = ctx.config as unknown as DuelConfig
 
-  async handleCommand(ctx) {
-    const config = ctx.config as unknown as DuelConfig
-
-    if (ctx.args[0]?.toLowerCase() === 'accept') {
-      await acceptDuel(ctx)
-      return
-    }
-
-    await challengeDuel(ctx, config)
+  if (ctx.args[0]?.toLowerCase() === 'accept') {
+    await acceptDuel(ctx)
+    return
   }
+
+  await challengeDuel(ctx, config)
 }
 
-async function challengeDuel(
-  ctx: Parameters<LoyaltyGame['handleCommand']>[0],
-  config: DuelConfig
-): Promise<void> {
+export const duelGame: LoyaltyGame = {
+  id: 'duel',
+  defaultConfig: { acceptWindowSeconds: 60, minBet: 10, maxBet: 1000 } satisfies DuelConfig,
+  commands: [{ key: 'challenge', defaultTrigger: '!duel', handleCommand: handleDuel }]
+}
+
+async function challengeDuel(ctx: LoyaltyGameContext, config: DuelConfig): Promise<void> {
   const opponentLogin = ctx.args[0]?.replace('@', '').toLowerCase()
   const challengerAccount = getOrCreateAccount(ctx.userLogin)
   const amount = parseBetAmount(
@@ -69,7 +66,7 @@ async function challengeDuel(
   )
 }
 
-async function acceptDuel(ctx: Parameters<LoyaltyGame['handleCommand']>[0]): Promise<void> {
+async function acceptDuel(ctx: LoyaltyGameContext): Promise<void> {
   const opponentLogin = ctx.userLogin.toLowerCase()
   const pending = pendingDuels.get(opponentLogin)
 

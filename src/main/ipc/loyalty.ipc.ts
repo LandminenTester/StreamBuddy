@@ -4,19 +4,28 @@ import type { LoyaltyGameInfo } from '@shared/types/loyalty'
 import { IpcChannels } from '@shared/ipc/channels'
 import { handleTyped } from './handleTyped'
 import {
+  getGameStats,
   getLeaderboard,
   getOrCreateAccount,
   listAllAccounts,
   listBlacklistedAccounts,
   listEarnRules,
   listGameConfigs,
+  listTransactionsByGame,
   setAccountBlacklisted,
   upsertEarnRule,
   upsertGameConfig
 } from '../db/repositories/loyalty.repo'
+import { listRecentRouletteColors } from '../db/repositories/rouletteRounds.repo'
+import { getMessageSet, setMessageSet } from '../db/repositories/botMessages.repo'
 import { startViewTimeTicker } from '../loyalty/earnRules/onViewTimeTick'
-import { getAllGames, getGameRuntimeConfig } from '../loyalty/games/gameRegistry'
+import {
+  getAllGames,
+  getGameRuntimeConfig,
+  resolveCommandTrigger
+} from '../loyalty/games/gameRegistry'
 import { applyManualAdjustment, setAccountBalance } from '../loyalty/loyaltyLedger'
+import { LOYALTY_OFFLINE_MESSAGE_KEY } from '../loyalty/offlineMessages'
 import { parseLoyaltyCsv, serializeLoyaltyCsv } from '../loyalty/csv'
 import { getChatStatus } from '../twitch/chat/tmiClient'
 import { getMainWindow } from '../window'
@@ -28,10 +37,17 @@ function listGamesWithInfo(): LoyaltyGameInfo[] {
     const stored = configs.find((c) => c.gameId === game.id)
     return {
       gameId: game.id,
-      commandTrigger: game.commandTrigger,
       enabled: stored?.enabled ?? true,
       config: getGameRuntimeConfig(game.id),
-      displayName: stored?.displayName ?? null
+      displayName: stored?.displayName ?? null,
+      commandTriggers: stored?.commandTriggers ?? {},
+      texts: stored?.texts ?? {},
+      defaultTexts: game.defaultTexts ?? {},
+      commands: game.commands.map((command) => ({
+        key: command.key,
+        defaultTrigger: command.defaultTrigger,
+        trigger: resolveCommandTrigger(game.id, command)
+      }))
     }
   })
 }
@@ -67,6 +83,33 @@ export function registerLoyaltyIpc(): void {
     const existing = listGameConfigs().find((c) => c.gameId === gameId)
     const config = existing?.config ?? getGameRuntimeConfig(gameId)
     upsertGameConfig(gameId, existing?.enabled ?? true, config, displayName.trim() || null)
+    return listGamesWithInfo()
+  })
+
+  handleTyped(IpcChannels.loyalty.updateGameTriggers, ({ gameId, commandTriggers }) => {
+    const existing = listGameConfigs().find((c) => c.gameId === gameId)
+    const config = existing?.config ?? getGameRuntimeConfig(gameId)
+    upsertGameConfig(
+      gameId,
+      existing?.enabled ?? true,
+      config,
+      existing?.displayName,
+      commandTriggers
+    )
+    return listGamesWithInfo()
+  })
+
+  handleTyped(IpcChannels.loyalty.updateGameTexts, ({ gameId, texts }) => {
+    const existing = listGameConfigs().find((c) => c.gameId === gameId)
+    const config = existing?.config ?? getGameRuntimeConfig(gameId)
+    upsertGameConfig(
+      gameId,
+      existing?.enabled ?? true,
+      config,
+      existing?.displayName,
+      existing?.commandTriggers,
+      texts
+    )
     return listGamesWithInfo()
   })
 
@@ -150,5 +193,24 @@ export function registerLoyaltyIpc(): void {
     getOrCreateAccount(userLogin)
     setAccountBlacklisted(userLogin, blacklisted)
     return listBlacklistedAccounts()
+  })
+
+  handleTyped(IpcChannels.loyalty.listGameHistory, ({ gameId, limit }) =>
+    listTransactionsByGame(gameId, limit ?? 50)
+  )
+
+  handleTyped(IpcChannels.loyalty.getGameStats, ({ gameId }) => getGameStats(gameId))
+
+  handleTyped(IpcChannels.loyalty.listRouletteColors, ({ limit }) =>
+    listRecentRouletteColors(limit ?? 20)
+  )
+
+  handleTyped(IpcChannels.loyalty.getOfflineMessages, () =>
+    getMessageSet(LOYALTY_OFFLINE_MESSAGE_KEY)
+  )
+
+  handleTyped(IpcChannels.loyalty.setOfflineMessages, ({ messages }) => {
+    setMessageSet(LOYALTY_OFFLINE_MESSAGE_KEY, messages)
+    return getMessageSet(LOYALTY_OFFLINE_MESSAGE_KEY)
   })
 }

@@ -71,7 +71,14 @@ export const IpcChannels = {
     exportCsv: 'loyalty:exportCsv',
     listBlacklist: 'loyalty:listBlacklist',
     setBlacklisted: 'loyalty:setBlacklisted',
-    renameGame: 'loyalty:renameGame'
+    renameGame: 'loyalty:renameGame',
+    updateGameTriggers: 'loyalty:updateGameTriggers',
+    updateGameTexts: 'loyalty:updateGameTexts',
+    listGameHistory: 'loyalty:listGameHistory',
+    getGameStats: 'loyalty:getGameStats',
+    listRouletteColors: 'loyalty:listRouletteColors',
+    getOfflineMessages: 'loyalty:getOfflineMessages',
+    setOfflineMessages: 'loyalty:setOfflineMessages'
   },
   stats: {
     getMessagesPerHour: 'stats:getMessagesPerHour',

@@ -1,12 +1,15 @@
 import type { Client } from 'tmi.js'
+import type { RouletteColor } from '@shared/types/roulette'
 import { creditLoyalty, debitLoyalty } from '../loyaltyLedger'
-import { getGameRuntimeConfig, isGameEnabled } from './gameRegistry'
+import { getGameRuntimeConfig, isGameEnabled, pickGameText } from './gameRegistry'
+import { logRouletteRound } from '../../db/repositories/rouletteRounds.repo'
+import { isStreamLive } from '../../stats/viewerCountPoller'
 import { logger } from '../../logger'
 
-export type RouletteColor = 'rot' | 'schwarz' | 'gruen'
-
 interface RouletteConfig {
-  roundIntervalSeconds: number
+  bettingWindowSeconds: number
+  spinDelayMinSeconds: number
+  spinDelayMaxSeconds: number
   minBet: number
   maxBet: number
   greenPayoutMultiplier: number
@@ -17,12 +20,19 @@ interface RouletteBet {
   amount: number
 }
 
+const COLOR_LABELS: Record<RouletteColor, string> = {
+  rot: 'ROT',
+  schwarz: 'SCHWARZ',
+  gruen: 'GRÜN'
+}
+
 /** Wetten der aktuell laufenden Runde, keyed by Nutzer-Login. */
 const currentRoundBets = new Map<string, RouletteBet>()
 
 let activeClient: Client | null = null
 let activeChannel: string | null = null
-let roundTimer: NodeJS.Timeout | null = null
+let phaseTimer: NodeJS.Timeout | null = null
+let bettingOpen = false
 
 function getConfig(): RouletteConfig {
   return getGameRuntimeConfig('roulette') as unknown as RouletteConfig
@@ -35,13 +45,31 @@ function spinColor(): RouletteColor {
   return roll < 19 ? 'rot' : 'schwarz'
 }
 
+function randomBetween(minSeconds: number, maxSeconds: number): number {
+  const min = Math.min(minSeconds, maxSeconds)
+  const max = Math.max(minSeconds, maxSeconds)
+  return min + Math.random() * (max - min)
+}
+
+function fillPlaceholders(template: string, values: Record<string, string | number>): string {
+  return Object.entries(values).reduce(
+    (text, [key, value]) => text.replaceAll(`{${key}}`, String(value)),
+    template
+  )
+}
+
 async function announce(message: string): Promise<void> {
-  if (!activeClient || !activeChannel) return
+  if (!activeClient || !activeChannel || !message) return
   try {
     await activeClient.say(activeChannel, message)
   } catch (error) {
     logger.error('Roulette: Konnte Chat-Nachricht nicht senden', error)
   }
+}
+
+function clearPhaseTimer(): void {
+  if (phaseTimer) clearTimeout(phaseTimer)
+  phaseTimer = null
 }
 
 /**
@@ -54,6 +82,13 @@ export function placeBet(
   color: RouletteColor,
   amount: number
 ): { ok: true } | { ok: false; reason: string } {
+  if (!bettingOpen) {
+    return {
+      ok: false,
+      reason: 'Das Wettfenster ist gerade geschlossen -- warte auf die nächste Runde.'
+    }
+  }
+
   const login = userLogin.toLowerCase()
   if (currentRoundBets.has(login)) {
     return { ok: false, reason: 'Du hast in dieser Runde bereits gesetzt.' }
@@ -72,18 +107,42 @@ export function placeBet(
   return { ok: true }
 }
 
-async function resolveRound(): Promise<void> {
-  if (currentRoundBets.size === 0) {
-    await announce(
-      `🎰 Roulette: Niemand hat gesetzt. Neue Runde läuft (${getConfig().roundIntervalSeconds}s)!`
-    )
+function startBettingWindow(): void {
+  if (!activeClient || !isGameEnabled('roulette')) return
+  if (!isStreamLive()) {
+    scheduleLiveRetry()
     return
   }
 
+  currentRoundBets.clear()
+  bettingOpen = true
+  const config = getConfig()
+
+  const text = pickGameText('roulette', 'roundStart')
+  void announce(fillPlaceholders(text, { seconds: config.bettingWindowSeconds }))
+
+  clearPhaseTimer()
+  phaseTimer = setTimeout(() => closeBettingAndSpin(), config.bettingWindowSeconds * 1000)
+}
+
+function closeBettingAndSpin(): void {
+  bettingOpen = false
+  const config = getConfig()
+
+  const text = pickGameText('roulette', 'spinning')
+  void announce(text)
+
+  clearPhaseTimer()
+  const delaySeconds = randomBetween(config.spinDelayMinSeconds, config.spinDelayMaxSeconds)
+  phaseTimer = setTimeout(() => void resolveRound(), delaySeconds * 1000)
+}
+
+async function resolveRound(): Promise<void> {
   const config = getConfig()
   const winningColor = spinColor()
   const bets = new Map(currentRoundBets)
   currentRoundBets.clear()
+  logRouletteRound(winningColor)
 
   let winnerCount = 0
   for (const [login, bet] of bets) {
@@ -95,33 +154,35 @@ async function resolveRound(): Promise<void> {
     creditLoyalty(login, Math.floor(bet.amount * multiplier), 'game_win', 'roulette')
   }
 
+  const text = pickGameText('roulette', 'result')
   await announce(
-    `🎰 Roulette: ${winningColor.toUpperCase()} gewinnt! ${winnerCount}/${bets.size} Wetten haben gewonnen. Neue Runde läuft (${config.roundIntervalSeconds}s)!`
+    fillPlaceholders(text, {
+      color: COLOR_LABELS[winningColor],
+      winners: winnerCount,
+      total: bets.size
+    })
   )
+
+  startBettingWindow()
 }
 
-function scheduleNextRound(): void {
-  if (roundTimer) clearTimeout(roundTimer)
-  const config = getConfig()
-
-  roundTimer = setTimeout(async () => {
-    await resolveRound()
-    if (activeClient && isGameEnabled('roulette')) scheduleNextRound()
-  }, config.roundIntervalSeconds * 1000)
+/** Prüft alle 30s erneut, ob der Stream inzwischen live ist, um die nächste Runde zu starten. */
+function scheduleLiveRetry(): void {
+  clearPhaseTimer()
+  phaseTimer = setTimeout(() => startBettingWindow(), 30_000)
 }
 
-/** Startet den Runden-Timer, gekoppelt an die Chat-Verbindung (siehe tmiClient.ts). */
+/** Startet die Runden-Statemachine, gekoppelt an die Chat-Verbindung (siehe tmiClient.ts). */
 export function startRouletteScheduler(client: Client, channel: string): void {
   activeClient = client
   activeChannel = channel
-  if (!isGameEnabled('roulette')) return
-  scheduleNextRound()
+  startBettingWindow()
 }
 
 export function stopRouletteScheduler(): void {
-  if (roundTimer) clearTimeout(roundTimer)
-  roundTimer = null
+  clearPhaseTimer()
   currentRoundBets.clear()
+  bettingOpen = false
   activeClient = null
   activeChannel = null
 }
