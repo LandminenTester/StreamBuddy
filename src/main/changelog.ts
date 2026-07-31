@@ -7,11 +7,14 @@ import { logger } from './logger'
 const VERSION_HEADER = /^##\s+(?:\[([^\]]+)]\([^)]*\)|(\S+))\s*(?:\(([^)]+)\))?\s*$/
 const SECTION_HEADER = /^###\s+(.+)$/
 const BULLET_LINE = /^\*\s+(.+)$/
-const TRAILING_COMMIT_LINK = /\s*\(\[[0-9a-fA-F]+]\([^)]*\)\)\s*$/
+// release-please haengt bei Bullets mit referenzierter Issue/PR sowohl einen
+// "([#15](.../issues/15))"- als auch einen "([hash](.../commit/hash))"-Link an --
+// beide Gruppen muessen entfernt werden, nicht nur die letzte.
+const TRAILING_LINKS = /(?:\s*\(\[[^\]]+]\([^)]*\)\))+\s*$/
 const SCOPE_PREFIX = /^\*\*([^*]+):\*\*\s*/
 
 function parseBullet(raw: string): ChangelogItem {
-  const withoutLink = raw.replace(TRAILING_COMMIT_LINK, '').trim()
+  const withoutLink = raw.replace(TRAILING_LINKS, '').trim()
   const scopeMatch = withoutLink.match(SCOPE_PREFIX)
   if (!scopeMatch) return { scope: null, text: withoutLink }
   return { scope: scopeMatch[1], text: withoutLink.slice(scopeMatch[0].length) }
