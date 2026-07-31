@@ -17,9 +17,12 @@ import type { Poll, PollCreateInput, PollTemplate, PollTemplateInput } from '../
 import type {
   LoyaltyAccount,
   LoyaltyEarnRule,
+  LoyaltyGameHistoryEntry,
   LoyaltyGameInfo,
+  LoyaltyGameStats,
   LoyaltyLeaderboardEntry
 } from '../types/loyalty'
+import type { RouletteColor } from '../types/roulette'
 import type { ChatMessageStatsBucket, LiveStatsUpdate, ViewerCountSample } from '../types/stats'
 
 /**
@@ -134,6 +137,28 @@ export interface IpcContracts {
     request: { gameId: string; displayName: string }
     response: LoyaltyGameInfo[]
   }
+  [IpcChannels.loyalty.updateGameTriggers]: {
+    request: { gameId: string; commandTriggers: Record<string, string> }
+    response: LoyaltyGameInfo[]
+  }
+  [IpcChannels.loyalty.updateGameTexts]: {
+    request: { gameId: string; texts: Record<string, string[]> }
+    response: LoyaltyGameInfo[]
+  }
+  [IpcChannels.loyalty.listGameHistory]: {
+    request: { gameId: string; limit?: number }
+    response: LoyaltyGameHistoryEntry[]
+  }
+  [IpcChannels.loyalty.getGameStats]: {
+    request: { gameId: string }
+    response: LoyaltyGameStats
+  }
+  [IpcChannels.loyalty.listRouletteColors]: {
+    request: { limit?: number }
+    response: RouletteColor[]
+  }
+  [IpcChannels.loyalty.getOfflineMessages]: { request: void; response: string[] }
+  [IpcChannels.loyalty.setOfflineMessages]: { request: { messages: string[] }; response: string[] }
 
   [IpcChannels.stats.getMessagesPerHour]: {
     request: { sinceMs: number }
