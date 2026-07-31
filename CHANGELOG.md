@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.0](https://github.com/LandminenTester/StreamingBot/compare/v1.6.1...v1.7.0) (2026-07-31)
+
+
+### Features
+
+* **app:** Light/Dark-Theme-Switch im Footer, persistiert in SQLite ([#21](https://github.com/LandminenTester/StreamingBot/issues/21)) ([248cb7c](https://github.com/LandminenTester/StreamingBot/commit/248cb7c615a8d4d0e11c64503d92e2195acefc93))
+
 ## [1.6.1](https://github.com/LandminenTester/StreamingBot/compare/v1.6.0...v1.6.1) (2026-07-31)
 
 
