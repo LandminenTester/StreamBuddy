@@ -5,6 +5,7 @@
 export const IpcChannels = {
   app: {
     getVersion: 'app:getVersion',
+    getMetadata: 'app:getMetadata',
     getChangelog: 'app:getChangelog',
     checkForUpdate: 'app:checkForUpdate',
     installUpdate: 'app:installUpdate',

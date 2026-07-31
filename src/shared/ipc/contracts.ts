@@ -1,5 +1,5 @@
 import { IpcChannels } from './channels'
-import type { ChangelogEntry, UpdateStatus } from '../types/appInfo'
+import type { AppMetadata, ChangelogEntry, UpdateStatus } from '../types/appInfo'
 import type { Command, CommandInput } from '../types/command'
 import type {
   AuthStatus,
@@ -33,6 +33,7 @@ import type { ChatMessageStatsBucket, LiveStatsUpdate, ViewerCountSample } from 
  */
 export interface IpcContracts {
   [IpcChannels.app.getVersion]: { request: void; response: string }
+  [IpcChannels.app.getMetadata]: { request: void; response: AppMetadata }
   [IpcChannels.app.getChangelog]: { request: void; response: ChangelogEntry[] }
   [IpcChannels.app.checkForUpdate]: { request: void; response: void }
   [IpcChannels.app.installUpdate]: { request: void; response: void }
