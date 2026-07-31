@@ -3,6 +3,13 @@
  * (automessages, polls, channelPoints, loyalty, stats, auth).
  */
 export const IpcChannels = {
+  app: {
+    getVersion: 'app:getVersion',
+    getChangelog: 'app:getChangelog',
+    checkForUpdate: 'app:checkForUpdate',
+    installUpdate: 'app:installUpdate',
+    onUpdateStatus: 'app:onUpdateStatus'
+  },
   commands: {
     list: 'commands:list',
     create: 'commands:create',

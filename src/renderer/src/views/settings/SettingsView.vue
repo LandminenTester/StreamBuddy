@@ -2,20 +2,23 @@
 import { onMounted, onUnmounted, ref } from 'vue'
 import { useAuthStore } from '@renderer/stores/auth.store'
 import { useChatStore } from '@renderer/stores/chat.store'
+import { useAppInfoStore } from '@renderer/stores/appInfo.store'
 import type { FeatureKey } from '@shared/types/auth'
 import { initSettings, onToggleFeature } from './functions'
-import { labelForFeature } from './utils'
+import { labelForFeature, updateStatusLabel } from './utils'
 
 const authStore = useAuthStore()
 const chatStore = useChatStore()
+const appInfoStore = useAppInfoStore()
 const channelInput = ref('')
 const clientIdInput = ref('')
 const isClientIdVisible = ref(false)
+const isChangelogOpen = ref(false)
 
 let unsubscribe: (() => void) | null = null
 
 onMounted(async () => {
-  unsubscribe = await initSettings(authStore, chatStore)
+  unsubscribe = await initSettings(authStore, chatStore, appInfoStore)
   channelInput.value = chatStore.targetChannel
   clientIdInput.value = authStore.clientId
 })
@@ -46,6 +49,14 @@ function handleToggleAutoConnect(event: Event): void {
 
 function handleConnectNow(): void {
   void chatStore.connectNow()
+}
+
+function handleCheckForUpdate(): void {
+  void appInfoStore.checkForUpdate()
+}
+
+function handleInstallUpdate(): void {
+  void appInfoStore.installUpdate()
 }
 </script>
 
@@ -280,6 +291,73 @@ function handleConnectNow(): void {
           />
         </li>
       </ul>
+    </section>
+
+    <section class="rounded-lg border border-slate-200 p-4 dark:border-slate-800">
+      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">App & Updates</h2>
+
+      <div class="mt-3 flex items-center justify-between gap-4">
+        <div>
+          <p class="font-medium">Version {{ appInfoStore.version || '–' }}</p>
+          <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+            {{ updateStatusLabel(appInfoStore.updateStatus) }}
+          </p>
+        </div>
+        <div class="flex shrink-0 items-center gap-2">
+          <button
+            v-if="appInfoStore.updateStatus.state === 'downloaded'"
+            class="rounded-md bg-twitch-purple px-4 py-2 text-sm font-medium text-white hover:opacity-90"
+            @click="handleInstallUpdate"
+          >
+            Jetzt installieren & neu starten
+          </button>
+          <button
+            v-else
+            class="rounded-md border border-slate-300 px-3 py-2 text-sm hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:hover:bg-slate-800"
+            :disabled="appInfoStore.updateStatus.state === 'checking'"
+            @click="handleCheckForUpdate"
+          >
+            Nach Updates suchen
+          </button>
+        </div>
+      </div>
+      <p
+        v-if="appInfoStore.updateStatus.state === 'downloaded'"
+        class="mt-2 text-xs text-amber-600 dark:text-amber-400"
+      >
+        Die App wird beim Installieren beendet und neu gestartet -- nicht während eines laufenden
+        Streams ausführen.
+      </p>
+
+      <button
+        type="button"
+        class="mt-4 flex w-full items-center justify-between text-left"
+        @click="isChangelogOpen = !isChangelogOpen"
+      >
+        <span class="text-sm font-medium">Changelog anzeigen</span>
+        <span class="text-xs text-slate-400">{{ isChangelogOpen ? '▲' : '▼' }}</span>
+      </button>
+      <div v-if="isChangelogOpen" class="mt-3 max-h-96 space-y-4 overflow-y-auto text-sm">
+        <p v-if="appInfoStore.changelog.length === 0" class="py-2 text-center text-slate-500">
+          Kein Changelog verfügbar.
+        </p>
+        <div v-for="entry in appInfoStore.changelog" :key="entry.version">
+          <p class="font-medium">
+            v{{ entry.version }}
+            <span v-if="entry.date" class="font-normal text-slate-500">({{ entry.date }})</span>
+          </p>
+          <div v-for="section in entry.sections" :key="section.title" class="mt-1">
+            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+              {{ section.title }}
+            </p>
+            <ul class="mt-1 list-disc space-y-0.5 pl-5 text-xs text-slate-600 dark:text-slate-300">
+              <li v-for="(item, index) in section.items" :key="index">
+                <strong v-if="item.scope">{{ item.scope }}:</strong> {{ item.text }}
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
     </section>
   </div>
 </template>

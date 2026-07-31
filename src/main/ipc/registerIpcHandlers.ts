@@ -1,3 +1,4 @@
+import { registerAppIpc } from './app.ipc'
 import { registerCommandsIpc } from './commands.ipc'
 import { registerAuthIpc } from './auth.ipc'
 import { registerChatIpc } from './chat.ipc'
@@ -14,6 +15,7 @@ import { registerStatsIpc } from './stats.ipc'
  * *.ipc.ts Datei mit einer register()-Funktion, die hier aufgerufen wird.
  */
 export function registerIpcHandlers(): void {
+  registerAppIpc()
   registerCommandsIpc()
   registerAuthIpc()
   registerChatIpc()
