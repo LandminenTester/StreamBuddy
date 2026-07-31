@@ -57,21 +57,21 @@ function closeUpdateModal(): void {
 
 <template>
   <div class="flex h-screen w-screen overflow-hidden">
-    <aside class="flex w-56 shrink-0 flex-col border-r border-slate-200 dark:border-slate-800">
+    <aside class="flex w-56 shrink-0 flex-col border-r border-slate-200 dark:border-neutral-800">
       <div class="px-4 py-5 text-lg font-semibold text-twitch-purple">Streaming Bot</div>
       <nav class="flex flex-1 flex-col gap-1 px-2">
         <RouterLink
           v-for="item in navItems"
           :key="item.to"
           :to="item.to"
-          class="rounded-md px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+          class="rounded-md px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 dark:text-neutral-300 dark:hover:bg-twitch-purple/10"
           active-class="bg-twitch-purple/10 text-twitch-purple dark:bg-twitch-purple/20"
         >
           {{ item.label }}
         </RouterLink>
       </nav>
-      <footer class="border-t border-slate-200 px-4 py-3 dark:border-slate-800">
-        <p class="text-xs text-slate-500 dark:text-slate-400">Erstellt von Landminen Tester</p>
+      <footer class="border-t border-slate-200 px-4 py-3 dark:border-neutral-800">
+        <p class="text-xs text-slate-500 dark:text-neutral-400">Erstellt von Landminen Tester</p>
         <ThemeToggle class="mt-2" />
         <button
           type="button"

@@ -34,7 +34,7 @@ function handleSubmit(): void {
           v-model="form.title"
           type="text"
           required
-          class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+          class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
         />
       </div>
 
@@ -46,7 +46,7 @@ function handleSubmit(): void {
             type="number"
             min="1"
             required
-            class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+            class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
           />
         </div>
         <div>
@@ -54,7 +54,7 @@ function handleSubmit(): void {
           <input
             v-model="form.backgroundColor"
             type="color"
-            class="mt-1 h-9 w-full rounded-md border border-slate-300 dark:border-slate-700"
+            class="mt-1 h-9 w-full rounded-md border border-slate-300 dark:border-neutral-700"
           />
         </div>
       </div>
@@ -64,7 +64,7 @@ function handleSubmit(): void {
         <textarea
           v-model="form.prompt"
           rows="2"
-          class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+          class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
         />
       </div>
 
@@ -72,7 +72,7 @@ function handleSubmit(): void {
         <label class="block text-xs font-medium text-slate-500">Aktion bei Einlösung</label>
         <select
           v-model="form.actionType"
-          class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+          class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
         >
           <option v-for="(label, type) in ACTION_TYPE_LABELS" :key="type" :value="type">
             {{ label }}
@@ -85,7 +85,7 @@ function handleSubmit(): void {
         <input
           v-model="form.actionMessage"
           type="text"
-          class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+          class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
         />
       </div>
 
@@ -93,7 +93,7 @@ function handleSubmit(): void {
         <label class="block text-xs font-medium text-slate-500">Command</label>
         <select
           v-model.number="form.actionCommandId"
-          class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+          class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
         >
           <option :value="null" disabled>Command wählen</option>
           <option v-for="command in commandsStore.commands" :key="command.id" :value="command.id">
@@ -116,7 +116,7 @@ function handleSubmit(): void {
       <div class="flex justify-end gap-2 pt-2">
         <button
           type="button"
-          class="rounded-md border border-slate-300 px-4 py-2 text-sm dark:border-slate-700"
+          class="rounded-md border border-slate-300 px-4 py-2 text-sm dark:border-neutral-700"
           @click="emit('close')"
         >
           Abbrechen

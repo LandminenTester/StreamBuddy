@@ -27,7 +27,7 @@ function handleSubmit(): void {
           type="text"
           placeholder="!uptime"
           required
-          class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+          class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
         />
       </div>
 
@@ -37,7 +37,7 @@ function handleSubmit(): void {
           v-model="form.response"
           rows="3"
           required
-          class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+          class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
         />
       </div>
 
@@ -47,7 +47,7 @@ function handleSubmit(): void {
           v-model="form.aliasesInput"
           type="text"
           placeholder="!time, !howlong"
-          class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+          class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
         />
       </div>
 
@@ -56,7 +56,7 @@ function handleSubmit(): void {
           <label class="block text-xs font-medium text-slate-500">Berechtigung</label>
           <select
             v-model="form.permissionLevel"
-            class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+            class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
           >
             <option v-for="(label, level) in PERMISSION_LABELS" :key="level" :value="level">
               {{ label }}
@@ -69,7 +69,7 @@ function handleSubmit(): void {
             v-model.number="form.cooldownSeconds"
             type="number"
             min="0"
-            class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+            class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
           />
         </div>
       </div>
@@ -78,7 +78,7 @@ function handleSubmit(): void {
         <label class="block text-xs font-medium text-slate-500">Zustellart</label>
         <select
           v-model="form.deliveryMode"
-          class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+          class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
         >
           <option v-for="(label, mode) in DELIVERY_MODE_LABELS" :key="mode" :value="mode">
             {{ label }}
@@ -98,7 +98,7 @@ function handleSubmit(): void {
       <div class="flex justify-end gap-2 pt-2">
         <button
           type="button"
-          class="rounded-md border border-slate-300 px-4 py-2 text-sm dark:border-slate-700"
+          class="rounded-md border border-slate-300 px-4 py-2 text-sm dark:border-neutral-700"
           @click="emit('close')"
         >
           Abbrechen

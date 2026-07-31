@@ -53,12 +53,12 @@ function handleConnectNow(): void {
   <div class="max-w-2xl space-y-8">
     <div>
       <h1 class="text-2xl font-semibold">Einstellungen</h1>
-      <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+      <p class="mt-1 text-sm text-slate-500 dark:text-neutral-400">
         Twitch-Bot-Verbindung und aktivierte Features.
       </p>
     </div>
 
-    <section class="rounded-lg border border-slate-200 p-4 dark:border-slate-800">
+    <section class="rounded-lg border border-slate-200 p-4 dark:border-neutral-800">
       <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">
         Twitch-Verbindung
       </h2>
@@ -73,11 +73,11 @@ function handleConnectNow(): void {
               v-model="clientIdInput"
               :type="isClientIdVisible ? 'text' : 'password'"
               placeholder="Client-ID eintragen"
-              class="w-full rounded-md border border-slate-300 px-3 py-2 pr-10 text-sm dark:border-slate-700 dark:bg-slate-900"
+              class="w-full rounded-md border border-slate-300 px-3 py-2 pr-10 text-sm dark:border-neutral-700 dark:bg-neutral-900"
             />
             <button
               type="button"
-              class="absolute inset-y-0 right-0 flex items-center px-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+              class="absolute inset-y-0 right-0 flex items-center px-3 text-slate-400 hover:text-slate-600 dark:hover:text-neutral-200"
               :aria-label="isClientIdVisible ? 'Client-ID verbergen' : 'Client-ID anzeigen'"
               @click="isClientIdVisible = !isClientIdVisible"
             >
@@ -119,7 +119,7 @@ function handleConnectNow(): void {
             </button>
           </div>
           <button
-            class="rounded-md border border-slate-300 px-3 py-2 text-sm hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:hover:bg-slate-800"
+            class="rounded-md border border-slate-300 px-3 py-2 text-sm hover:bg-slate-50 disabled:opacity-50 dark:border-neutral-700 dark:hover:bg-neutral-800"
             :disabled="authStore.isSavingClientId || !clientIdInput.trim()"
             @click="handleSaveClientId"
           >
@@ -135,7 +135,7 @@ function handleConnectNow(): void {
             <span class="text-twitch-purple">{{ authStore.status.twitchLogin }}</span>
           </p>
           <p v-else class="font-medium text-slate-500">Kein Bot-Account verbunden</p>
-          <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+          <p class="mt-1 text-xs text-slate-500 dark:text-neutral-400">
             Der Bot-Account sollte ein separater Twitch-Account sein, der als Moderator im Zielkanal
             eingesetzt ist.
           </p>
@@ -178,7 +178,7 @@ function handleConnectNow(): void {
         <p class="mt-1">
           2. Gib diesen Code ein:
           <code
-            class="ml-1 rounded bg-white px-2 py-1 font-mono text-base font-semibold dark:bg-slate-800"
+            class="ml-1 rounded bg-white px-2 py-1 font-mono text-base font-semibold dark:bg-neutral-800"
           >
             {{ authStore.deviceAuthPrompt.userCode }}
           </code>
@@ -204,7 +204,7 @@ function handleConnectNow(): void {
       </div>
     </section>
 
-    <section class="rounded-lg border border-slate-200 p-4 dark:border-slate-800">
+    <section class="rounded-lg border border-slate-200 p-4 dark:border-neutral-800">
       <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Chat-Verbindung</h2>
 
       <div class="mt-3 flex items-center gap-2">
@@ -212,7 +212,7 @@ function handleConnectNow(): void {
           v-model="channelInput"
           type="text"
           placeholder="Twitch-Zielkanal, z.B. dein_channel_name"
-          class="flex-1 rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+          class="flex-1 rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
         />
         <button
           class="rounded-md bg-twitch-purple px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
@@ -246,7 +246,7 @@ function handleConnectNow(): void {
         </label>
         <button
           v-if="!chatStore.autoConnect"
-          class="rounded-md border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:hover:bg-slate-800"
+          class="rounded-md border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-50 disabled:opacity-50 dark:border-neutral-700 dark:hover:bg-neutral-800"
           :disabled="chatStore.isConnecting"
           @click="handleConnectNow"
         >
@@ -255,10 +255,10 @@ function handleConnectNow(): void {
       </div>
     </section>
 
-    <section class="rounded-lg border border-slate-200 p-4 dark:border-slate-800">
+    <section class="rounded-lg border border-slate-200 p-4 dark:border-neutral-800">
       <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Features</h2>
 
-      <ul class="mt-3 divide-y divide-slate-100 dark:divide-slate-800">
+      <ul class="mt-3 divide-y divide-slate-100 dark:divide-neutral-800">
         <li
           v-for="feature in authStore.features"
           :key="feature.featureKey"
@@ -268,7 +268,7 @@ function handleConnectNow(): void {
             <p class="font-medium">
               {{ labelForFeature(feature.featureKey)?.title ?? feature.featureKey }}
             </p>
-            <p class="text-xs text-slate-500 dark:text-slate-400">
+            <p class="text-xs text-slate-500 dark:text-neutral-400">
               {{ labelForFeature(feature.featureKey)?.description }}
             </p>
           </div>

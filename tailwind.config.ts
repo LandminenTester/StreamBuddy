@@ -7,8 +7,7 @@ export default {
     extend: {
       colors: {
         twitch: {
-          purple: '#9146FF',
-          dark: '#0e0e10'
+          purple: '#9146FF'
         }
       }
     }

@@ -4,7 +4,7 @@ const emit = defineEmits<{ 'update:modelValue': [key: string] }>()
 </script>
 
 <template>
-  <div class="flex flex-wrap gap-1 border-b border-slate-200 dark:border-slate-800">
+  <div class="flex flex-wrap gap-1 border-b border-slate-200 dark:border-neutral-800">
     <button
       v-for="tab in tabs"
       :key="tab.key"
@@ -13,7 +13,7 @@ const emit = defineEmits<{ 'update:modelValue': [key: string] }>()
       :class="
         modelValue === tab.key
           ? 'border-twitch-purple bg-twitch-purple/10 text-twitch-purple'
-          : 'border-transparent text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
+          : 'border-transparent text-slate-600 hover:bg-slate-100 dark:text-neutral-300 dark:hover:bg-neutral-800'
       "
       @click="emit('update:modelValue', tab.key)"
     >
