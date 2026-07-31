@@ -4,6 +4,7 @@ out
 release
 .env
 *.local
+.release-notes.md
 
 # SQLite Laufzeitdaten (nicht Teil des Repos)
 *.sqlite

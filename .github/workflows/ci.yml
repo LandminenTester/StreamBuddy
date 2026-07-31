@@ -7,7 +7,6 @@ on:
 
 permissions:
   contents: write
-  pull-requests: write
 
 jobs:
   build:
@@ -35,36 +34,18 @@ jobs:
       - name: Build
         run: npm run build
 
-  # Läuft nur nach einem gruenen build-Job und nur bei einem Push auf main (nicht
-  # bei PRs) -- erstellt/aktualisiert den Release-PR bzw. schneidet den Release,
-  # sobald dieser PR gemergt wird.
-  release-please:
+  # Läuft nur nach einem gruenen build-Job und nur bei einem Push auf main (nicht bei PRs).
+  # Ermittelt Version + Changelog direkt aus den Conventional-Commits seit dem letzten Tag
+  # (kein Review-PR mehr, siehe scripts/release.mjs), committet/taggt, veroeffentlicht das
+  # GitHub-Release und haengt den Windows-Installer direkt an -- ein einziger linearer Lauf.
+  release:
     needs: build
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    outputs:
-      release_created: ${{ steps.release.outputs.release_created }}
-      tag_name: ${{ steps.release.outputs.tag_name }}
-    steps:
-      - uses: googleapis/release-please-action@v4
-        id: release
-        with:
-          release-type: node
-
-  # Läuft nur, wenn release-please tatsaechlich einen Release erstellt hat (also
-  # beim Mergen des von release-please erstellten Release-PRs) -- baut den
-  # Windows-Installer und haengt ihn direkt an dieses bereits veroeffentlichte
-  # Release an (siehe electron-builder.yml: releaseType: release).
-  package-and-publish:
-    needs: release-please
-    if: ${{ needs.release-please.outputs.release_created == 'true' }}
     runs-on: windows-latest
-    permissions:
-      contents: write
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ needs.release-please.outputs.tag_name }}
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
@@ -74,10 +55,32 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Compute version and changelog
+        id: release
+        run: node scripts/release.mjs
+
+      - name: Commit and tag release
+        if: steps.release.outputs.released == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add package.json CHANGELOG.md
+          git commit -m "chore(main): release ${{ steps.release.outputs.version }}"
+          git tag ${{ steps.release.outputs.tag }}
+          git push origin main --follow-tags
+
+      - name: Create GitHub Release
+        if: steps.release.outputs.released == 'true'
+        run: gh release create ${{ steps.release.outputs.tag }} --title ${{ steps.release.outputs.tag }} --notes-file .release-notes.md
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build
+        if: steps.release.outputs.released == 'true'
         run: npm run build
 
       - name: Package and publish (Windows NSIS-Installer -> GitHub Release)
+        if: steps.release.outputs.released == 'true'
         run: npx electron-builder --win --publish always
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
