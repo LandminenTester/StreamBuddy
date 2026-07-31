@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.1](https://github.com/LandminenTester/StreamingBot/compare/v1.7.0...v1.7.1) (2026-07-31)
+
+
+### Bug Fixes
+
+* **ui:** Dark-Mode-Palette auf neutrales Grau umstellen, Navbar-Hover in Lila ([#23](https://github.com/LandminenTester/StreamingBot/issues/23)) ([4c31221](https://github.com/LandminenTester/StreamingBot/commit/4c312214a2707e41eed2d5181bf18c4e7e61946a))
+
 ## [1.7.0](https://github.com/LandminenTester/StreamingBot/compare/v1.6.1...v1.7.0) (2026-07-31)
 
 
