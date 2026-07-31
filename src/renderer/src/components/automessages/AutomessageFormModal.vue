@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { reactive } from 'vue'
 import BaseModal from '@renderer/components/shared/BaseModal.vue'
+import StringListInput from '@renderer/components/shared/StringListInput.vue'
 import type { AutomessageFormState } from '@renderer/views/automessages/types'
 import { MODE_LABELS } from '@renderer/views/automessages/utils'
 
@@ -10,6 +11,7 @@ const emit = defineEmits<{ close: []; submit: [form: AutomessageFormState] }>()
 const form = reactive<AutomessageFormState>({ ...props.initial })
 
 function handleSubmit(): void {
+  if (!form.messages.some((m) => m.trim().length > 0)) return
   emit('submit', { ...form })
 }
 </script>
@@ -22,14 +24,12 @@ function handleSubmit(): void {
     <form class="space-y-3" @submit.prevent="handleSubmit">
       <div>
         <label class="block text-xs font-medium text-slate-500">
-          Nachrichten (eine pro Zeile, wird rotiert)
+          Nachrichten (werden zufällig rotiert)
         </label>
-        <textarea
-          v-model="form.messagesInput"
-          rows="4"
-          required
+        <StringListInput
+          v-model="form.messages"
           placeholder="Folge dem Kanal für Benachrichtigungen!"
-          class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
+          class="mt-1"
         />
       </div>
 

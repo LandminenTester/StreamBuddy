@@ -1,6 +1,5 @@
 import type { useAutomessagesStore } from '@renderer/stores/automessages.store'
 import type { AutomessageFormState } from './types'
-import { parseMessages } from './utils'
 
 type AutomessagesStore = ReturnType<typeof useAutomessagesStore>
 
@@ -9,7 +8,7 @@ export async function submitAutomessageForm(
   form: AutomessageFormState
 ): Promise<void> {
   const input = {
-    messages: parseMessages(form.messagesInput),
+    messages: form.messages.map((m) => m.trim()).filter((m) => m.length > 0),
     mode: form.mode,
     intervalMinutes: form.mode === 'interval' ? form.intervalMinutes : null,
     messageCountThreshold: form.mode === 'message_count' ? form.messageCountThreshold : null,

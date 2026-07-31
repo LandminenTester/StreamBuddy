@@ -1,6 +1,6 @@
 export interface PollFormState {
   title: string
-  choicesInput: string
+  choices: string[]
   durationSeconds: number
   channelPointsVotingEnabled: boolean
   channelPointsPerVote: number
@@ -9,7 +9,7 @@ export interface PollFormState {
 export function emptyPollForm(): PollFormState {
   return {
     title: '',
-    choicesInput: '',
+    choices: [],
     durationSeconds: 120,
     channelPointsVotingEnabled: false,
     channelPointsPerVote: 0

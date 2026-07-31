@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { reactive } from 'vue'
 import BaseModal from '@renderer/components/shared/BaseModal.vue'
+import StringListInput from '@renderer/components/shared/StringListInput.vue'
 import type { PollTemplateFormState } from '@renderer/views/polls/types'
 
 const props = defineProps<{ initial: PollTemplateFormState }>()
@@ -9,6 +10,7 @@ const emit = defineEmits<{ close: []; submit: [form: PollTemplateFormState] }>()
 const form = reactive<PollTemplateFormState>({ ...props.initial })
 
 function handleSubmit(): void {
+  if (form.choices.filter((c) => c.trim().length > 0).length < 2) return
   emit('submit', { ...form })
 }
 </script>
@@ -29,15 +31,8 @@ function handleSubmit(): void {
         />
       </div>
       <div>
-        <label class="block text-xs font-medium text-slate-500">
-          Antwortoptionen (eine pro Zeile, min. 2)
-        </label>
-        <textarea
-          v-model="form.choicesInput"
-          rows="4"
-          required
-          class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
-        />
+        <label class="block text-xs font-medium text-slate-500"> Antwortoptionen (mind. 2) </label>
+        <StringListInput v-model="form.choices" class="mt-1" />
       </div>
       <div>
         <label class="block text-xs font-medium text-slate-500">Dauer (Sekunden)</label>

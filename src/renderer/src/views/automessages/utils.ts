@@ -9,20 +9,13 @@ export const MODE_LABELS: Record<AutomessageMode, string> = {
 export function automessageToFormState(automessage: Automessage): AutomessageFormState {
   return {
     id: automessage.id,
-    messagesInput: automessage.messages.join('\n'),
+    messages: [...automessage.messages],
     mode: automessage.mode,
     intervalMinutes: automessage.intervalMinutes ?? 30,
     messageCountThreshold: automessage.messageCountThreshold ?? 20,
     minChatLinesSinceLast: automessage.minChatLinesSinceLast,
     enabled: automessage.enabled
   }
-}
-
-export function parseMessages(messagesInput: string): string[] {
-  return messagesInput
-    .split('\n')
-    .map((line) => line.trim())
-    .filter((line) => line.length > 0)
 }
 
 export function describeSchedule(automessage: Automessage): string {
