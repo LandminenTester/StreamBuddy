@@ -8,7 +8,7 @@ import type {
   LoyaltyGameStats,
   LoyaltyLeaderboardEntry
 } from '@shared/types/loyalty'
-import type { RouletteColor } from '@shared/types/roulette'
+import type { RouletteRoundResult } from '@shared/types/roulette'
 
 export const useLoyaltyStore = defineStore('loyalty', () => {
   const leaderboard = ref<LoyaltyLeaderboardEntry[]>([])
@@ -18,7 +18,7 @@ export const useLoyaltyStore = defineStore('loyalty', () => {
   const error = ref<string | null>(null)
   const gameHistory = ref<LoyaltyGameHistoryEntry[]>([])
   const gameStats = ref<LoyaltyGameStats | null>(null)
-  const rouletteColors = ref<RouletteColor[]>([])
+  const rouletteColors = ref<RouletteRoundResult[]>([])
   const offlineMessages = ref<string[]>([])
 
   async function fetchLeaderboard(): Promise<void> {

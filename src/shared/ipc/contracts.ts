@@ -8,7 +8,12 @@ import type {
   FeatureScopeDefinition
 } from '../types/auth'
 import type { ChatConnectionStatus, ChatFeedMessage } from '../types/chat'
-import type { Automessage, AutomessageInput } from '../types/automessage'
+import type {
+  AdMessageSettings,
+  AdScheduleStatus,
+  Automessage,
+  AutomessageInput
+} from '../types/automessage'
 import type {
   ChannelPointReward,
   ChannelPointRewardInput,
@@ -23,7 +28,7 @@ import type {
   LoyaltyGameStats,
   LoyaltyLeaderboardEntry
 } from '../types/loyalty'
-import type { RouletteColor } from '../types/roulette'
+import type { RouletteRoundResult } from '../types/roulette'
 import type { ChatMessageStatsBucket, LiveStatsUpdate, ViewerCountSample } from '../types/stats'
 
 /**
@@ -81,6 +86,15 @@ export interface IpcContracts {
     response: Automessage
   }
   [IpcChannels.automessages.delete]: { request: { id: number }; response: void }
+  [IpcChannels.automessages.getAdMessageSettings]: { request: void; response: AdMessageSettings }
+  [IpcChannels.automessages.setAdMessageSettings]: {
+    request: AdMessageSettings
+    response: void
+  }
+  [IpcChannels.automessages.getAdScheduleStatus]: {
+    request: void
+    response: AdScheduleStatus | null
+  }
 
   [IpcChannels.channelPoints.list]: { request: void; response: ChannelPointReward[] }
   [IpcChannels.channelPoints.create]: {
@@ -165,7 +179,7 @@ export interface IpcContracts {
   }
   [IpcChannels.loyalty.listRouletteColors]: {
     request: { limit?: number }
-    response: RouletteColor[]
+    response: RouletteRoundResult[]
   }
   [IpcChannels.loyalty.getOfflineMessages]: { request: void; response: string[] }
   [IpcChannels.loyalty.setOfflineMessages]: { request: { messages: string[] }; response: string[] }

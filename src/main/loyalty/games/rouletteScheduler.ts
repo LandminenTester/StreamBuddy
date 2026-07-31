@@ -1,5 +1,6 @@
 import type { Client } from 'tmi.js'
 import type { RouletteColor } from '@shared/types/roulette'
+import { colorForNumber } from '@shared/types/roulette'
 import { creditLoyalty, debitLoyalty } from '../loyaltyLedger'
 import { getGameRuntimeConfig, isGameEnabled, pickGameText } from './gameRegistry'
 import { logRouletteRound } from '../../db/repositories/rouletteRounds.repo'
@@ -13,18 +14,19 @@ interface RouletteConfig {
   minBet: number
   maxBet: number
   greenPayoutMultiplier: number
+  numberPayoutMultiplier: number
 }
 
-interface RouletteBet {
-  color: RouletteColor
-  amount: number
-}
+type RouletteBetValue = { kind: 'color'; color: RouletteColor } | { kind: 'number'; number: number }
+type RouletteBet = RouletteBetValue & { userLogin: string; amount: number }
 
 const COLOR_LABELS: Record<RouletteColor, string> = {
   rot: 'ROT',
   schwarz: 'SCHWARZ',
   gruen: 'GRÜN'
 }
+
+export const COLOR_EMOJI: Record<RouletteColor, string> = { rot: '🔴', schwarz: '⚫', gruen: '🟢' }
 
 /** Wetten der aktuell laufenden Runde, keyed by Nutzer-Login. */
 const currentRoundBets = new Map<string, RouletteBet>()
@@ -38,11 +40,9 @@ function getConfig(): RouletteConfig {
   return getGameRuntimeConfig('roulette') as unknown as RouletteConfig
 }
 
-/** 18 Rot, 18 Schwarz, 1 Grün von 37 -- wie beim echten Roulette. */
-function spinColor(): RouletteColor {
-  const roll = Math.random() * 37
-  if (roll < 1) return 'gruen'
-  return roll < 19 ? 'rot' : 'schwarz'
+/** Echte Zahl 0-36 gleichverteilt -- ergibt exakt die 1/18/18-Verteilung fuer die Farbe. */
+function spinNumber(): number {
+  return Math.floor(Math.random() * 37)
 }
 
 function randomBetween(minSeconds: number, maxSeconds: number): number {
@@ -72,15 +72,10 @@ function clearPhaseTimer(): void {
   phaseTimer = null
 }
 
-/**
- * Registriert eine Wette für die aktuell offene Runde. Der Einsatz wird sofort
- * abgebucht (verhindert doppeltes Verwetten desselben Guthabens); nur eine
- * offene Wette pro Nutzer und Runde, unabhängig von der Farbe.
- */
-export function placeBet(
+function placeRoundBet(
   userLogin: string,
-  color: RouletteColor,
-  amount: number
+  amount: number,
+  bet: RouletteBetValue
 ): { ok: true } | { ok: false; reason: string } {
   if (!bettingOpen) {
     return {
@@ -103,8 +98,33 @@ export function placeBet(
     return { ok: false, reason: 'Nicht genug Punkte.' }
   }
 
-  currentRoundBets.set(login, { color, amount })
+  currentRoundBets.set(login, { userLogin: login, amount, ...bet })
   return { ok: true }
+}
+
+/**
+ * Registriert eine Farb-Wette für die aktuell offene Runde. Der Einsatz wird sofort
+ * abgebucht (verhindert doppeltes Verwetten desselben Guthabens); nur eine
+ * offene Wette pro Nutzer und Runde, unabhängig von Farbe/Zahl.
+ */
+export function placeBet(
+  userLogin: string,
+  color: RouletteColor,
+  amount: number
+): { ok: true } | { ok: false; reason: string } {
+  return placeRoundBet(userLogin, amount, { kind: 'color', color })
+}
+
+/** Registriert eine Zahlen-Wette (0-36) für die aktuell offene Runde. */
+export function placeNumberBet(
+  userLogin: string,
+  number: number,
+  amount: number
+): { ok: true } | { ok: false; reason: string } {
+  if (!Number.isInteger(number) || number < 0 || number > 36) {
+    return { ok: false, reason: 'Zahl muss zwischen 0 und 36 liegen.' }
+  }
+  return placeRoundBet(userLogin, amount, { kind: 'number', number })
 }
 
 function startBettingWindow(): void {
@@ -139,16 +159,23 @@ function closeBettingAndSpin(): void {
 
 async function resolveRound(): Promise<void> {
   const config = getConfig()
-  const winningColor = spinColor()
+  const winningNumber = spinNumber()
+  const winningColor = colorForNumber(winningNumber)
   const bets = new Map(currentRoundBets)
   currentRoundBets.clear()
-  logRouletteRound(winningColor)
+  logRouletteRound(winningColor, winningNumber)
 
   let winnerCount = 0
   for (const [login, bet] of bets) {
-    if (bet.color !== winningColor) continue
+    const won = bet.kind === 'color' ? bet.color === winningColor : bet.number === winningNumber
+    if (!won) continue
     winnerCount++
-    const multiplier = winningColor === 'gruen' ? config.greenPayoutMultiplier : 2
+    const multiplier =
+      bet.kind === 'number'
+        ? config.numberPayoutMultiplier
+        : winningColor === 'gruen'
+          ? config.greenPayoutMultiplier
+          : 2
     // Der Einsatz wurde beim Setzen bereits abgebucht (als game_loss verbucht) --
     // hier wird der volle Gewinn (Einsatz * Multiplikator) gutgeschrieben.
     creditLoyalty(login, Math.floor(bet.amount * multiplier), 'game_win', 'roulette')
@@ -158,6 +185,8 @@ async function resolveRound(): Promise<void> {
   await announce(
     fillPlaceholders(text, {
       color: COLOR_LABELS[winningColor],
+      colorEmoji: COLOR_EMOJI[winningColor],
+      number: winningNumber,
       winners: winnerCount,
       total: bets.size
     })

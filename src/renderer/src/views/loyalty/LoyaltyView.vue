@@ -42,6 +42,7 @@ const MAIN_TABS = [
   { key: 'leaderboard', label: 'Rangliste' },
   { key: 'blacklist', label: 'Blacklist' },
   { key: 'earnRules', label: 'Earn-Rules' },
+  { key: 'offlineMessages', label: 'Offline-Meldungen' },
   { key: 'games', label: 'Games' }
 ]
 const activeTab = ref('leaderboard')
@@ -433,25 +434,27 @@ function colorEmoji(color: string): string {
       </table>
     </section>
 
-    <div v-show="activeTab === 'games'" class="space-y-6">
-      <section class="rounded-lg border border-slate-200 p-4 dark:border-neutral-800">
-        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">
-          Offline-Meldungen
-        </h2>
-        <p class="mt-1 text-xs text-slate-500">
-          Wird zufällig gesendet, wenn ein Loyalty-Game genutzt wird, während der Stream offline
-          ist.
-        </p>
-        <StringListInput v-model="offlineMessagesInput" class="mt-2" />
-        <button
-          type="button"
-          class="mt-2 rounded-md border border-slate-300 px-3 py-1.5 text-xs hover:bg-slate-50 dark:border-neutral-700 dark:hover:bg-neutral-800"
-          @click="handleSaveOfflineMessages"
-        >
-          Speichern
-        </button>
-      </section>
+    <section
+      v-show="activeTab === 'offlineMessages'"
+      class="rounded-lg border border-slate-200 p-4 dark:border-neutral-800"
+    >
+      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">
+        Offline-Meldungen
+      </h2>
+      <p class="mt-1 text-xs text-slate-500">
+        Wird zufällig gesendet, wenn ein Loyalty-Game genutzt wird, während der Stream offline ist.
+      </p>
+      <StringListInput v-model="offlineMessagesInput" class="mt-2" />
+      <button
+        type="button"
+        class="mt-2 rounded-md border border-slate-300 px-3 py-1.5 text-xs hover:bg-slate-50 dark:border-neutral-700 dark:hover:bg-neutral-800"
+        @click="handleSaveOfflineMessages"
+      >
+        Speichern
+      </button>
+    </section>
 
+    <div v-show="activeTab === 'games'" class="space-y-6">
       <TabBar
         v-if="gameTabs.length > 0"
         :model-value="activeGameId"
@@ -555,11 +558,11 @@ function colorEmoji(color: string): string {
           class="mt-4"
         >
           <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500">
-            Letzte Farben
+            Letzte Runden
           </h3>
           <p class="mt-1 text-lg leading-none">
-            <span v-for="(color, index) in store.rouletteColors" :key="index">
-              {{ colorEmoji(color) }}
+            <span v-for="(round, index) in store.rouletteColors" :key="index" class="mr-2">
+              {{ round.number ?? '?' }}{{ colorEmoji(round.color) }}
             </span>
           </p>
         </div>
