@@ -3,6 +3,8 @@ import type {
   LoyaltyAccount,
   LoyaltyEarnRule,
   LoyaltyGameConfig,
+  LoyaltyGameHistoryEntry,
+  LoyaltyGameStats,
   LoyaltyLeaderboardEntry,
   LoyaltyTransaction,
   LoyaltyTransactionReason
@@ -92,6 +94,69 @@ export function applyTransaction(
       createdAt: now
     }
   })()
+}
+
+interface TransactionRow {
+  id: number
+  account_id: number
+  amount: number
+  reason: LoyaltyTransactionReason
+  game_id: string | null
+  created_at: number
+  user_login: string
+}
+
+function transactionRowToDomain(row: TransactionRow): LoyaltyGameHistoryEntry {
+  return {
+    id: row.id,
+    accountId: row.account_id,
+    amount: row.amount,
+    reason: row.reason,
+    gameId: row.game_id,
+    createdAt: row.created_at,
+    userLogin: row.user_login
+  }
+}
+
+/** Verlauf der letzten Transaktionen eines Games (Wins/Losses) inkl. Nutzername, neueste zuerst. */
+export function listTransactionsByGame(gameId: string, limit = 50): LoyaltyGameHistoryEntry[] {
+  return getDb()
+    .prepare<[string, number], TransactionRow>(
+      `SELECT t.*, a.user_login
+       FROM loyalty_transactions t
+       JOIN loyalty_accounts a ON a.id = t.account_id
+       WHERE t.game_id = ?
+       ORDER BY t.created_at DESC LIMIT ?`
+    )
+    .all(gameId, limit)
+    .map(transactionRowToDomain)
+}
+
+/** Aggregierte Win/Loss-Statistik eines Games über die gesamte Historie. */
+export function getGameStats(gameId: string): LoyaltyGameStats {
+  const rows = getDb()
+    .prepare<[string], { reason: LoyaltyTransactionReason; count: number; total: number }>(
+      `SELECT reason, COUNT(*) as count, SUM(ABS(amount)) as total
+       FROM loyalty_transactions
+       WHERE game_id = ? AND reason IN ('game_win', 'game_loss')
+       GROUP BY reason`
+    )
+    .all(gameId)
+
+  const win = rows.find((r) => r.reason === 'game_win')
+  const loss = rows.find((r) => r.reason === 'game_loss')
+  const winCount = win?.count ?? 0
+  const lossCount = loss?.count ?? 0
+  const totalRounds = winCount + lossCount
+
+  return {
+    gameId,
+    winCount,
+    lossCount,
+    totalWon: win?.total ?? 0,
+    totalLost: loss?.total ?? 0,
+    actualWinRatePercent: totalRounds > 0 ? Math.round((winCount / totalRounds) * 1000) / 10 : 0
+  }
 }
 
 export function getLeaderboard(limit = 25): LoyaltyLeaderboardEntry[] {
@@ -184,41 +249,63 @@ export function upsertEarnRule(rule: LoyaltyEarnRule): void {
     })
 }
 
+interface GameConfigRow {
+  game_id: string
+  enabled: number
+  config: string
+  display_name: string | null
+  command_triggers: string
+  texts: string
+}
+
+function gameConfigRowToDomain(row: GameConfigRow): LoyaltyGameConfig {
+  return {
+    gameId: row.game_id,
+    enabled: Boolean(row.enabled),
+    config: JSON.parse(row.config) as Record<string, unknown>,
+    displayName: row.display_name,
+    commandTriggers: JSON.parse(row.command_triggers) as Record<string, string>,
+    texts: JSON.parse(row.texts) as Record<string, string[]>
+  }
+}
+
 export function listGameConfigs(): LoyaltyGameConfig[] {
   return getDb()
-    .prepare<[], { game_id: string; enabled: number; config: string; display_name: string | null }>(
-      'SELECT * FROM loyalty_games_config'
-    )
+    .prepare<[], GameConfigRow>('SELECT * FROM loyalty_games_config')
     .all()
-    .map((row) => ({
-      gameId: row.game_id,
-      enabled: Boolean(row.enabled),
-      config: JSON.parse(row.config) as Record<string, unknown>,
-      displayName: row.display_name
-    }))
+    .map(gameConfigRowToDomain)
 }
 
 export function upsertGameConfig(
   gameId: string,
   enabled: boolean,
   config: Record<string, unknown>,
-  displayName?: string | null
+  displayName?: string | null,
+  commandTriggers?: Record<string, string>,
+  texts?: Record<string, string[]>
 ): void {
   const existing = listGameConfigs().find((c) => c.gameId === gameId)
   const resolvedDisplayName =
     displayName !== undefined ? displayName : (existing?.displayName ?? null)
+  const resolvedTriggers =
+    commandTriggers !== undefined ? commandTriggers : (existing?.commandTriggers ?? {})
+  const resolvedTexts = texts !== undefined ? texts : (existing?.texts ?? {})
 
   getDb()
     .prepare(
-      `INSERT INTO loyalty_games_config (game_id, enabled, config, display_name)
-       VALUES (@gameId, @enabled, @config, @displayName)
-       ON CONFLICT (game_id) DO UPDATE SET enabled = @enabled, config = @config, display_name = @displayName`
+      `INSERT INTO loyalty_games_config (game_id, enabled, config, display_name, command_triggers, texts)
+       VALUES (@gameId, @enabled, @config, @displayName, @commandTriggers, @texts)
+       ON CONFLICT (game_id) DO UPDATE SET
+         enabled = @enabled, config = @config, display_name = @displayName,
+         command_triggers = @commandTriggers, texts = @texts`
     )
     .run({
       gameId,
       enabled: enabled ? 1 : 0,
       config: JSON.stringify(config),
-      displayName: resolvedDisplayName
+      displayName: resolvedDisplayName,
+      commandTriggers: JSON.stringify(resolvedTriggers),
+      texts: JSON.stringify(resolvedTexts)
     })
 }
 

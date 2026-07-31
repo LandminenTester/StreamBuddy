@@ -2,11 +2,14 @@ import type { ChatUserstate, Client } from 'tmi.js'
 import type { Command, PermissionLevel } from '@shared/types/command'
 import { incrementCommandUseCount, listCommands } from '../../db/repositories/commands.repo'
 import { getOrCreateAccount } from '../../db/repositories/loyalty.repo'
+import { pickRandomMessage } from '../../db/repositories/botMessages.repo'
 import {
   getGameByTrigger,
   getGameRuntimeConfig,
   isGameEnabled
 } from '../../loyalty/games/gameRegistry'
+import { LOYALTY_OFFLINE_MESSAGE_KEY } from '../../loyalty/offlineMessages'
+import { isStreamLive } from '../../stats/viewerCountPoller'
 import { logger } from '../../logger'
 
 const PERMISSION_ORDER: PermissionLevel[] = ['everyone', 'subscriber', 'moderator', 'broadcaster']
@@ -40,12 +43,20 @@ export async function handleChatMessage(
   const parts = message.trim().split(/\s+/)
   const trigger = parts[0].toLowerCase()
 
-  const game = getGameByTrigger(trigger)
-  if (game) {
+  const match = getGameByTrigger(trigger)
+  if (match) {
+    const { game, command } = match
     if (!isGameEnabled(game.id)) return
+    // Loyalty-Games laufen nur, waehrend der Stream live ist -- offline gibt es
+    // stattdessen eine launige "geschlossen"-Meldung statt der Ausfuehrung.
+    if (!isStreamLive()) {
+      const offlineMessage = pickRandomMessage(LOYALTY_OFFLINE_MESSAGE_KEY)
+      if (offlineMessage) await client.say(channel, offlineMessage)
+      return
+    }
     // Geblacklistete Konten (z.B. Bots) sind komplett von Loyalty-Games ausgeschlossen.
     if (getOrCreateAccount(tags.username ?? '').isBlacklisted) return
-    await game.handleCommand({
+    await command.handleCommand({
       userLogin: tags.username ?? '',
       args: parts.slice(1),
       reply: (text) => client.say(channel, text).then(() => undefined),
