@@ -10,13 +10,6 @@ export function votePercentage(poll: Poll, votes: number): number {
   return Math.round((votes / total) * 100)
 }
 
-export function parseChoices(choicesInput: string): string[] {
-  return choicesInput
-    .split('\n')
-    .map((line) => line.trim())
-    .filter((line) => line.length > 0)
-}
-
 export const STATUS_LABELS: Record<Poll['status'], string> = {
   draft: 'Entwurf',
   active: 'Aktiv',

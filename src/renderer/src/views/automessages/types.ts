@@ -2,7 +2,7 @@ import type { AutomessageMode } from '@shared/types/automessage'
 
 export interface AutomessageFormState {
   id: number | null
-  messagesInput: string
+  messages: string[]
   mode: AutomessageMode
   intervalMinutes: number
   messageCountThreshold: number
@@ -13,7 +13,7 @@ export interface AutomessageFormState {
 export function emptyAutomessageForm(): AutomessageFormState {
   return {
     id: null,
-    messagesInput: '',
+    messages: [],
     mode: 'interval',
     intervalMinutes: 30,
     messageCountThreshold: 20,

@@ -75,13 +75,10 @@ export async function updateGameTextSlot(
   gameId: string,
   existingTexts: Record<string, string[]>,
   slot: string,
-  variantsInput: string
+  variants: string[]
 ): Promise<void> {
-  const variants = variantsInput
-    .split('\n')
-    .map((line) => line.trim())
-    .filter((line) => line.length > 0)
-  await store.updateGameTexts(gameId, { ...existingTexts, [slot]: variants })
+  const cleaned = variants.map((line) => line.trim()).filter((line) => line.length > 0)
+  await store.updateGameTexts(gameId, { ...existingTexts, [slot]: cleaned })
 }
 
 export async function selectGame(store: LoyaltyStore, gameId: string): Promise<void> {
@@ -92,13 +89,7 @@ export async function selectGame(store: LoyaltyStore, gameId: string): Promise<v
   ])
 }
 
-export async function saveOfflineMessages(
-  store: LoyaltyStore,
-  messagesInput: string
-): Promise<void> {
-  const messages = messagesInput
-    .split('\n')
-    .map((line) => line.trim())
-    .filter((line) => line.length > 0)
-  await store.setOfflineMessages(messages)
+export async function saveOfflineMessages(store: LoyaltyStore, messages: string[]): Promise<void> {
+  const cleaned = messages.map((line) => line.trim()).filter((line) => line.length > 0)
+  await store.setOfflineMessages(cleaned)
 }

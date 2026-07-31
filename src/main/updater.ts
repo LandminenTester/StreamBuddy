@@ -71,7 +71,12 @@ export async function checkForUpdate(): Promise<void> {
   }
 }
 
-/** Beendet die App und startet den heruntergeladenen Installer -- nur nach explizitem Nutzerklick. */
+/**
+ * Beendet die App und startet den heruntergeladenen Installer -- nur nach explizitem
+ * Nutzerklick. isSilent=true unterdrueckt das klassische NSIS-Installer-Fenster komplett,
+ * unabhaengig von der oneClick-Build-Einstellung (die nur die manuelle Erstinstallation
+ * betrifft). isForceRunAfter=true startet die App danach automatisch neu.
+ */
 export function installUpdate(): void {
-  autoUpdater.quitAndInstall()
+  autoUpdater.quitAndInstall(true, true)
 }

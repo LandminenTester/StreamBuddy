@@ -4,6 +4,7 @@ import { usePollsStore } from '@renderer/stores/polls.store'
 import { usePollTemplatesStore } from '@renderer/stores/pollTemplates.store'
 import PollResultsBars from '@renderer/components/polls/PollResultsBars.vue'
 import PollTemplateFormModal from '@renderer/components/polls/PollTemplateFormModal.vue'
+import StringListInput from '@renderer/components/shared/StringListInput.vue'
 import type { PollTemplate } from '@shared/types/poll'
 import { emptyPollForm, emptyPollTemplateForm } from './types'
 import type { PollTemplateFormState } from './types'
@@ -41,6 +42,7 @@ const activePoll = computed(() => store.polls.find((p) => p.status === 'active')
 const pastPolls = computed(() => store.polls.filter((p) => p.status !== 'active'))
 
 async function handleCreate(): Promise<void> {
+  if (form.value.choices.filter((c) => c.trim().length > 0).length < 2) return
   await submitPollForm(store, form.value)
   if (!store.error) form.value = emptyPollForm()
 }
@@ -89,7 +91,7 @@ function openEditTemplateModal(template: PollTemplate): void {
   activeTemplateForm.value = {
     id: template.id,
     title: template.title,
-    choicesInput: template.choices.join('\n'),
+    choices: [...template.choices],
     durationSeconds: template.durationSeconds,
     channelPointsVotingEnabled: template.channelPointsVotingEnabled,
     channelPointsPerVote: template.channelPointsPerVote
@@ -197,14 +199,9 @@ async function handleSendTemplate(template: PollTemplate): Promise<void> {
         </div>
         <div>
           <label class="block text-xs font-medium text-slate-500">
-            Antwortoptionen (eine pro Zeile, min. 2)
+            Antwortoptionen (mind. 2)
           </label>
-          <textarea
-            v-model="form.choicesInput"
-            rows="4"
-            required
-            class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
-          />
+          <StringListInput v-model="form.choices" class="mt-1" />
         </div>
         <div>
           <label class="block text-xs font-medium text-slate-500">Dauer (Sekunden)</label>

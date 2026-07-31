@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useLoyaltyStore } from '@renderer/stores/loyalty.store'
 import AccountEditModal from '@renderer/components/loyalty/AccountEditModal.vue'
 import TabBar from '@renderer/components/shared/TabBar.vue'
 import StatsCard from '@renderer/components/shared/StatsCard.vue'
+import StringListInput from '@renderer/components/shared/StringListInput.vue'
 import type { AccountEditFormState } from './types'
 import {
   EARN_RULE_LABELS,
@@ -51,11 +52,11 @@ const gameTabs = computed(() =>
 )
 const activeGame = computed(() => store.games.find((g) => g.gameId === activeGameId.value) ?? null)
 
-const offlineMessagesInput = ref('')
+const offlineMessagesInput = ref<string[]>([])
 watch(
   () => store.offlineMessages,
   (messages) => {
-    offlineMessagesInput.value = messages.join('\n')
+    offlineMessagesInput.value = [...messages]
   },
   { immediate: true }
 )
@@ -65,6 +66,18 @@ watch(
   (games) => {
     if (!activeGameId.value && games.length > 0) {
       void handleSelectGame(games[0].gameId)
+    }
+  },
+  { immediate: true }
+)
+
+const textSlotDrafts = reactive<Record<string, string[]>>({})
+watch(
+  activeGame,
+  (game) => {
+    if (!game) return
+    for (const slot of gameTextSlots(game)) {
+      textSlotDrafts[slot] = [...resolvedTextVariants(game, slot)]
     }
   },
   { immediate: true }
@@ -112,14 +125,12 @@ function handleTriggerChange(
   void updateGameTrigger(store, gameId, existingTriggers, commandKey, value)
 }
 
-function handleTextSlotChange(
+function handleSaveTextSlot(
   gameId: string,
   existingTexts: Record<string, string[]>,
-  slot: string,
-  event: Event
+  slot: string
 ): void {
-  const value = (event.target as HTMLTextAreaElement).value
-  void updateGameTextSlot(store, gameId, existingTexts, slot, value)
+  void updateGameTextSlot(store, gameId, existingTexts, slot, textSlotDrafts[slot] ?? [])
 }
 
 async function handleSelectGame(gameId: string): Promise<void> {
@@ -428,15 +439,17 @@ function colorEmoji(color: string): string {
           Offline-Meldungen
         </h2>
         <p class="mt-1 text-xs text-slate-500">
-          Wird zufällig gesendet, wenn ein Loyalty-Game genutzt wird, während der Stream offline ist
-          -- eine Variante pro Zeile.
+          Wird zufällig gesendet, wenn ein Loyalty-Game genutzt wird, während der Stream offline
+          ist.
         </p>
-        <textarea
-          v-model="offlineMessagesInput"
-          rows="4"
-          class="mt-2 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
-          @change="handleSaveOfflineMessages"
-        />
+        <StringListInput v-model="offlineMessagesInput" class="mt-2" />
+        <button
+          type="button"
+          class="mt-2 rounded-md border border-slate-300 px-3 py-1.5 text-xs hover:bg-slate-50 dark:border-neutral-700 dark:hover:bg-neutral-800"
+          @click="handleSaveOfflineMessages"
+        >
+          Speichern
+        </button>
       </section>
 
       <TabBar
@@ -520,17 +533,19 @@ function colorEmoji(color: string): string {
 
         <div v-if="gameTextSlots(activeGame).length > 0" class="mt-4">
           <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500">
-            Ansagetexte (eine Variante pro Zeile)
+            Ansagetexte (mehrere Varianten möglich)
           </h3>
           <div class="mt-2 space-y-3">
             <div v-for="slot in gameTextSlots(activeGame)" :key="slot">
               <label class="text-xs text-slate-500">{{ TEXT_SLOT_LABELS[slot] ?? slot }}</label>
-              <textarea
-                :value="resolvedTextVariants(activeGame, slot).join('\n')"
-                rows="3"
-                class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
-                @change="handleTextSlotChange(activeGame.gameId, activeGame.texts, slot, $event)"
-              />
+              <StringListInput v-model="textSlotDrafts[slot]" class="mt-1" />
+              <button
+                type="button"
+                class="mt-2 rounded-md border border-slate-300 px-3 py-1.5 text-xs hover:bg-slate-50 dark:border-neutral-700 dark:hover:bg-neutral-800"
+                @click="handleSaveTextSlot(activeGame.gameId, activeGame.texts, slot)"
+              >
+                Speichern
+              </button>
             </div>
           </div>
         </div>

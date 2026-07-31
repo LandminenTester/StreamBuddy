@@ -2,15 +2,18 @@ import type { usePollsStore } from '@renderer/stores/polls.store'
 import type { usePollTemplatesStore } from '@renderer/stores/pollTemplates.store'
 import type { PollTemplate } from '@shared/types/poll'
 import type { PollFormState, PollTemplateFormState } from './types'
-import { parseChoices } from './utils'
 
 type PollsStore = ReturnType<typeof usePollsStore>
 type PollTemplatesStore = ReturnType<typeof usePollTemplatesStore>
 
+function cleanChoices(choices: string[]): string[] {
+  return choices.map((choice) => choice.trim()).filter((choice) => choice.length > 0)
+}
+
 export async function submitPollForm(store: PollsStore, form: PollFormState): Promise<void> {
   await store.createPoll({
     title: form.title.trim(),
-    choices: parseChoices(form.choicesInput),
+    choices: cleanChoices(form.choices),
     durationSeconds: form.durationSeconds,
     channelPointsVotingEnabled: form.channelPointsVotingEnabled,
     channelPointsPerVote: form.channelPointsPerVote
@@ -23,7 +26,7 @@ export async function saveCurrentFormAsTemplate(
 ): Promise<void> {
   await templatesStore.createTemplate({
     title: form.title.trim(),
-    choices: parseChoices(form.choicesInput),
+    choices: cleanChoices(form.choices),
     durationSeconds: form.durationSeconds,
     channelPointsVotingEnabled: form.channelPointsVotingEnabled,
     channelPointsPerVote: form.channelPointsPerVote
@@ -36,7 +39,7 @@ export async function submitPollTemplateForm(
 ): Promise<void> {
   const input = {
     title: form.title.trim(),
-    choices: parseChoices(form.choicesInput),
+    choices: cleanChoices(form.choices),
     durationSeconds: form.durationSeconds,
     channelPointsVotingEnabled: form.channelPointsVotingEnabled,
     channelPointsPerVote: form.channelPointsPerVote
