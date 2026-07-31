@@ -1,5 +1,5 @@
 import { IpcChannels } from './channels'
-import type { AppMetadata, ChangelogEntry, UpdateStatus } from '../types/appInfo'
+import type { AppMetadata, AppTheme, ChangelogEntry, UpdateStatus } from '../types/appInfo'
 import type { Command, CommandInput } from '../types/command'
 import type {
   AuthStatus,
@@ -38,6 +38,8 @@ export interface IpcContracts {
   [IpcChannels.app.checkForUpdate]: { request: void; response: void }
   [IpcChannels.app.installUpdate]: { request: void; response: void }
   [IpcChannels.app.onUpdateStatus]: { request: void; response: UpdateStatus }
+  [IpcChannels.app.getTheme]: { request: void; response: AppTheme }
+  [IpcChannels.app.setTheme]: { request: { theme: AppTheme }; response: void }
 
   [IpcChannels.commands.list]: { request: void; response: Command[] }
   [IpcChannels.commands.create]: { request: CommandInput; response: Command }

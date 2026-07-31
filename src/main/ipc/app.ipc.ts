@@ -4,6 +4,7 @@ import { handleTyped } from './handleTyped'
 import { getAppMetadata } from '../appMetadata'
 import { getChangelog } from '../changelog'
 import { checkForUpdate, installUpdate } from '../updater'
+import { applyTheme, getTheme, setTheme } from '../theme'
 
 export function registerAppIpc(): void {
   handleTyped(IpcChannels.app.getVersion, () => app.getVersion())
@@ -18,5 +19,12 @@ export function registerAppIpc(): void {
 
   handleTyped(IpcChannels.app.installUpdate, () => {
     installUpdate()
+  })
+
+  handleTyped(IpcChannels.app.getTheme, () => getTheme())
+
+  handleTyped(IpcChannels.app.setTheme, ({ theme }) => {
+    setTheme(theme)
+    applyTheme(theme)
   })
 }

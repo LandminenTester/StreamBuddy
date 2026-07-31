@@ -9,7 +9,9 @@ export const IpcChannels = {
     getChangelog: 'app:getChangelog',
     checkForUpdate: 'app:checkForUpdate',
     installUpdate: 'app:installUpdate',
-    onUpdateStatus: 'app:onUpdateStatus'
+    onUpdateStatus: 'app:onUpdateStatus',
+    getTheme: 'app:getTheme',
+    setTheme: 'app:setTheme'
   },
   commands: {
     list: 'commands:list',
