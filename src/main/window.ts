@@ -1,5 +1,5 @@
 import { join } from 'path'
-import { BrowserWindow, shell } from 'electron'
+import { app, BrowserWindow, shell } from 'electron'
 import { is } from '@electron-toolkit/utils'
 
 let mainWindow: BrowserWindow | null = null
@@ -32,6 +32,12 @@ export function createMainWindow(): BrowserWindow {
   mainWindow.on('closed', () => {
     mainWindow = null
   })
+
+  // Verhindert, dass der <title> der geladenen Seite den gewuenschten Fenstertitel ueberschreibt.
+  mainWindow.on('page-title-updated', (event) => {
+    event.preventDefault()
+  })
+  mainWindow.setTitle(`Streaming Bot by Landminen Tester - V. ${app.getVersion()}`)
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
     shell.openExternal(details.url)
