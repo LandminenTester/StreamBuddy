@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.4.0](https://github.com/LandminenTester/StreamingBot/compare/v1.3.1...v1.4.0) (2026-07-31)
+
+
+### Features
+
+* **loyalty-ui:** horizontales Tab-System mit Game-Sub-Tabs, Trigger-/Text-Editor und Log ([9502859](https://github.com/LandminenTester/StreamingBot/commit/9502859194b12917a9029039121ff7561d595ace))
+* **loyalty:** konfigurierbare Game-Commands, Roulette-Rundendramaturgie, Games-Log ([ca0d0b9](https://github.com/LandminenTester/StreamingBot/commit/ca0d0b9631f54b172be0db336d16fecb39c229b3))
+* **loyalty:** Punkte-Verdienen und Games nur waehrend der Stream live ist ([c3a2d80](https://github.com/LandminenTester/StreamingBot/commit/c3a2d80e0177e55c29758b4e6d94f6dad87fd579))
+
 ## [1.3.1](https://github.com/LandminenTester/StreamingBot/compare/v1.3.0...v1.3.1) (2026-07-30)
 
 
