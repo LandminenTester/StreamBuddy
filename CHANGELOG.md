@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.1](https://github.com/LandminenTester/StreamingBot/compare/v1.5.0...v1.5.1) (2026-07-31)
+
+
+### Bug Fixes
+
+* **update:** Update-Checker-Absturz beheben + Lizenz & App-Metadaten ([#15](https://github.com/LandminenTester/StreamingBot/issues/15)) ([d5aaab3](https://github.com/LandminenTester/StreamingBot/commit/d5aaab3ddb4fd63f21f6184f44bc22bb971b5a3d))
+
 ## [1.5.0](https://github.com/LandminenTester/StreamingBot/compare/v1.4.0...v1.5.0) (2026-07-31)
 
 
