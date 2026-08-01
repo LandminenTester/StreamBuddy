@@ -168,7 +168,57 @@
       "sub": "Sub",
       "gift_sub": "Gifted sub (per sub)",
       "view_time": "View time tick"
-    }
+    },
+    "title": "Loyalty",
+    "description": "Your own channel currency, earned through follows, subs, gifted subs and view time — only while the stream is live.",
+    "tabs": {
+      "leaderboard": "Leaderboard",
+      "blacklist": "Blacklist",
+      "earnRules": "Earn rules",
+      "offlineMessages": "Offline messages"
+    },
+    "leaderboard": {
+      "title": "Leaderboard",
+      "importCsv": "Import CSV",
+      "exportCsv": "Export CSV",
+      "imported": "{count} accounts imported.",
+      "importedWithErrors": "{count} accounts imported, {errorCount} errors: {errors}",
+      "exported": "{count} accounts exported.",
+      "searchPlaceholder": "Search users…",
+      "points": "Points",
+      "giveSelected": "Give to selected",
+      "removeSelected": "Take from selected",
+      "giveAll": "Give to all",
+      "removeAll": "Take from all",
+      "rank": "Rank",
+      "user": "User",
+      "balance": "Balance",
+      "empty": "No loyalty accounts yet.",
+      "emptyHint": "Once viewers start earning points, they show up here.",
+      "noMatches": "No matches for “{query}”.",
+      "blacklistUser": "Blacklist"
+    },
+    "blacklist": {
+      "title": "Blacklist",
+      "description": "Blacklisted users earn no points, do not appear in the leaderboard and cannot play loyalty games.",
+      "empty": "No users blacklisted.",
+      "remove": "Remove"
+    },
+    "earnRules": {
+      "title": "Earn rules",
+      "description": "How many points each trigger awards.",
+      "trigger": "Trigger",
+      "points": "Points",
+      "interval": "Interval (sec)",
+      "intervalHint": "Only relevant for view time.",
+      "active": "Active",
+      "edit": "Edit earn rule"
+    },
+    "offlineMessages": {
+      "title": "Offline messages",
+      "description": "Sent at random when a loyalty game is used while the stream is offline."
+    },
+    "editAccount": "Edit account"
   },
   "games": {
     "name": {
@@ -180,6 +230,74 @@
       "roundStart": "Round start",
       "spinning": "Spin / waiting phase",
       "result": "Result"
+    },
+    "title": "Games",
+    "description": "Chat games played with loyalty points.",
+    "overviewEmpty": "No games registered.",
+    "sections": {
+      "general": "General",
+      "config": "Settings",
+      "commands": "Commands",
+      "texts": "Announcements",
+      "recentRounds": "Recent rounds",
+      "stats": "Statistics",
+      "history": "History"
+    },
+    "general": {
+      "displayName": "Display name",
+      "displayNameHint": "Leave empty for the default name.",
+      "state": "Status",
+      "edit": "Edit general"
+    },
+    "config": {
+      "edit": "Edit settings"
+    },
+    "commands": {
+      "edit": "Edit commands",
+      "trigger": "Command"
+    },
+    "texts": {
+      "edit": "Edit announcements",
+      "hint": "Several variants possible — one is picked at random.",
+      "variants": "{count} variants"
+    },
+    "stats": {
+      "wins": "Wins",
+      "losses": "Losses",
+      "winRate": "Win rate",
+      "net": "Net"
+    },
+    "history": {
+      "time": "Time",
+      "user": "User",
+      "result": "Result",
+      "amount": "Amount",
+      "won": "Won",
+      "lost": "Lost",
+      "empty": "No rounds played yet."
+    },
+    "fields": {
+      "winChancePercent": "Win chance",
+      "winChancePercentHint": "Probability that a bet wins.",
+      "minBet": "Minimum bet",
+      "maxBet": "Maximum bet",
+      "maxBetHint": "0 means no limit.",
+      "acceptWindowSeconds": "Accept window",
+      "acceptWindowSecondsHint": "How long a duel request stays open.",
+      "bettingWindowSeconds": "Betting window",
+      "bettingWindowSecondsHint": "How long bets are accepted each round.",
+      "spinDelayMinSeconds": "Spin time minimum",
+      "spinDelayMaxSeconds": "Spin time maximum",
+      "spinDelayHint": "Random wait between closing bets and the result.",
+      "greenPayoutMultiplier": "Green payout",
+      "numberPayoutMultiplier": "Number payout",
+      "payoutHint": "Bet times this factor."
+    },
+    "units": {
+      "seconds": "seconds",
+      "percent": "%",
+      "points": "points",
+      "multiplier": "×"
     }
   },
   "update": {

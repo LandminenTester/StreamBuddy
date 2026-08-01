@@ -168,7 +168,57 @@
       "sub": "Sub",
       "gift_sub": "Gifted Sub (pro Sub)",
       "view_time": "View-Time-Tick"
-    }
+    },
+    "title": "Loyalty",
+    "description": "Eigene Kanal-Währung, verdienbar durch Follows, Subs, Gifted Subs und View-Time — nur während der Stream live ist.",
+    "tabs": {
+      "leaderboard": "Rangliste",
+      "blacklist": "Blacklist",
+      "earnRules": "Earn-Rules",
+      "offlineMessages": "Offline-Meldungen"
+    },
+    "leaderboard": {
+      "title": "Rangliste",
+      "importCsv": "CSV importieren",
+      "exportCsv": "CSV exportieren",
+      "imported": "{count} Konten importiert.",
+      "importedWithErrors": "{count} Konten importiert, {errorCount} Fehler: {errors}",
+      "exported": "{count} Konten exportiert.",
+      "searchPlaceholder": "Nutzer suchen…",
+      "points": "Punkte",
+      "giveSelected": "Ausgewählten geben",
+      "removeSelected": "Ausgewählten entziehen",
+      "giveAll": "Allen geben",
+      "removeAll": "Allen entziehen",
+      "rank": "Rang",
+      "user": "Nutzer",
+      "balance": "Kontostand",
+      "empty": "Noch keine Loyalty-Konten vorhanden.",
+      "emptyHint": "Sobald Zuschauer Punkte verdienen, erscheinen sie hier.",
+      "noMatches": "Keine Treffer für „{query}“.",
+      "blacklistUser": "Blacklisten"
+    },
+    "blacklist": {
+      "title": "Blacklist",
+      "description": "Geblacklistete Nutzer verdienen keine Punkte, erscheinen nicht in der Rangliste und können keine Loyalty-Games spielen.",
+      "empty": "Keine Nutzer geblacklistet.",
+      "remove": "Entfernen"
+    },
+    "earnRules": {
+      "title": "Earn-Rules",
+      "description": "Wie viele Punkte es für welchen Auslöser gibt.",
+      "trigger": "Auslöser",
+      "points": "Punkte",
+      "interval": "Intervall (Sek.)",
+      "intervalHint": "Nur für View-Time relevant.",
+      "active": "Aktiv",
+      "edit": "Earn-Rule bearbeiten"
+    },
+    "offlineMessages": {
+      "title": "Offline-Meldungen",
+      "description": "Wird zufällig gesendet, wenn ein Loyalty-Game genutzt wird, während der Stream offline ist."
+    },
+    "editAccount": "Konto bearbeiten"
   },
   "games": {
     "name": {
@@ -180,6 +230,74 @@
       "roundStart": "Runden-Start",
       "spinning": "Dreh-/Wartephase",
       "result": "Ergebnis"
+    },
+    "title": "Games",
+    "description": "Chat-Spiele, die mit Loyalty-Punkten gespielt werden.",
+    "overviewEmpty": "Keine Spiele registriert.",
+    "sections": {
+      "general": "Allgemein",
+      "config": "Einstellungen",
+      "commands": "Befehle",
+      "texts": "Ansagetexte",
+      "recentRounds": "Letzte Runden",
+      "stats": "Statistik",
+      "history": "Verlauf"
+    },
+    "general": {
+      "displayName": "Anzeigename",
+      "displayNameHint": "Leer lassen für den Standardnamen.",
+      "state": "Status",
+      "edit": "Allgemein bearbeiten"
+    },
+    "config": {
+      "edit": "Einstellungen bearbeiten"
+    },
+    "commands": {
+      "edit": "Befehle bearbeiten",
+      "trigger": "Befehl"
+    },
+    "texts": {
+      "edit": "Ansagetexte bearbeiten",
+      "hint": "Mehrere Varianten möglich — es wird zufällig eine ausgewählt.",
+      "variants": "{count} Varianten"
+    },
+    "stats": {
+      "wins": "Gewinne",
+      "losses": "Niederlagen",
+      "winRate": "Gewinnquote",
+      "net": "Netto"
+    },
+    "history": {
+      "time": "Zeit",
+      "user": "Nutzer",
+      "result": "Ergebnis",
+      "amount": "Betrag",
+      "won": "Gewonnen",
+      "lost": "Verloren",
+      "empty": "Noch keine Runden gespielt."
+    },
+    "fields": {
+      "winChancePercent": "Gewinnchance",
+      "winChancePercentHint": "Wahrscheinlichkeit, dass ein Einsatz gewinnt.",
+      "minBet": "Mindesteinsatz",
+      "maxBet": "Höchsteinsatz",
+      "maxBetHint": "0 bedeutet kein Limit.",
+      "acceptWindowSeconds": "Annahmefenster",
+      "acceptWindowSecondsHint": "So lange bleibt eine Duell-Anfrage offen.",
+      "bettingWindowSeconds": "Wettfenster",
+      "bettingWindowSecondsHint": "So lange kann pro Runde gesetzt werden.",
+      "spinDelayMinSeconds": "Drehzeit minimal",
+      "spinDelayMaxSeconds": "Drehzeit maximal",
+      "spinDelayHint": "Zufällige Wartezeit zwischen Wettschluss und Ergebnis.",
+      "greenPayoutMultiplier": "Auszahlung Grün",
+      "numberPayoutMultiplier": "Auszahlung Zahl",
+      "payoutHint": "Einsatz mal diesem Faktor."
+    },
+    "units": {
+      "seconds": "Sekunden",
+      "percent": "%",
+      "points": "Punkte",
+      "multiplier": "×"
     }
   },
   "update": {

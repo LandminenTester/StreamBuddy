@@ -48,8 +48,41 @@ export const router = createRouter({
     },
     {
       path: '/loyalty',
-      name: 'loyalty',
-      component: () => import('@renderer/views/loyalty/LoyaltyView.vue')
+      component: () => import('@renderer/views/loyalty/LoyaltyView.vue'),
+      children: [
+        { path: '', redirect: { name: 'loyalty-leaderboard' } },
+        {
+          path: 'leaderboard',
+          name: 'loyalty-leaderboard',
+          component: () => import('@renderer/views/loyalty/leaderboard/LeaderboardView.vue')
+        },
+        {
+          path: 'blacklist',
+          name: 'loyalty-blacklist',
+          component: () => import('@renderer/views/loyalty/blacklist/BlacklistView.vue')
+        },
+        {
+          path: 'earn-rules',
+          name: 'loyalty-earn-rules',
+          component: () => import('@renderer/views/loyalty/earnRules/EarnRulesView.vue')
+        },
+        {
+          path: 'offline-messages',
+          name: 'loyalty-offline-messages',
+          component: () =>
+            import('@renderer/views/loyalty/offlineMessages/OfflineMessagesView.vue')
+        }
+      ]
+    },
+    {
+      path: '/games',
+      name: 'games',
+      component: () => import('@renderer/views/games/GamesView.vue')
+    },
+    {
+      path: '/games/:gameId',
+      name: 'game-detail',
+      component: () => import('@renderer/views/games/GameDetailView.vue')
     },
     {
       path: '/settings',

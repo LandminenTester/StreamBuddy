@@ -12,6 +12,7 @@ const navItems = [
   { to: '/polls', label: 'Umfragen' },
   { to: '/channel-points', label: 'Kanalpunkte' },
   { to: '/loyalty', label: 'Loyalty' },
+  { to: '/games', label: 'Games' },
   { to: '/settings', label: 'Einstellungen' }
 ]
 
