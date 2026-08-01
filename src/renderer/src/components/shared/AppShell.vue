@@ -10,6 +10,7 @@ import {
   MessageSquareText,
   Repeat2,
   Settings,
+  Users,
   Vote,
   type LucideIcon
 } from 'lucide-vue-next'
@@ -53,7 +54,8 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { to: '/channel-points', labelKey: 'nav.channelPoints', icon: Gift },
       { to: '/loyalty', labelKey: 'nav.loyalty', icon: Coins },
-      { to: '/games', labelKey: 'nav.games', icon: Dices }
+      { to: '/games', labelKey: 'nav.games', icon: Dices },
+      { to: '/audience', labelKey: 'nav.audience', icon: Users }
     ]
   },
   {

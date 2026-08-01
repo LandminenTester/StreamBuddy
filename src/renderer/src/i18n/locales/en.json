@@ -30,6 +30,7 @@
     "channelPoints": "Channel points",
     "loyalty": "Loyalty",
     "games": "Games",
+    "audience": "Audience",
     "settings": "Settings",
     "about": "About StreamingBot"
   },
@@ -537,7 +538,8 @@
       "viewers": "Viewers",
       "messagesLastHour": "Messages/hr",
       "streamState": "Stream",
-      "chatState": "Chat"
+      "chatState": "Chat",
+      "followers": "Followers"
     },
     "live": "Live",
     "offline": "Offline",
@@ -553,6 +555,69 @@
       "title": "Twitch chat",
       "empty": "No messages received yet.",
       "emptyHint": "Once the bot is connected to the channel, messages appear here."
+    },
+    "viewers": {
+      "title": "Viewers in chat",
+      "empty": "Nobody in chat right now.",
+      "emptyOffline": "Bot is not connected."
+    }
+  },
+  "audience": {
+    "title": "Audience",
+    "description": "Follower management and stream archive",
+    "tabs": {
+      "followers": "Followers",
+      "archive": "Stream archive"
+    },
+    "followers": {
+      "title": "Follower list",
+      "syncNow": "Sync now",
+      "syncing": "Syncing…",
+      "lastSync": "Last sync",
+      "neverSynced": "Never",
+      "searchPlaceholder": "Search by name…",
+      "total": "{count} followers total",
+      "empty": "No followers stored yet",
+      "emptyHint": "Start a sync to load the follower list.",
+      "noMatches": "No matches",
+      "filter": {
+        "all": "All",
+        "follow": "Active",
+        "unfollow": "Lost"
+      },
+      "columns": {
+        "name": "Name",
+        "followedAt": "Following since",
+        "status": "Status",
+        "duration": "Duration"
+      },
+      "status": {
+        "active": "Active",
+        "unfollowed": "Unfollowed"
+      },
+      "durationDays": "{days} d",
+      "durationHours": "{hours} h",
+      "durationMinutes": "{minutes} min"
+    },
+    "archive": {
+      "title": "Stream archive",
+      "empty": "No streams recorded yet",
+      "emptyHint": "Streams are recorded automatically once the channel goes live.",
+      "live": "Live",
+      "ongoing": "Ongoing",
+      "noViewers": "No chat entries for this stream.",
+      "columns": {
+        "duration": "Duration",
+        "peakViewers": "Peak",
+        "uniqueChatters": "Chatters",
+        "viewer": "Viewer",
+        "joined": "Joined",
+        "viewTime": "View time"
+      },
+      "stats": {
+        "uniqueChatters": "Unique chatters",
+        "avgDuration": "Avg view time"
+      }
     }
   }
 }
