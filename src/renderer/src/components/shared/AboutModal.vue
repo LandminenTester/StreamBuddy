@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useAppInfoStore } from '@renderer/stores/appInfo.store'
-import BaseModal from './BaseModal.vue'
+import BaseModal from '@renderer/components/ui/BaseModal.vue'
 import ChangelogList from './ChangelogList.vue'
 import { updateStatusLabel } from './appUpdateStatus'
 

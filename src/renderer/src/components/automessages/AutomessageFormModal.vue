@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { reactive } from 'vue'
-import BaseModal from '@renderer/components/shared/BaseModal.vue'
+import BaseModal from '@renderer/components/ui/BaseModal.vue'
 import StringListInput from '@renderer/components/shared/StringListInput.vue'
 import type { AutomessageFormState } from '@renderer/views/automessages/types'
 import { MODE_LABELS } from '@renderer/views/automessages/utils'

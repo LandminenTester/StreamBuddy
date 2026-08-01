@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { reactive } from 'vue'
-import BaseModal from '@renderer/components/shared/BaseModal.vue'
+import BaseModal from '@renderer/components/ui/BaseModal.vue'
 import type { CommandFormState } from '@renderer/views/commands/types'
 import { DELIVERY_MODE_LABELS, PERMISSION_LABELS } from '@renderer/views/commands/utils'
 

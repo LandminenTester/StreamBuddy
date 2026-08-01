@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { reactive } from 'vue'
-import BaseModal from '@renderer/components/shared/BaseModal.vue'
+import BaseModal from '@renderer/components/ui/BaseModal.vue'
 import type { AccountEditFormState } from '@renderer/views/loyalty/types'
 
 const props = defineProps<{ initial: AccountEditFormState }>()

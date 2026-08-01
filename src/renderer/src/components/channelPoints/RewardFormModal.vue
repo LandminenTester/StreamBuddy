@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, reactive } from 'vue'
-import BaseModal from '@renderer/components/shared/BaseModal.vue'
+import BaseModal from '@renderer/components/ui/BaseModal.vue'
 import { useCommandsStore } from '@renderer/stores/commands.store'
 import type { RewardFormState } from '@renderer/views/channelPoints/types'
 import { ACTION_TYPE_LABELS } from '@renderer/views/channelPoints/utils'

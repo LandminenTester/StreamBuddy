@@ -2,7 +2,7 @@
 import { onMounted, ref } from 'vue'
 import { useAutomessagesStore } from '@renderer/stores/automessages.store'
 import AutomessageFormModal from '@renderer/components/automessages/AutomessageFormModal.vue'
-import TabBar from '@renderer/components/shared/TabBar.vue'
+import AppTabs from '@renderer/components/ui/AppTabs.vue'
 import StringListInput from '@renderer/components/shared/StringListInput.vue'
 import type { AutomessageFormState } from './types'
 import { emptyAutomessageForm } from './types'
@@ -77,7 +77,7 @@ function formatTimestamp(iso: string | null): string {
       </p>
     </div>
 
-    <TabBar v-model="activeTab" :tabs="MAIN_TABS" class="mt-4" />
+    <AppTabs v-model="activeTab" :tabs="MAIN_TABS" class="mt-4" />
 
     <div v-show="activeTab === 'messages'" class="mt-6">
       <div class="flex items-center justify-end">

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { reactive } from 'vue'
-import BaseModal from '@renderer/components/shared/BaseModal.vue'
+import BaseModal from '@renderer/components/ui/BaseModal.vue'
 import StringListInput from '@renderer/components/shared/StringListInput.vue'
 import type { PollTemplateFormState } from '@renderer/views/polls/types'
 

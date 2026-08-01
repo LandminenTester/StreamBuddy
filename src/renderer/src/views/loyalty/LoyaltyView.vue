@@ -2,7 +2,7 @@
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useLoyaltyStore } from '@renderer/stores/loyalty.store'
 import AccountEditModal from '@renderer/components/loyalty/AccountEditModal.vue'
-import TabBar from '@renderer/components/shared/TabBar.vue'
+import AppTabs from '@renderer/components/ui/AppTabs.vue'
 import StatsCard from '@renderer/components/shared/StatsCard.vue'
 import StringListInput from '@renderer/components/shared/StringListInput.vue'
 import type { AccountEditFormState } from './types'
@@ -216,7 +216,7 @@ function colorEmoji(color: string): string {
       </p>
     </div>
 
-    <TabBar v-model="activeTab" :tabs="MAIN_TABS" />
+    <AppTabs v-model="activeTab" :tabs="MAIN_TABS" />
 
     <section
       v-show="activeTab === 'leaderboard'"
@@ -455,7 +455,7 @@ function colorEmoji(color: string): string {
     </section>
 
     <div v-show="activeTab === 'games'" class="space-y-6">
-      <TabBar
+      <AppTabs
         v-if="gameTabs.length > 0"
         :model-value="activeGameId"
         :tabs="gameTabs"
