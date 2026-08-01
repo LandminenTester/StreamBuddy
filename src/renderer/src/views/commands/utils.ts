@@ -1,17 +1,25 @@
 import type { Command, CommandDeliveryMode, PermissionLevel } from '@shared/types/command'
+import type { SelectOption } from '@renderer/components/ui/AppSelect.vue'
+import { t } from '@renderer/i18n'
 import type { CommandFormState } from './types'
 
-export const PERMISSION_LABELS: Record<PermissionLevel, string> = {
-  everyone: 'Alle',
-  subscriber: 'Subscriber',
-  moderator: 'Moderator',
-  broadcaster: 'Broadcaster'
+const PERMISSION_LEVELS: PermissionLevel[] = ['everyone', 'subscriber', 'moderator', 'broadcaster']
+const DELIVERY_MODES: CommandDeliveryMode[] = ['public', 'mention', 'whisper']
+
+export function permissionLabel(level: PermissionLevel): string {
+  return t(`commands.permission.${level}`)
 }
 
-export const DELIVERY_MODE_LABELS: Record<CommandDeliveryMode, string> = {
-  public: 'Öffentlich im Chat',
-  mention: 'Erwähnung (für ihn sichtbar)',
-  whisper: 'Whisper (privat)'
+export function deliveryModeLabel(mode: CommandDeliveryMode): string {
+  return t(`commands.delivery.${mode}`)
+}
+
+export function permissionOptions(): SelectOption[] {
+  return PERMISSION_LEVELS.map((value) => ({ value, label: permissionLabel(value) }))
+}
+
+export function deliveryModeOptions(): SelectOption[] {
+  return DELIVERY_MODES.map((value) => ({ value, label: deliveryModeLabel(value) }))
 }
 
 export function commandToFormState(command: Command): CommandFormState {

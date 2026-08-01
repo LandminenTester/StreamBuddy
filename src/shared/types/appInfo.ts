@@ -34,3 +34,9 @@ export type AppTheme = 'light' | 'dark' | 'system'
 
 /** Waehlbare Akzentfarbe; die konkreten Werte liegen in src/renderer/src/theme/accents.ts. */
 export type AccentColor = 'purple' | 'blue' | 'orange' | 'green' | 'neutral'
+
+/**
+ * Sprache der Oberflaeche. 'de' ist Master und Fallback -- fehlt ein Key in einer
+ * anderen Sprache, wird der deutsche Text angezeigt.
+ */
+export type AppLocale = 'de' | 'en'

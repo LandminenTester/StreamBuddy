@@ -8,7 +8,7 @@ import StringListInput from '@renderer/components/shared/StringListInput.vue'
 import type { PollTemplate } from '@shared/types/poll'
 import { emptyPollForm, emptyPollTemplateForm } from './types'
 import type { PollTemplateFormState } from './types'
-import { STATUS_LABELS } from './utils'
+import { statusLabel } from './utils'
 import {
   saveCurrentFormAsTemplate,
   sendPollTemplate,
@@ -327,7 +327,7 @@ async function handleSendTemplate(template: PollTemplate): Promise<void> {
         >
           <div class="flex items-center justify-between">
             <span class="font-medium">{{ poll.title }}</span>
-            <span class="text-xs text-slate-500">{{ STATUS_LABELS[poll.status] }}</span>
+            <span class="text-xs text-slate-500">{{ statusLabel(poll.status) }}</span>
           </div>
           <p
             v-if="poll.winnerChoiceIndex !== null && poll.choices[poll.winnerChoiceIndex]"

@@ -1,9 +1,16 @@
 import type { Automessage, AutomessageMode } from '@shared/types/automessage'
+import type { SelectOption } from '@renderer/components/ui/AppSelect.vue'
+import { t } from '@renderer/i18n'
 import type { AutomessageFormState } from './types'
 
-export const MODE_LABELS: Record<AutomessageMode, string> = {
-  interval: 'Zeitintervall',
-  message_count: 'Nach Chat-Nachrichten'
+const MODES: AutomessageMode[] = ['interval', 'message_count']
+
+export function modeLabel(mode: AutomessageMode): string {
+  return t(`automessages.mode.${mode}`)
+}
+
+export function modeOptions(): SelectOption[] {
+  return MODES.map((value) => ({ value, label: modeLabel(value) }))
 }
 
 export function automessageToFormState(automessage: Automessage): AutomessageFormState {
@@ -20,7 +27,7 @@ export function automessageToFormState(automessage: Automessage): AutomessageFor
 
 export function describeSchedule(automessage: Automessage): string {
   if (automessage.mode === 'interval') {
-    return `alle ${automessage.intervalMinutes} Min.`
+    return t('automessages.schedule.interval', { minutes: automessage.intervalMinutes })
   }
-  return `alle ${automessage.messageCountThreshold} Nachrichten`
+  return t('automessages.schedule.messageCount', { count: automessage.messageCountThreshold })
 }

@@ -1,20 +1,23 @@
 import type { UpdateStatus } from '@shared/types/appInfo'
+import { t } from '@renderer/i18n'
 
 export function updateStatusLabel(status: UpdateStatus): string {
   switch (status.state) {
     case 'checking':
-      return 'Suche nach Updates…'
+      return t('update.checking')
     case 'available':
-      return `Update v${status.version} verfügbar -- wird heruntergeladen…`
+      return t('update.available', { version: status.version ?? '' })
     case 'downloading':
-      return `Lädt herunter… ${status.percent ?? 0}%`
+      return t('update.downloading', { percent: status.percent ?? 0 })
     case 'downloaded':
-      return `Update v${status.version} bereit zur Installation.`
+      return t('update.downloaded', { version: status.version ?? '' })
     case 'not-available':
-      return 'Du hast die neueste Version.'
+      return t('update.notAvailable')
     case 'error':
-      return `Update-Check fehlgeschlagen${status.message ? `: ${status.message}` : ''}.`
+      return status.message
+        ? t('update.errorWithMessage', { message: status.message })
+        : t('update.error')
     default:
-      return 'Noch nicht geprüft.'
+      return t('update.idle')
   }
 }

@@ -1,10 +1,16 @@
 import type { ChannelPointReward, RewardActionType } from '@shared/types/channelPointReward'
+import type { SelectOption } from '@renderer/components/ui/AppSelect.vue'
+import { t } from '@renderer/i18n'
 import type { RewardFormState } from './types'
 
-export const ACTION_TYPE_LABELS: Record<RewardActionType, string> = {
-  none: 'Keine Aktion',
-  chat_message: 'Chat-Nachricht senden',
-  trigger_command: 'Command auslösen'
+const ACTION_TYPES: RewardActionType[] = ['none', 'chat_message', 'trigger_command']
+
+export function actionTypeLabel(type: RewardActionType): string {
+  return t(`channelPoints.actionType.${type}`)
+}
+
+export function actionTypeOptions(): SelectOption[] {
+  return ACTION_TYPES.map((value) => ({ value, label: actionTypeLabel(value) }))
 }
 
 export function rewardToFormState(reward: ChannelPointReward): RewardFormState {

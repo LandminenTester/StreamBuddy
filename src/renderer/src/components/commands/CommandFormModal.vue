@@ -2,7 +2,7 @@
 import { reactive } from 'vue'
 import BaseModal from '@renderer/components/ui/BaseModal.vue'
 import type { CommandFormState } from '@renderer/views/commands/types'
-import { DELIVERY_MODE_LABELS, PERMISSION_LABELS } from '@renderer/views/commands/utils'
+import { deliveryModeOptions, permissionOptions } from '@renderer/views/commands/utils'
 
 const props = defineProps<{ initial: CommandFormState }>()
 const emit = defineEmits<{ close: []; submit: [form: CommandFormState] }>()
@@ -58,8 +58,8 @@ function handleSubmit(): void {
             v-model="form.permissionLevel"
             class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
           >
-            <option v-for="(label, level) in PERMISSION_LABELS" :key="level" :value="level">
-              {{ label }}
+            <option v-for="option in permissionOptions()" :key="option.value" :value="option.value">
+              {{ option.label }}
             </option>
           </select>
         </div>
@@ -80,8 +80,8 @@ function handleSubmit(): void {
           v-model="form.deliveryMode"
           class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
         >
-          <option v-for="(label, mode) in DELIVERY_MODE_LABELS" :key="mode" :value="mode">
-            {{ label }}
+          <option v-for="option in deliveryModeOptions()" :key="option.value" :value="option.value">
+            {{ option.label }}
           </option>
         </select>
         <p v-if="form.deliveryMode === 'whisper'" class="mt-1 text-xs text-amber-600">

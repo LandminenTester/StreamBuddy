@@ -4,7 +4,7 @@ import { useCommandsStore } from '@renderer/stores/commands.store'
 import CommandFormModal from '@renderer/components/commands/CommandFormModal.vue'
 import type { CommandFormState } from './types'
 import { emptyCommandForm } from './types'
-import { commandToFormState, PERMISSION_LABELS } from './utils'
+import { commandToFormState, permissionLabel } from './utils'
 import { deleteCommandById, submitCommandForm } from './functions'
 import type { Command } from '@shared/types/command'
 
@@ -73,7 +73,7 @@ async function handleDelete(id: number): Promise<void> {
           </tr>
           <tr v-for="command in store.commands" :key="command.id">
             <td class="px-4 py-2 font-mono">{{ command.trigger }}</td>
-            <td class="px-4 py-2">{{ PERMISSION_LABELS[command.permissionLevel] }}</td>
+            <td class="px-4 py-2">{{ permissionLabel(command.permissionLevel) }}</td>
             <td class="px-4 py-2">{{ command.cooldownSeconds }}s</td>
             <td class="px-4 py-2">{{ command.useCount }}</td>
             <td class="px-4 py-2">

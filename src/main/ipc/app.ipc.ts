@@ -5,6 +5,7 @@ import { getAppMetadata } from '../appMetadata'
 import { getChangelog } from '../changelog'
 import { checkForUpdate, installUpdate } from '../updater'
 import { applyTheme, getAccent, getTheme, setAccent, setTheme } from '../theme'
+import { getLocale, setLocale } from '../locale'
 
 export function registerAppIpc(): void {
   handleTyped(IpcChannels.app.getVersion, () => app.getVersion())
@@ -32,5 +33,11 @@ export function registerAppIpc(): void {
 
   handleTyped(IpcChannels.app.setAccent, ({ accent }) => {
     setAccent(accent)
+  })
+
+  handleTyped(IpcChannels.app.getLocale, () => getLocale())
+
+  handleTyped(IpcChannels.app.setLocale, ({ locale }) => {
+    setLocale(locale)
   })
 }

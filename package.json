@@ -18,6 +18,7 @@
     "typecheck:web": "vue-tsc --noEmit -p tsconfig.web.json --composite false",
     "typecheck": "npm run typecheck:node && npm run typecheck:web",
     "lint": "eslint . --ext .ts,.vue",
+    "i18n:check": "node scripts/i18n-check.mjs",
     "test": "vitest run",
     "package:win": "npm run build && electron-builder --win",
     "postinstall": "electron-builder install-app-deps"
@@ -30,6 +31,7 @@
     "pinia": "^2.3.0",
     "tmi.js": "^1.8.5",
     "vue-chartjs": "^5.3.2",
+    "vue-i18n": "^11.4.8",
     "vue-router": "^4.5.0"
   },
   "devDependencies": {

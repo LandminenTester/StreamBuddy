@@ -3,7 +3,7 @@ import { onMounted, reactive } from 'vue'
 import BaseModal from '@renderer/components/ui/BaseModal.vue'
 import { useCommandsStore } from '@renderer/stores/commands.store'
 import type { RewardFormState } from '@renderer/views/channelPoints/types'
-import { ACTION_TYPE_LABELS } from '@renderer/views/channelPoints/utils'
+import { actionTypeOptions } from '@renderer/views/channelPoints/utils'
 
 const props = defineProps<{ initial: RewardFormState }>()
 const emit = defineEmits<{ close: []; submit: [form: RewardFormState] }>()
@@ -74,8 +74,8 @@ function handleSubmit(): void {
           v-model="form.actionType"
           class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
         >
-          <option v-for="(label, type) in ACTION_TYPE_LABELS" :key="type" :value="type">
-            {{ label }}
+          <option v-for="option in actionTypeOptions()" :key="option.value" :value="option.value">
+            {{ option.label }}
           </option>
         </select>
       </div>

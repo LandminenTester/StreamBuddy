@@ -1,0 +1,158 @@
+{
+  "app": {
+    "name": "StreamingBot",
+    "credit": "Built by Landminen Tester"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "add": "Add",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "finish": "Finish",
+    "loading": "Loading…",
+    "none": "—",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "yes": "Yes",
+    "no": "No",
+    "search": "Search",
+    "unknown": "Unknown"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "commands": "Commands",
+    "automessages": "Auto messages",
+    "polls": "Polls",
+    "channelPoints": "Channel points",
+    "loyalty": "Loyalty",
+    "games": "Games",
+    "settings": "Settings",
+    "about": "About StreamingBot"
+  },
+  "settings": {
+    "language": {
+      "label": "Language",
+      "hint": "The bot's chat texts stay in the language you picked during setup. Changing this only affects the interface.",
+      "resetBotTexts": "Reset bot texts to this language's defaults"
+    },
+    "appearance": {
+      "title": "Appearance",
+      "theme": {
+        "label": "Appearance",
+        "light": "Light",
+        "dark": "Dark",
+        "system": "Match system"
+      },
+      "accent": {
+        "label": "Accent color",
+        "purple": "Purple",
+        "blue": "Blue",
+        "orange": "Orange",
+        "green": "Green",
+        "neutral": "Neutral"
+      }
+    }
+  },
+  "features": {
+    "channel_points": {
+      "title": "Channel points",
+      "description": "Manage custom rewards and react to redemptions. Note: Twitch requires a token from the broadcaster account itself to manage rewards -- a moderator-only bot account can react to existing redemptions but cannot create new rewards."
+    },
+    "polls": {
+      "title": "Polls",
+      "description": "Create Twitch polls straight from the app and follow them live."
+    },
+    "loyalty_follow_sub": {
+      "title": "Loyalty: follow/sub rewards",
+      "description": "Award loyalty points automatically for follows, subs and gifted subs."
+    },
+    "ad_schedule": {
+      "title": "Ad break message",
+      "description": "Announces upcoming ad breaks in chat. Note: Twitch requires a token from the broadcaster account itself -- a moderator bot account cannot fetch this, because the token user ID must match the channel exactly."
+    }
+  },
+  "commands": {
+    "permission": {
+      "everyone": "Everyone",
+      "subscriber": "Subscriber",
+      "moderator": "Moderator",
+      "broadcaster": "Broadcaster"
+    },
+    "delivery": {
+      "public": "Public in chat",
+      "mention": "Mention (visible to them)",
+      "whisper": "Whisper (private)"
+    }
+  },
+  "automessages": {
+    "mode": {
+      "interval": "Time interval",
+      "message_count": "After chat messages"
+    },
+    "schedule": {
+      "interval": "every {minutes} min",
+      "messageCount": "every {count} messages"
+    }
+  },
+  "polls": {
+    "status": {
+      "draft": "Draft",
+      "active": "Active",
+      "completed": "Completed",
+      "terminated": "Ended",
+      "archived": "Archived"
+    }
+  },
+  "channelPoints": {
+    "actionType": {
+      "none": "No action",
+      "chat_message": "Send chat message",
+      "trigger_command": "Trigger command"
+    }
+  },
+  "loyalty": {
+    "earnRule": {
+      "follow": "Follow",
+      "sub": "Sub",
+      "gift_sub": "Gifted sub (per sub)",
+      "view_time": "View time tick"
+    }
+  },
+  "games": {
+    "name": {
+      "gamble": "Gamble",
+      "duel": "Duel",
+      "roulette": "Roulette"
+    },
+    "textSlot": {
+      "roundStart": "Round start",
+      "spinning": "Spin / waiting phase",
+      "result": "Result"
+    }
+  },
+  "update": {
+    "idle": "Not checked yet.",
+    "checking": "Checking for updates…",
+    "available": "Update v{version} available -- downloading…",
+    "downloading": "Downloading… {percent}%",
+    "downloaded": "Update v{version} ready to install.",
+    "notAvailable": "You're on the latest version.",
+    "error": "Update check failed.",
+    "errorWithMessage": "Update check failed: {message}"
+  },
+  "errors": {
+    "unknown": "An unknown error occurred.",
+    "oauth": {
+      "clientIdMissing": "Twitch client ID missing -- add it in settings.",
+      "deviceCodeRequestFailed": "Device code request failed.",
+      "deviceCodeExpired": "Device code expired -- authorization wasn't completed in time.",
+      "tokenRequestFailed": "Token request failed.",
+      "tokenRefreshFailed": "Token could not be refreshed -- please reconnect.",
+      "noTokenStored": "No stored Twitch connection found."
+    }
+  }
+}

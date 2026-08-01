@@ -7,9 +7,9 @@ import StatsCard from '@renderer/components/shared/StatsCard.vue'
 import StringListInput from '@renderer/components/shared/StringListInput.vue'
 import type { AccountEditFormState } from './types'
 import {
-  EARN_RULE_LABELS,
-  GAME_LABELS,
-  TEXT_SLOT_LABELS,
+  earnRuleLabel,
+  gameLabel,
+  textSlotLabel,
   gameDisplayName,
   gameTextSlots,
   numericConfigEntries,
@@ -400,7 +400,7 @@ function colorEmoji(color: string): string {
             :key="rule.reason"
             class="border-t border-slate-100 dark:border-neutral-800"
           >
-            <td class="py-2">{{ EARN_RULE_LABELS[rule.reason] }}</td>
+            <td class="py-2">{{ earnRuleLabel(rule.reason) }}</td>
             <td class="py-2">
               <input
                 v-model.number="rule.points"
@@ -469,12 +469,12 @@ function colorEmoji(color: string): string {
         <div class="flex items-center justify-between">
           <div class="min-w-0">
             <p class="text-xs text-slate-500">
-              {{ GAME_LABELS[activeGame.gameId] ?? activeGame.gameId }}
+              {{ gameLabel(activeGame.gameId) }}
             </p>
             <input
               type="text"
               :value="activeGame.displayName ?? ''"
-              :placeholder="GAME_LABELS[activeGame.gameId] ?? activeGame.gameId"
+              :placeholder="gameLabel(activeGame.gameId)"
               class="mt-0.5 w-48 rounded-md border border-slate-300 px-2 py-1 font-medium dark:border-neutral-700 dark:bg-neutral-900"
               @change="handleRenameGame(activeGame.gameId, $event)"
             />
@@ -540,7 +540,7 @@ function colorEmoji(color: string): string {
           </h3>
           <div class="mt-2 space-y-3">
             <div v-for="slot in gameTextSlots(activeGame)" :key="slot">
-              <label class="text-xs text-slate-500">{{ TEXT_SLOT_LABELS[slot] ?? slot }}</label>
+              <label class="text-xs text-slate-500">{{ textSlotLabel(slot) }}</label>
               <StringListInput v-model="textSlotDrafts[slot]" class="mt-1" />
               <button
                 type="button"

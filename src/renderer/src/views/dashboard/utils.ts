@@ -1,7 +1,11 @@
 import type { ChatMessageStatsBucket, ViewerCountSample } from '@shared/types/stats'
+import { activeLocaleTag } from '@renderer/i18n'
 
 function formatHourLabel(timestampMs: number): string {
-  return new Date(timestampMs).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
+  return new Date(timestampMs).toLocaleTimeString(activeLocaleTag(), {
+    hour: '2-digit',
+    minute: '2-digit'
+  })
 }
 
 export function messageBucketsToChartData(buckets: ChatMessageStatsBucket[]): {

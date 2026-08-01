@@ -13,7 +13,9 @@ export const IpcChannels = {
     getTheme: 'app:getTheme',
     setTheme: 'app:setTheme',
     getAccent: 'app:getAccent',
-    setAccent: 'app:setAccent'
+    setAccent: 'app:setAccent',
+    getLocale: 'app:getLocale',
+    setLocale: 'app:setLocale'
   },
   commands: {
     list: 'commands:list',

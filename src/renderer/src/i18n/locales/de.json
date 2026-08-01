@@ -1,0 +1,158 @@
+{
+  "app": {
+    "name": "StreamingBot",
+    "credit": "Erstellt von Landminen Tester"
+  },
+  "common": {
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "add": "Hinzufügen",
+    "close": "Schließen",
+    "back": "Zurück",
+    "next": "Weiter",
+    "finish": "Fertigstellen",
+    "loading": "Lädt…",
+    "none": "—",
+    "enabled": "Aktiv",
+    "disabled": "Inaktiv",
+    "yes": "Ja",
+    "no": "Nein",
+    "search": "Suchen",
+    "unknown": "Unbekannt"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "commands": "Commands",
+    "automessages": "Automessages",
+    "polls": "Umfragen",
+    "channelPoints": "Kanalpunkte",
+    "loyalty": "Loyalty",
+    "games": "Games",
+    "settings": "Einstellungen",
+    "about": "Über StreamingBot"
+  },
+  "settings": {
+    "language": {
+      "label": "Sprache",
+      "hint": "Die Chat-Texte des Bots bleiben in der Sprache, die bei der Einrichtung gewählt wurde. Ein Wechsel hier ändert nur die Oberfläche.",
+      "resetBotTexts": "Bot-Texte auf Standardtexte dieser Sprache zurücksetzen"
+    },
+    "appearance": {
+      "title": "Erscheinungsbild",
+      "theme": {
+        "label": "Darstellung",
+        "light": "Hell",
+        "dark": "Dunkel",
+        "system": "Systemeinstellung"
+      },
+      "accent": {
+        "label": "Akzentfarbe",
+        "purple": "Violett",
+        "blue": "Blau",
+        "orange": "Orange",
+        "green": "Grün",
+        "neutral": "Neutral"
+      }
+    }
+  },
+  "features": {
+    "channel_points": {
+      "title": "Kanalpunkte",
+      "description": "Custom Rewards verwalten und auf Redemptions reagieren. Achtung: Twitch verlangt für die Reward-Verwaltung ein Token des Broadcaster-Accounts selbst -- mit einem reinen Moderator-Bot-Account funktioniert nur das Reagieren auf bestehende Redemptions, nicht das Anlegen neuer Rewards über einen Mod-Token."
+    },
+    "polls": {
+      "title": "Umfragen",
+      "description": "Twitch-Polls direkt aus der App erstellen und live verfolgen."
+    },
+    "loyalty_follow_sub": {
+      "title": "Loyalty: Follow/Sub-Belohnungen",
+      "description": "Loyalty-Punkte automatisch für Follows, Subs und Gifted Subs vergeben."
+    },
+    "ad_schedule": {
+      "title": "Werbungsnachricht",
+      "description": "Kündigt bevorstehende Werbeunterbrechungen im Chat an. Achtung: Twitch verlangt hierfür zwingend ein Token des Broadcaster-Accounts selbst -- mit einem Moderator-Bot-Account funktioniert dieser Abruf nicht, da die Token-User-ID exakt dem Kanal entsprechen muss."
+    }
+  },
+  "commands": {
+    "permission": {
+      "everyone": "Alle",
+      "subscriber": "Subscriber",
+      "moderator": "Moderator",
+      "broadcaster": "Broadcaster"
+    },
+    "delivery": {
+      "public": "Öffentlich im Chat",
+      "mention": "Erwähnung (für ihn sichtbar)",
+      "whisper": "Whisper (privat)"
+    }
+  },
+  "automessages": {
+    "mode": {
+      "interval": "Zeitintervall",
+      "message_count": "Nach Chat-Nachrichten"
+    },
+    "schedule": {
+      "interval": "alle {minutes} Min.",
+      "messageCount": "alle {count} Nachrichten"
+    }
+  },
+  "polls": {
+    "status": {
+      "draft": "Entwurf",
+      "active": "Aktiv",
+      "completed": "Abgeschlossen",
+      "terminated": "Beendet",
+      "archived": "Archiviert"
+    }
+  },
+  "channelPoints": {
+    "actionType": {
+      "none": "Keine Aktion",
+      "chat_message": "Chat-Nachricht senden",
+      "trigger_command": "Command auslösen"
+    }
+  },
+  "loyalty": {
+    "earnRule": {
+      "follow": "Follow",
+      "sub": "Sub",
+      "gift_sub": "Gifted Sub (pro Sub)",
+      "view_time": "View-Time-Tick"
+    }
+  },
+  "games": {
+    "name": {
+      "gamble": "Gamble",
+      "duel": "Duell",
+      "roulette": "Roulette"
+    },
+    "textSlot": {
+      "roundStart": "Runden-Start",
+      "spinning": "Dreh-/Wartephase",
+      "result": "Ergebnis"
+    }
+  },
+  "update": {
+    "idle": "Noch nicht geprüft.",
+    "checking": "Suche nach Updates…",
+    "available": "Update v{version} verfügbar -- wird heruntergeladen…",
+    "downloading": "Lädt herunter… {percent}%",
+    "downloaded": "Update v{version} bereit zur Installation.",
+    "notAvailable": "Du hast die neueste Version.",
+    "error": "Update-Check fehlgeschlagen.",
+    "errorWithMessage": "Update-Check fehlgeschlagen: {message}"
+  },
+  "errors": {
+    "unknown": "Ein unbekannter Fehler ist aufgetreten.",
+    "oauth": {
+      "clientIdMissing": "Twitch-Client-ID fehlt -- in den Einstellungen eintragen.",
+      "deviceCodeRequestFailed": "Device-Code-Anfrage fehlgeschlagen.",
+      "deviceCodeExpired": "Device-Code abgelaufen -- Autorisierung nicht rechtzeitig abgeschlossen.",
+      "tokenRequestFailed": "Token-Anfrage fehlgeschlagen.",
+      "tokenRefreshFailed": "Token konnte nicht erneuert werden -- bitte neu verbinden.",
+      "noTokenStored": "Keine gespeicherte Twitch-Verbindung gefunden."
+    }
+  }
+}

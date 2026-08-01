@@ -1,31 +1,30 @@
+import type { FeatureKey } from '@shared/types/auth'
+import { i18n, t } from '@renderer/i18n'
 import type { FeatureLabel } from './types'
 
-/** Menschenlesbare Labels für die optionalen (togglebaren) Features. */
-export const FEATURE_LABELS: FeatureLabel[] = [
-  {
-    key: 'channel_points',
-    title: 'Kanalpunkte',
-    description:
-      'Custom Rewards verwalten und auf Redemptions reagieren. Achtung: Twitch verlangt für die Reward-Verwaltung ein Token des Broadcaster-Accounts selbst -- mit einem reinen Moderator-Bot-Account funktioniert nur das Reagieren auf bestehende Redemptions, nicht das Anlegen neuer Rewards über einen Mod-Token.'
-  },
-  {
-    key: 'polls',
-    title: 'Umfragen',
-    description: 'Twitch-Polls direkt aus der App erstellen und live verfolgen.'
-  },
-  {
-    key: 'loyalty_follow_sub',
-    title: 'Loyalty: Follow/Sub-Belohnungen',
-    description: 'Loyalty-Punkte automatisch für Follows, Subs und Gifted Subs vergeben.'
-  },
-  {
-    key: 'ad_schedule',
-    title: 'Werbungsnachricht',
-    description:
-      'Kündigt bevorstehende Werbeunterbrechungen im Chat an. Achtung: Twitch verlangt hierfür zwingend ein Token des Broadcaster-Accounts selbst -- mit einem Moderator-Bot-Account funktioniert dieser Abruf nicht, da die Token-User-ID exakt dem Kanal entsprechen muss.'
-  }
+/** Reihenfolge der optionalen (togglebaren) Features in der Oberflaeche. */
+export const FEATURE_KEYS: FeatureKey[] = [
+  'channel_points',
+  'polls',
+  'loyalty_follow_sub',
+  'ad_schedule'
 ]
 
+/**
+ * Uebersetztes Label eines Features. Unbekannte Keys (z.B. neue Features ohne Text)
+ * liefern undefined, damit der Aufrufer auf den rohen Key zurueckfallen kann.
+ */
 export function labelForFeature(key: string): FeatureLabel | undefined {
-  return FEATURE_LABELS.find((f) => f.key === key)
+  if (!i18n.global.te(`features.${key}.title`)) return undefined
+  return {
+    key: key as FeatureKey,
+    title: t(`features.${key}.title`),
+    description: t(`features.${key}.description`)
+  }
+}
+
+export function featureLabels(): FeatureLabel[] {
+  return FEATURE_KEYS.map((key) => labelForFeature(key)).filter(
+    (label): label is FeatureLabel => label !== undefined
+  )
 }

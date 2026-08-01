@@ -1,6 +1,7 @@
 import { IpcChannels } from './channels'
 import type {
   AccentColor,
+  AppLocale,
   AppMetadata,
   AppTheme,
   ChangelogEntry,
@@ -53,6 +54,8 @@ export interface IpcContracts {
   [IpcChannels.app.setTheme]: { request: { theme: AppTheme }; response: void }
   [IpcChannels.app.getAccent]: { request: void; response: AccentColor }
   [IpcChannels.app.setAccent]: { request: { accent: AccentColor }; response: void }
+  [IpcChannels.app.getLocale]: { request: void; response: AppLocale }
+  [IpcChannels.app.setLocale]: { request: { locale: AppLocale }; response: void }
 
   [IpcChannels.commands.list]: { request: void; response: Command[] }
   [IpcChannels.commands.create]: { request: CommandInput; response: Command }

@@ -3,7 +3,7 @@ import { reactive } from 'vue'
 import BaseModal from '@renderer/components/ui/BaseModal.vue'
 import StringListInput from '@renderer/components/shared/StringListInput.vue'
 import type { AutomessageFormState } from '@renderer/views/automessages/types'
-import { MODE_LABELS } from '@renderer/views/automessages/utils'
+import { modeOptions } from '@renderer/views/automessages/utils'
 
 const props = defineProps<{ initial: AutomessageFormState }>()
 const emit = defineEmits<{ close: []; submit: [form: AutomessageFormState] }>()
@@ -39,8 +39,8 @@ function handleSubmit(): void {
           v-model="form.mode"
           class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
         >
-          <option v-for="(label, mode) in MODE_LABELS" :key="mode" :value="mode">
-            {{ label }}
+          <option v-for="option in modeOptions()" :key="option.value" :value="option.value">
+            {{ option.label }}
           </option>
         </select>
       </div>

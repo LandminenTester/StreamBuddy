@@ -1,26 +1,23 @@
 import type { LoyaltyEarnRule, LoyaltyGameInfo } from '@shared/types/loyalty'
+import { i18n, t } from '@renderer/i18n'
 
-export const EARN_RULE_LABELS: Record<LoyaltyEarnRule['reason'], string> = {
-  follow: 'Follow',
-  sub: 'Sub',
-  gift_sub: 'Gifted Sub (pro Sub)',
-  view_time: 'View-Time-Tick'
+export function earnRuleLabel(reason: LoyaltyEarnRule['reason']): string {
+  return t(`loyalty.earnRule.${reason}`)
 }
 
-export const GAME_LABELS: Record<string, string> = {
-  gamble: 'Gamble',
-  duel: 'Duell',
-  roulette: 'Roulette'
+/** Kanonischer Name eines Spiels; unbekannte Game-IDs fallen auf die ID zurueck. */
+export function gameLabel(gameId: string): string {
+  const key = `games.name.${gameId}`
+  return i18n.global.te(key) ? t(key) : gameId
 }
 
-export const TEXT_SLOT_LABELS: Record<string, string> = {
-  roundStart: 'Runden-Start',
-  spinning: 'Dreh-/Wartephase',
-  result: 'Ergebnis'
+export function textSlotLabel(slot: string): string {
+  const key = `games.textSlot.${slot}`
+  return i18n.global.te(key) ? t(key) : slot
 }
 
 export function gameDisplayName(game: LoyaltyGameInfo): string {
-  return game.displayName || GAME_LABELS[game.gameId] || game.gameId
+  return game.displayName || gameLabel(game.gameId)
 }
 
 /** Nur numerische Config-Felder eines Spiels sind über die generische UI editierbar. */
