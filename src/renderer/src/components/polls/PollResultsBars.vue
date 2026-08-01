@@ -6,17 +6,17 @@ defineProps<{ poll: Poll }>()
 </script>
 
 <template>
-  <div class="space-y-2">
+  <div class="space-y-3">
     <div v-for="choice in poll.choices" :key="choice.title">
       <div class="flex items-center justify-between text-sm">
-        <span>{{ choice.title }}</span>
-        <span class="text-slate-500"
-          >{{ choice.votes }} ({{ votePercentage(poll, choice.votes) }}%)</span
-        >
+        <span class="text-fg">{{ choice.title }}</span>
+        <span class="tabular-nums text-fg-muted">
+          {{ choice.votes }} ({{ votePercentage(poll, choice.votes) }}%)
+        </span>
       </div>
-      <div class="mt-1 h-2 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-neutral-800">
+      <div class="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-surface-subtle">
         <div
-          class="h-full rounded-full bg-twitch-purple transition-all"
+          class="h-full rounded-full bg-accent transition-all"
           :style="{ width: `${votePercentage(poll, choice.votes)}%` }"
         />
       </div>

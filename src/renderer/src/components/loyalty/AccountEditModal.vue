@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { reactive } from 'vue'
+import AppButton from '@renderer/components/ui/AppButton.vue'
+import AppInput from '@renderer/components/ui/AppInput.vue'
 import BaseModal from '@renderer/components/ui/BaseModal.vue'
 import type { AccountEditFormState } from '@renderer/views/loyalty/types'
 
@@ -7,41 +9,23 @@ const props = defineProps<{ initial: AccountEditFormState }>()
 const emit = defineEmits<{ close: []; submit: [form: AccountEditFormState] }>()
 
 const form = reactive<AccountEditFormState>({ ...props.initial })
-
-function handleSubmit(): void {
-  emit('submit', { ...form })
-}
 </script>
 
 <template>
-  <BaseModal :title="`Konto bearbeiten: ${form.userLogin}`" @close="emit('close')">
-    <form class="space-y-3" @submit.prevent="handleSubmit">
-      <div>
-        <label class="block text-xs font-medium text-slate-500">Kontostand</label>
-        <input
-          v-model.number="form.balance"
-          type="number"
-          min="0"
-          required
-          class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
-        />
-      </div>
+  <BaseModal :title="`${$t('loyalty.editAccount')}: ${form.userLogin}`" @close="emit('close')">
+    <AppInput
+      v-model="form.balance"
+      type="number"
+      :min="0"
+      :label="$t('loyalty.leaderboard.balance')"
+      required
+    />
 
-      <div class="flex justify-end gap-2 pt-2">
-        <button
-          type="button"
-          class="rounded-md border border-slate-300 px-4 py-2 text-sm dark:border-neutral-700"
-          @click="emit('close')"
-        >
-          Abbrechen
-        </button>
-        <button
-          type="submit"
-          class="rounded-md bg-twitch-purple px-4 py-2 text-sm font-medium text-white hover:opacity-90"
-        >
-          Speichern
-        </button>
-      </div>
-    </form>
+    <template #footer>
+      <AppButton variant="ghost" @click="emit('close')">{{ $t('common.cancel') }}</AppButton>
+      <AppButton variant="primary" @click="emit('submit', { ...form })">
+        {{ $t('common.save') }}
+      </AppButton>
+    </template>
   </BaseModal>
 </template>

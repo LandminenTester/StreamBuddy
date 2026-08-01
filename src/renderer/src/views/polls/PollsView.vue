@@ -1,10 +1,19 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue'
-import { usePollsStore } from '@renderer/stores/polls.store'
-import { usePollTemplatesStore } from '@renderer/stores/pollTemplates.store'
+import { Plus, Vote } from 'lucide-vue-next'
+import AppBadge from '@renderer/components/ui/AppBadge.vue'
+import AppButton from '@renderer/components/ui/AppButton.vue'
+import AppInput from '@renderer/components/ui/AppInput.vue'
+import AppToggle from '@renderer/components/ui/AppToggle.vue'
+import BaseModal from '@renderer/components/ui/BaseModal.vue'
+import EmptyState from '@renderer/components/ui/EmptyState.vue'
+import PageHeader from '@renderer/components/ui/PageHeader.vue'
+import PageSection from '@renderer/components/ui/PageSection.vue'
 import PollResultsBars from '@renderer/components/polls/PollResultsBars.vue'
 import PollTemplateFormModal from '@renderer/components/polls/PollTemplateFormModal.vue'
 import StringListInput from '@renderer/components/shared/StringListInput.vue'
+import { usePollsStore } from '@renderer/stores/polls.store'
+import { usePollTemplatesStore } from '@renderer/stores/pollTemplates.store'
 import type { PollTemplate } from '@shared/types/poll'
 import { emptyPollForm, emptyPollTemplateForm } from './types'
 import type { PollTemplateFormState } from './types'
@@ -20,6 +29,7 @@ const store = usePollsStore()
 const templatesStore = usePollTemplatesStore()
 const form = ref(emptyPollForm())
 
+const isCreateModalOpen = ref(false)
 const isTemplateModalOpen = ref(false)
 const activeTemplateForm = ref<PollTemplateFormState>(emptyPollTemplateForm())
 
@@ -40,16 +50,23 @@ onUnmounted(() => {
 
 const activePoll = computed(() => store.polls.find((p) => p.status === 'active'))
 const pastPolls = computed(() => store.polls.filter((p) => p.status !== 'active'))
+const hasEnoughChoices = computed(
+  () => form.value.choices.filter((choice) => choice.trim().length > 0).length >= 2
+)
 
-async function handleCreate(): Promise<void> {
-  if (form.value.choices.filter((c) => c.trim().length > 0).length < 2) return
-  await submitPollForm(store, form.value)
-  if (!store.error) form.value = emptyPollForm()
+function openCreateModal(): void {
+  form.value = emptyPollForm()
+  store.error = null
+  isCreateModalOpen.value = true
 }
 
-async function handleSaveAsTemplate(): Promise<void> {
-  if (!form.value.title.trim()) return
-  await saveCurrentFormAsTemplate(templatesStore, form.value)
+async function handleCreate(): Promise<void> {
+  if (!hasEnoughChoices.value) return
+  await submitPollForm(store, form.value)
+  if (!store.error) {
+    form.value = emptyPollForm()
+    isCreateModalOpen.value = false
+  }
 }
 
 function highestVoteIndex(choices: { votes: number }[]): number {
@@ -103,206 +120,186 @@ async function handleTemplateSubmit(templateForm: PollTemplateFormState): Promis
   await submitPollTemplateForm(templatesStore, templateForm)
   isTemplateModalOpen.value = false
 }
-
-async function handleDeleteTemplate(id: number): Promise<void> {
-  await templatesStore.deleteTemplate(id)
-}
-
-async function handleSendTemplate(template: PollTemplate): Promise<void> {
-  await sendPollTemplate(store, template)
-}
 </script>
 
 <template>
-  <div class="space-y-8">
-    <div>
-      <h1 class="text-2xl font-semibold">Umfragen</h1>
-      <p class="mt-1 text-sm text-slate-500 dark:text-neutral-400">
-        Twitch-Polls erstellen und Ergebnisse live verfolgen.
-      </p>
-    </div>
+  <div class="mx-auto max-w-3xl space-y-8">
+    <PageHeader :title="$t('polls.title')" :description="$t('polls.description')">
+      <template #actions>
+        <AppButton v-if="!activePoll" variant="primary" @click="openCreateModal">
+          <template #icon><Plus class="h-4 w-4" /></template>
+          {{ $t('polls.create.title') }}
+        </AppButton>
+      </template>
+    </PageHeader>
 
-    <section
-      v-if="activePoll"
-      class="rounded-lg border border-slate-200 p-4 dark:border-neutral-800"
-    >
-      <div class="flex items-center justify-between">
-        <h2 class="font-medium">{{ activePoll.title }}</h2>
-        <div v-if="endingPollId !== activePoll.id" class="flex items-center gap-2">
-          <button
-            class="rounded-md border border-red-300 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 dark:border-red-800 dark:hover:bg-red-950"
-            @click="startEnding(activePoll.id)"
-          >
-            Beenden
-          </button>
-          <button
-            class="rounded-md border border-slate-300 px-3 py-1.5 text-sm text-slate-500 hover:bg-slate-50 dark:border-neutral-700 dark:hover:bg-neutral-800"
-            title="Setzt die Umfrage nur lokal zurück, ohne Twitch zu kontaktieren -- für den Fall, dass sie auf Twitch längst nicht mehr existiert."
-            @click="handleReset(activePoll.id)"
-          >
-            Zurücksetzen
-          </button>
-        </div>
-      </div>
-      <div class="mt-3">
-        <PollResultsBars :poll="activePoll" />
-      </div>
+    <PageSection :title="$t('polls.active.title')" :divided="false">
+      <template v-if="activePoll" #actions>
+        <AppButton size="sm" variant="danger" @click="startEnding(activePoll.id)">
+          {{ $t('polls.active.end') }}
+        </AppButton>
+        <AppButton size="sm" variant="ghost" :title="$t('polls.resetHint')" @click="handleReset(activePoll.id)">
+          {{ $t('polls.active.reset') }}
+        </AppButton>
+      </template>
 
-      <div
-        v-if="endingPollId === activePoll.id"
-        class="mt-3 rounded-md border border-slate-200 p-3 dark:border-neutral-800"
-      >
-        <p class="text-xs font-medium text-slate-500">Gewinner auswählen und Umfrage beenden:</p>
-        <div class="mt-2 space-y-1">
-          <label
-            v-for="(choice, index) in activePoll.choices"
-            :key="index"
-            class="flex items-center gap-2 text-sm"
-          >
-            <input
-              v-model.number="selectedWinnerIndex"
-              type="radio"
-              :value="index"
-              class="h-4 w-4 accent-twitch-purple"
-            />
-            {{ choice.title }} ({{ choice.votes }} Stimmen)
-          </label>
-        </div>
-        <div class="mt-3 flex justify-end gap-2">
-          <button
-            class="rounded-md border border-slate-300 px-3 py-1.5 text-sm dark:border-neutral-700"
-            @click="cancelEnding"
-          >
-            Abbrechen
-          </button>
-          <button
-            class="rounded-md bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:opacity-90"
-            @click="confirmEnding"
-          >
-            Bestätigen & Beenden
-          </button>
-        </div>
-      </div>
-    </section>
+      <EmptyState v-if="!activePoll" :title="$t('polls.active.none')">
+        <template #icon><Vote class="h-8 w-8" /></template>
+      </EmptyState>
 
-    <section v-else class="rounded-lg border border-slate-200 p-4 dark:border-neutral-800">
-      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Neue Umfrage</h2>
-      <form class="mt-3 space-y-3" @submit.prevent="handleCreate">
-        <div>
-          <label class="block text-xs font-medium text-slate-500">Titel</label>
-          <input
-            v-model="form.title"
-            type="text"
-            required
-            class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
-          />
+      <template v-else>
+        <p class="text-base font-medium text-fg">{{ activePoll.title }}</p>
+        <div class="mt-3">
+          <PollResultsBars :poll="activePoll" />
         </div>
-        <div>
-          <label class="block text-xs font-medium text-slate-500">
-            Antwortoptionen (mind. 2)
-          </label>
-          <StringListInput v-model="form.choices" class="mt-1" />
-        </div>
-        <div>
-          <label class="block text-xs font-medium text-slate-500">Dauer (Sekunden)</label>
-          <input
-            v-model.number="form.durationSeconds"
-            type="number"
-            min="15"
-            max="1800"
-            class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
-          />
-        </div>
-        <label class="flex items-center gap-2 text-sm">
-          <input
-            v-model="form.channelPointsVotingEnabled"
-            type="checkbox"
-            class="h-4 w-4 accent-twitch-purple"
-          />
-          Abstimmen mit Kanalpunkten erlauben
-        </label>
-        <div v-if="form.channelPointsVotingEnabled">
-          <label class="block text-xs font-medium text-slate-500">Kanalpunkte pro Stimme</label>
-          <input
-            v-model.number="form.channelPointsPerVote"
-            type="number"
-            min="1"
-            class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
-          />
-        </div>
+      </template>
+    </PageSection>
 
-        <p v-if="store.error" class="text-sm text-red-600">{{ store.error }}</p>
+    <PageSection :title="$t('polls.templates.title')">
+      <template #actions>
+        <AppButton size="sm" @click="openCreateTemplateModal">
+          {{ $t('polls.templates.new') }}
+        </AppButton>
+      </template>
 
-        <div class="flex gap-2">
-          <button
-            type="submit"
-            class="rounded-md bg-twitch-purple px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
-            :disabled="store.isCreating"
-          >
-            {{ store.isCreating ? 'Wird gestartet…' : 'Umfrage starten' }}
-          </button>
-          <button
-            type="button"
-            class="rounded-md border border-slate-300 px-4 py-2 text-sm dark:border-neutral-700"
-            @click="handleSaveAsTemplate"
-          >
-            Als Template speichern
-          </button>
-        </div>
-      </form>
-    </section>
+      <EmptyState
+        v-if="templatesStore.templates.length === 0"
+        :title="$t('polls.templates.empty')"
+      />
 
-    <section class="rounded-lg border border-slate-200 p-4 dark:border-neutral-800">
-      <div class="flex items-center justify-between">
-        <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">
-          Umfrage-Templates
-        </h2>
-        <button
-          class="rounded-md border border-slate-300 px-3 py-1.5 text-xs dark:border-neutral-700"
-          @click="openCreateTemplateModal"
-        >
-          Neues Template
-        </button>
-      </div>
-      <ul class="mt-3 space-y-2">
-        <li
-          v-if="templatesStore.templates.length === 0"
-          class="py-4 text-center text-sm text-slate-500"
-        >
-          Noch keine Templates gespeichert.
-        </li>
+      <ul v-else class="divide-y divide-line border-t border-line">
         <li
           v-for="template in templatesStore.templates"
           :key="template.id"
-          class="flex items-center justify-between rounded-md border border-slate-100 px-3 py-2 text-sm dark:border-neutral-800"
+          class="flex items-center justify-between gap-4 py-3"
         >
-          <div>
-            <p class="font-medium">{{ template.title }}</p>
-            <p class="text-xs text-slate-500">{{ template.choices.join(' / ') }}</p>
+          <div class="min-w-0">
+            <p class="truncate text-sm font-medium text-fg">{{ template.title }}</p>
+            <p class="truncate text-xs text-fg-muted">{{ template.choices.join(' · ') }}</p>
           </div>
-          <div class="flex items-center gap-2">
-            <button
-              class="rounded-md bg-twitch-purple px-3 py-1.5 text-xs font-medium text-white hover:opacity-90"
-              @click="handleSendTemplate(template)"
+          <div class="flex shrink-0 items-center gap-1">
+            <AppButton size="sm" variant="primary" @click="sendPollTemplate(store, template)">
+              {{ $t('polls.templates.send') }}
+            </AppButton>
+            <AppButton size="sm" variant="ghost" @click="openEditTemplateModal(template)">
+              {{ $t('common.edit') }}
+            </AppButton>
+            <AppButton
+              size="sm"
+              variant="ghost"
+              @click="templatesStore.deleteTemplate(template.id)"
             >
-              Senden
-            </button>
-            <button
-              class="text-xs text-slate-500 hover:text-twitch-purple"
-              @click="openEditTemplateModal(template)"
-            >
-              Bearbeiten
-            </button>
-            <button
-              class="text-xs text-slate-500 hover:text-red-600"
-              @click="handleDeleteTemplate(template.id)"
-            >
-              Löschen
-            </button>
+              {{ $t('common.delete') }}
+            </AppButton>
           </div>
         </li>
       </ul>
-    </section>
+    </PageSection>
+
+    <PageSection :title="$t('polls.history.title')">
+      <EmptyState v-if="pastPolls.length === 0" :title="$t('polls.history.empty')" />
+
+      <ul v-else class="divide-y divide-line border-t border-line">
+        <li v-for="poll in pastPolls" :key="poll.id" class="py-4">
+          <div class="flex items-center justify-between gap-4">
+            <span class="truncate text-sm font-medium text-fg">{{ poll.title }}</span>
+            <AppBadge>{{ statusLabel(poll.status) }}</AppBadge>
+          </div>
+          <p
+            v-if="poll.winnerChoiceIndex !== null && poll.choices[poll.winnerChoiceIndex]"
+            class="mt-1 text-xs font-medium text-accent"
+          >
+            {{ $t('polls.winnerPrefix', { choice: poll.choices[poll.winnerChoiceIndex].title }) }}
+          </p>
+          <div class="mt-3">
+            <PollResultsBars :poll="poll" />
+          </div>
+        </li>
+      </ul>
+    </PageSection>
+
+    <BaseModal
+      v-if="isCreateModalOpen"
+      :title="$t('polls.create.title')"
+      @close="isCreateModalOpen = false"
+    >
+      <div class="space-y-5">
+        <AppInput v-model="form.title" :label="$t('polls.create.titleLabel')" required />
+
+        <div>
+          <p class="mb-1 text-xs font-medium text-fg-muted">{{ $t('polls.create.choices') }}</p>
+          <StringListInput v-model="form.choices" />
+          <p class="mt-1.5 text-xs text-fg-subtle">{{ $t('polls.choicesHint') }}</p>
+        </div>
+
+        <AppInput
+          v-model="form.durationSeconds"
+          type="number"
+          :min="15"
+          :max="1800"
+          :label="$t('polls.create.duration')"
+        />
+
+        <AppToggle
+          v-model="form.channelPointsVotingEnabled"
+          :label="$t('polls.create.channelPoints')"
+        />
+
+        <AppInput
+          v-if="form.channelPointsVotingEnabled"
+          v-model="form.channelPointsPerVote"
+          type="number"
+          :min="1"
+          :label="$t('polls.create.channelPointsCost')"
+        />
+
+        <p v-if="store.error" class="text-sm text-danger">{{ store.error }}</p>
+      </div>
+
+      <template #footer>
+        <AppButton variant="ghost" @click="saveCurrentFormAsTemplate(templatesStore, form)">
+          {{ $t('polls.saveAsTemplate') }}
+        </AppButton>
+        <AppButton
+          variant="primary"
+          :loading="store.isCreating"
+          :disabled="!hasEnoughChoices"
+          @click="handleCreate"
+        >
+          {{ store.isCreating ? $t('polls.starting') : $t('polls.create.submit') }}
+        </AppButton>
+      </template>
+    </BaseModal>
+
+    <BaseModal
+      v-if="endingPollId !== null && activePoll"
+      :title="$t('polls.active.winner')"
+      @close="cancelEnding"
+    >
+      <div class="space-y-2">
+        <label
+          v-for="(choice, index) in activePoll.choices"
+          :key="index"
+          class="flex cursor-pointer items-center gap-3 rounded-md px-2 py-2 text-sm transition-colors hover:bg-surface-subtle"
+        >
+          <input
+            v-model.number="selectedWinnerIndex"
+            type="radio"
+            :value="index"
+            class="h-4 w-4 accent-accent"
+          />
+          <span class="text-fg">{{ choice.title }}</span>
+          <span class="ml-auto text-xs text-fg-muted">
+            {{ $t('polls.votes', { count: choice.votes }) }}
+          </span>
+        </label>
+      </div>
+
+      <template #footer>
+        <AppButton variant="ghost" @click="cancelEnding">{{ $t('common.cancel') }}</AppButton>
+        <AppButton variant="danger" @click="confirmEnding">{{ $t('polls.confirmEnd') }}</AppButton>
+      </template>
+    </BaseModal>
 
     <PollTemplateFormModal
       v-if="isTemplateModalOpen"
@@ -310,36 +307,5 @@ async function handleSendTemplate(template: PollTemplate): Promise<void> {
       @close="isTemplateModalOpen = false"
       @submit="handleTemplateSubmit"
     />
-
-    <section>
-      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Historie</h2>
-      <ul class="mt-3 space-y-2">
-        <li
-          v-if="pastPolls.length === 0"
-          class="rounded-lg border border-slate-200 p-4 text-center text-sm text-slate-500 dark:border-neutral-800"
-        >
-          Noch keine vergangenen Umfragen.
-        </li>
-        <li
-          v-for="poll in pastPolls"
-          :key="poll.id"
-          class="rounded-lg border border-slate-200 p-4 dark:border-neutral-800"
-        >
-          <div class="flex items-center justify-between">
-            <span class="font-medium">{{ poll.title }}</span>
-            <span class="text-xs text-slate-500">{{ statusLabel(poll.status) }}</span>
-          </div>
-          <p
-            v-if="poll.winnerChoiceIndex !== null && poll.choices[poll.winnerChoiceIndex]"
-            class="mt-1 text-xs font-medium text-twitch-purple"
-          >
-            Gewinner: {{ poll.choices[poll.winnerChoiceIndex].title }}
-          </p>
-          <div class="mt-2">
-            <PollResultsBars :poll="poll" />
-          </div>
-        </li>
-      </ul>
-    </section>
   </div>
 </template>

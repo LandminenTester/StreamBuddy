@@ -134,6 +134,31 @@
       "public": "Public in chat",
       "mention": "Mention (visible to them)",
       "whisper": "Whisper (private)"
+    },
+    "title": "Commands",
+    "description": "Chat commands with permission, cooldown and aliases.",
+    "new": "New command",
+    "edit": "Edit command",
+    "columns": {
+      "trigger": "Trigger",
+      "permission": "Permission",
+      "cooldown": "Cooldown",
+      "uses": "Uses",
+      "status": "Status"
+    },
+    "empty": "No commands yet.",
+    "emptyHint": "Create a command the bot responds to in chat.",
+    "form": {
+      "trigger": "Trigger",
+      "triggerHint": "The exclamation mark is added automatically.",
+      "response": "Response",
+      "aliases": "Aliases",
+      "aliasesHint": "Separate several with commas.",
+      "permission": "Permission",
+      "cooldown": "Cooldown (sec)",
+      "delivery": "Delivery",
+      "whisperWarning": "Twitch restricts whispers for many bot accounts — be sure to test.",
+      "enabled": "Enabled"
     }
   },
   "automessages": {
@@ -144,6 +169,42 @@
     "schedule": {
       "interval": "every {minutes} min",
       "messageCount": "every {count} messages"
+    },
+    "title": "Auto messages",
+    "description": "Recurring messages in chat.",
+    "tabs": {
+      "messages": "Messages",
+      "adMessage": "Ad break message"
+    },
+    "new": "New auto message",
+    "edit": "Edit auto message",
+    "empty": "No auto messages yet.",
+    "emptyHint": "Create a message the bot posts regularly.",
+    "lastSent": "Last sent: {date}",
+    "neverSent": "Never sent",
+    "form": {
+      "messages": "Messages",
+      "messagesHint": "Several variants possible — one is picked at random.",
+      "mode": "Trigger",
+      "intervalMinutes": "Interval (minutes)",
+      "messageCountThreshold": "After number of messages",
+      "minChatLines": "Minimum chat lines since the last send",
+      "enabled": "Enabled"
+    },
+    "ad": {
+      "title": "Ad break message",
+      "description": "Announces upcoming ad breaks in chat.",
+      "warning": "Twitch requires a token from the broadcaster account itself — a moderator bot account cannot fetch this.",
+      "enabled": "Enabled",
+      "leadSeconds": "Lead time (seconds)",
+      "texts": "Texts",
+      "edit": "Edit ad break message",
+      "schedule": "Ad schedule",
+      "nextAd": "Next ad",
+      "duration": "Duration",
+      "preroll": "Preroll free time",
+      "snoozeCount": "Snoozes available",
+      "noSchedule": "No ad schedule available."
     }
   },
   "polls": {
@@ -153,13 +214,78 @@
       "completed": "Completed",
       "terminated": "Ended",
       "archived": "Archived"
-    }
+    },
+    "title": "Polls",
+    "description": "Create Twitch polls and follow them live.",
+    "featureDisabled": "The polls feature is off — enable it in settings.",
+    "active": {
+      "title": "Active poll",
+      "end": "End",
+      "reset": "Reset",
+      "winner": "Pick winner",
+      "none": "No active poll."
+    },
+    "create": {
+      "title": "New poll",
+      "submit": "Start poll",
+      "titleLabel": "Question",
+      "choices": "Choices",
+      "duration": "Duration (seconds)",
+      "channelPoints": "Allow voting with channel points",
+      "channelPointsCost": "Cost per vote"
+    },
+    "templates": {
+      "title": "Templates",
+      "new": "New template",
+      "edit": "Edit template",
+      "send": "Start",
+      "empty": "No templates yet."
+    },
+    "history": {
+      "title": "History",
+      "empty": "No polls run yet."
+    },
+    "votes": "{count} votes",
+    "saveAsTemplate": "Save as template",
+    "starting": "Starting…",
+    "resetHint": "Resets the poll locally only, without contacting Twitch.",
+    "confirmEnd": "Confirm and end",
+    "winnerPrefix": "Winner: {choice}",
+    "choicesHint": "At least two choices."
   },
   "channelPoints": {
     "actionType": {
       "none": "No action",
       "chat_message": "Send chat message",
       "trigger_command": "Trigger command"
+    },
+    "title": "Channel points",
+    "description": "Custom rewards and their actions.",
+    "new": "New reward",
+    "edit": "Edit reward",
+    "featureDisabled": "The channel points feature is off — enable it in settings.",
+    "columns": {
+      "title": "Title",
+      "cost": "Cost",
+      "action": "Action",
+      "status": "Status"
+    },
+    "empty": "No rewards yet.",
+    "emptyHint": "Create a reward viewers can redeem with channel points.",
+    "redemptions": {
+      "title": "Recent redemptions",
+      "empty": "No redemptions yet."
+    },
+    "form": {
+      "title": "Title",
+      "cost": "Cost",
+      "prompt": "Description",
+      "color": "Color",
+      "isEnabled": "Enabled",
+      "autoFulfill": "Mark as fulfilled automatically",
+      "actionType": "Action",
+      "actionMessage": "Message",
+      "actionCommand": "Command"
     }
   },
   "loyalty": {
@@ -308,7 +434,20 @@
     "downloaded": "Update v{version} ready to install.",
     "notAvailable": "You're on the latest version.",
     "error": "Update check failed.",
-    "errorWithMessage": "Update check failed: {message}"
+    "errorWithMessage": "Update check failed: {message}",
+    "install": "Install now",
+    "installAndRestart": "Install now and restart",
+    "later": "Later",
+    "restartWarning": "The app closes and restarts when installing — do not run this during a live stream.",
+    "availableTitle": "Update available",
+    "availableBody": "Version {version} is available.",
+    "changelogLoading": "Loading the changelog for this version…",
+    "changelog": "Changelog",
+    "changelogEmpty": "No changelog available.",
+    "version": "Version",
+    "author": "Author",
+    "license": "License",
+    "repository": "Repository"
   },
   "errors": {
     "unknown": "An unknown error occurred.",

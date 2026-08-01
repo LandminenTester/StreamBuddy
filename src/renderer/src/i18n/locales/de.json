@@ -134,6 +134,31 @@
       "public": "Öffentlich im Chat",
       "mention": "Erwähnung (für ihn sichtbar)",
       "whisper": "Whisper (privat)"
+    },
+    "title": "Commands",
+    "description": "Chat-Befehle mit Berechtigung, Cooldown und Aliasen.",
+    "new": "Neuer Command",
+    "edit": "Command bearbeiten",
+    "columns": {
+      "trigger": "Trigger",
+      "permission": "Berechtigung",
+      "cooldown": "Cooldown",
+      "uses": "Nutzungen",
+      "status": "Status"
+    },
+    "empty": "Noch keine Commands angelegt.",
+    "emptyHint": "Lege einen Befehl an, auf den der Bot im Chat antwortet.",
+    "form": {
+      "trigger": "Trigger",
+      "triggerHint": "Ohne Ausrufezeichen möglich — es wird ergänzt.",
+      "response": "Antwort",
+      "aliases": "Aliase",
+      "aliasesHint": "Mehrere durch Komma trennen.",
+      "permission": "Berechtigung",
+      "cooldown": "Cooldown (Sek.)",
+      "delivery": "Zustellart",
+      "whisperWarning": "Twitch schränkt Whispers für viele Bot-Accounts ein — unbedingt testen.",
+      "enabled": "Aktiv"
     }
   },
   "automessages": {
@@ -144,6 +169,42 @@
     "schedule": {
       "interval": "alle {minutes} Min.",
       "messageCount": "alle {count} Nachrichten"
+    },
+    "title": "Automessages",
+    "description": "Wiederkehrende Nachrichten im Chat.",
+    "tabs": {
+      "messages": "Nachrichten",
+      "adMessage": "Werbungsnachricht"
+    },
+    "new": "Neue Automessage",
+    "edit": "Automessage bearbeiten",
+    "empty": "Noch keine Automessages angelegt.",
+    "emptyHint": "Lege eine Nachricht an, die der Bot regelmäßig sendet.",
+    "lastSent": "Zuletzt gesendet: {date}",
+    "neverSent": "Noch nie gesendet",
+    "form": {
+      "messages": "Nachrichten",
+      "messagesHint": "Mehrere Varianten möglich — es wird zufällig eine ausgewählt.",
+      "mode": "Auslöser",
+      "intervalMinutes": "Intervall (Minuten)",
+      "messageCountThreshold": "Nach Anzahl Nachrichten",
+      "minChatLines": "Mindestens Chat-Zeilen seit der letzten Sendung",
+      "enabled": "Aktiv"
+    },
+    "ad": {
+      "title": "Werbungsnachricht",
+      "description": "Kündigt bevorstehende Werbeunterbrechungen im Chat an.",
+      "warning": "Twitch verlangt hierfür ein Token des Broadcaster-Accounts selbst — mit einem Moderator-Bot-Account funktioniert der Abruf nicht.",
+      "enabled": "Aktiv",
+      "leadSeconds": "Vorlauf (Sekunden)",
+      "texts": "Texte",
+      "edit": "Werbungsnachricht bearbeiten",
+      "schedule": "Werbeplan",
+      "nextAd": "Nächste Werbung",
+      "duration": "Dauer",
+      "preroll": "Preroll-Freiminuten",
+      "snoozeCount": "Verfügbare Snoozes",
+      "noSchedule": "Kein Werbeplan verfügbar."
     }
   },
   "polls": {
@@ -153,13 +214,78 @@
       "completed": "Abgeschlossen",
       "terminated": "Beendet",
       "archived": "Archiviert"
-    }
+    },
+    "title": "Umfragen",
+    "description": "Twitch-Polls erstellen und live verfolgen.",
+    "featureDisabled": "Das Feature Umfragen ist deaktiviert — in den Einstellungen aktivieren.",
+    "active": {
+      "title": "Aktive Umfrage",
+      "end": "Beenden",
+      "reset": "Zurücksetzen",
+      "winner": "Gewinner auswählen",
+      "none": "Keine aktive Umfrage."
+    },
+    "create": {
+      "title": "Neue Umfrage",
+      "submit": "Umfrage starten",
+      "titleLabel": "Frage",
+      "choices": "Antwortmöglichkeiten",
+      "duration": "Dauer (Sekunden)",
+      "channelPoints": "Abstimmen mit Kanalpunkten erlauben",
+      "channelPointsCost": "Kosten pro Stimme"
+    },
+    "templates": {
+      "title": "Templates",
+      "new": "Neues Template",
+      "edit": "Template bearbeiten",
+      "send": "Starten",
+      "empty": "Noch keine Templates angelegt."
+    },
+    "history": {
+      "title": "Historie",
+      "empty": "Noch keine Umfragen durchgeführt."
+    },
+    "votes": "{count} Stimmen",
+    "saveAsTemplate": "Als Template speichern",
+    "starting": "Wird gestartet…",
+    "resetHint": "Setzt die Umfrage nur lokal zurück, ohne Twitch zu kontaktieren.",
+    "confirmEnd": "Bestätigen und beenden",
+    "winnerPrefix": "Gewinner: {choice}",
+    "choicesHint": "Mindestens zwei Optionen."
   },
   "channelPoints": {
     "actionType": {
       "none": "Keine Aktion",
       "chat_message": "Chat-Nachricht senden",
       "trigger_command": "Command auslösen"
+    },
+    "title": "Kanalpunkte",
+    "description": "Custom Rewards und ihre Aktionen.",
+    "new": "Neuer Reward",
+    "edit": "Reward bearbeiten",
+    "featureDisabled": "Das Feature Kanalpunkte ist deaktiviert — in den Einstellungen aktivieren.",
+    "columns": {
+      "title": "Titel",
+      "cost": "Kosten",
+      "action": "Aktion",
+      "status": "Status"
+    },
+    "empty": "Noch keine Rewards angelegt.",
+    "emptyHint": "Lege einen Reward an, den Zuschauer mit Kanalpunkten einlösen können.",
+    "redemptions": {
+      "title": "Letzte Einlösungen",
+      "empty": "Noch keine Einlösungen."
+    },
+    "form": {
+      "title": "Titel",
+      "cost": "Kosten",
+      "prompt": "Beschreibung",
+      "color": "Farbe",
+      "isEnabled": "Aktiv",
+      "autoFulfill": "Automatisch als erledigt markieren",
+      "actionType": "Aktion",
+      "actionMessage": "Nachricht",
+      "actionCommand": "Command"
     }
   },
   "loyalty": {
@@ -308,7 +434,20 @@
     "downloaded": "Update v{version} bereit zur Installation.",
     "notAvailable": "Du hast die neueste Version.",
     "error": "Update-Check fehlgeschlagen.",
-    "errorWithMessage": "Update-Check fehlgeschlagen: {message}"
+    "errorWithMessage": "Update-Check fehlgeschlagen: {message}",
+    "install": "Jetzt installieren",
+    "installAndRestart": "Jetzt installieren und neu starten",
+    "later": "Später",
+    "restartWarning": "Die App wird beim Installieren beendet und neu gestartet — nicht während eines laufenden Streams ausführen.",
+    "availableTitle": "Update verfügbar",
+    "availableBody": "Version {version} ist verfügbar.",
+    "changelogLoading": "Changelog für diese Version wird geladen…",
+    "changelog": "Changelog",
+    "changelogEmpty": "Kein Changelog verfügbar.",
+    "version": "Version",
+    "author": "Ersteller",
+    "license": "Lizenz",
+    "repository": "Repository"
   },
   "errors": {
     "unknown": "Ein unbekannter Fehler ist aufgetreten.",

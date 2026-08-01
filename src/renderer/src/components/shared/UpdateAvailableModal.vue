@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useAppInfoStore } from '@renderer/stores/appInfo.store'
+import AppButton from '@renderer/components/ui/AppButton.vue'
 import BaseModal from '@renderer/components/ui/BaseModal.vue'
 import ChangelogList from './ChangelogList.vue'
 import { updateStatusLabel } from './appUpdateStatus'
@@ -13,22 +14,16 @@ const newVersionEntry = computed(() => {
   if (!version) return null
   return appInfoStore.changelog.find((entry) => entry.version === version) ?? null
 })
-
-function handleInstallUpdate(): void {
-  void appInfoStore.installUpdate()
-}
 </script>
 
 <template>
-  <BaseModal title="Update verfügbar" max-width="max-w-2xl" @close="emit('close')">
-    <div class="space-y-4">
+  <BaseModal :title="$t('update.availableTitle')" max-width="max-w-2xl" @close="emit('close')">
+    <div class="space-y-5">
       <div>
-        <p class="text-sm">
-          Version
-          <span class="font-medium">{{ appInfoStore.updateStatus.version }}</span>
-          ist verfügbar.
+        <p class="text-sm text-fg">
+          {{ $t('update.availableBody', { version: appInfoStore.updateStatus.version }) }}
         </p>
-        <p class="mt-1 text-xs text-slate-500 dark:text-neutral-400">
+        <p class="mt-1 text-xs text-fg-muted">
           {{ updateStatusLabel(appInfoStore.updateStatus) }}
         </p>
       </div>
@@ -36,35 +31,22 @@ function handleInstallUpdate(): void {
       <div v-if="newVersionEntry" class="custom-scrollbar max-h-72 overflow-y-auto pr-1">
         <ChangelogList :entries="[newVersionEntry]" />
       </div>
-      <p v-else class="text-xs text-slate-500 dark:text-neutral-400">
-        Changelog für diese Version wird geladen…
-      </p>
+      <p v-else class="text-xs text-fg-muted">{{ $t('update.changelogLoading') }}</p>
 
-      <p
-        v-if="appInfoStore.updateStatus.state === 'downloaded'"
-        class="text-xs text-amber-600 dark:text-amber-400"
-      >
-        Die App wird beim Installieren beendet und neu gestartet -- nicht während eines laufenden
-        Streams ausführen.
+      <p v-if="appInfoStore.updateStatus.state === 'downloaded'" class="text-xs text-warning">
+        {{ $t('update.restartWarning') }}
       </p>
-
-      <div class="flex items-center justify-end gap-2">
-        <button
-          type="button"
-          class="rounded-md border border-slate-300 px-3 py-2 text-sm hover:bg-slate-50 dark:border-neutral-700 dark:hover:bg-neutral-800"
-          @click="emit('close')"
-        >
-          Später
-        </button>
-        <button
-          v-if="appInfoStore.updateStatus.state === 'downloaded'"
-          type="button"
-          class="rounded-md bg-twitch-purple px-4 py-2 text-sm font-medium text-white hover:opacity-90"
-          @click="handleInstallUpdate"
-        >
-          Jetzt installieren & neu starten
-        </button>
-      </div>
     </div>
+
+    <template #footer>
+      <AppButton variant="ghost" @click="emit('close')">{{ $t('update.later') }}</AppButton>
+      <AppButton
+        v-if="appInfoStore.updateStatus.state === 'downloaded'"
+        variant="primary"
+        @click="appInfoStore.installUpdate()"
+      >
+        {{ $t('update.installAndRestart') }}
+      </AppButton>
+    </template>
   </BaseModal>
 </template>

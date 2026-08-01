@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { computed, reactive } from 'vue'
+import AppButton from '@renderer/components/ui/AppButton.vue'
+import AppInput from '@renderer/components/ui/AppInput.vue'
+import AppToggle from '@renderer/components/ui/AppToggle.vue'
 import BaseModal from '@renderer/components/ui/BaseModal.vue'
 import StringListInput from '@renderer/components/shared/StringListInput.vue'
 import type { PollTemplateFormState } from '@renderer/views/polls/types'
@@ -7,76 +10,57 @@ import type { PollTemplateFormState } from '@renderer/views/polls/types'
 const props = defineProps<{ initial: PollTemplateFormState }>()
 const emit = defineEmits<{ close: []; submit: [form: PollTemplateFormState] }>()
 
-const form = reactive<PollTemplateFormState>({ ...props.initial })
+const form = reactive<PollTemplateFormState>({
+  ...props.initial,
+  choices: [...props.initial.choices]
+})
 
-function handleSubmit(): void {
-  if (form.choices.filter((c) => c.trim().length > 0).length < 2) return
-  emit('submit', { ...form })
-}
+const hasEnoughChoices = computed(
+  () => form.choices.filter((choice) => choice.trim().length > 0).length >= 2
+)
 </script>
 
 <template>
   <BaseModal
-    :title="form.id === null ? 'Neues Umfrage-Template' : 'Template bearbeiten'"
+    :title="form.id === null ? $t('polls.templates.new') : $t('polls.templates.edit')"
     @close="emit('close')"
   >
-    <form class="space-y-3" @submit.prevent="handleSubmit">
+    <div class="space-y-5">
+      <AppInput v-model="form.title" :label="$t('polls.create.titleLabel')" required />
+
       <div>
-        <label class="block text-xs font-medium text-slate-500">Titel</label>
-        <input
-          v-model="form.title"
-          type="text"
-          required
-          class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
-        />
-      </div>
-      <div>
-        <label class="block text-xs font-medium text-slate-500"> Antwortoptionen (mind. 2) </label>
-        <StringListInput v-model="form.choices" class="mt-1" />
-      </div>
-      <div>
-        <label class="block text-xs font-medium text-slate-500">Dauer (Sekunden)</label>
-        <input
-          v-model.number="form.durationSeconds"
-          type="number"
-          min="15"
-          max="1800"
-          class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
-        />
-      </div>
-      <label class="flex items-center gap-2 text-sm">
-        <input
-          v-model="form.channelPointsVotingEnabled"
-          type="checkbox"
-          class="h-4 w-4 accent-twitch-purple"
-        />
-        Abstimmen mit Kanalpunkten erlauben
-      </label>
-      <div v-if="form.channelPointsVotingEnabled">
-        <label class="block text-xs font-medium text-slate-500">Kanalpunkte pro Stimme</label>
-        <input
-          v-model.number="form.channelPointsPerVote"
-          type="number"
-          min="1"
-          class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
-        />
+        <p class="mb-1 text-xs font-medium text-fg-muted">{{ $t('polls.create.choices') }}</p>
+        <StringListInput v-model="form.choices" />
+        <p class="mt-1.5 text-xs text-fg-subtle">{{ $t('polls.choicesHint') }}</p>
       </div>
 
-      <div class="flex justify-end gap-2 pt-2">
-        <button
-          type="button"
-          class="rounded-md border border-slate-300 px-4 py-2 text-sm dark:border-neutral-700"
-          @click="emit('close')"
-        >
-          Abbrechen
-        </button>
-        <button
-          type="submit"
-          class="rounded-md bg-twitch-purple px-4 py-2 text-sm font-medium text-white hover:opacity-90"
-        >
-          Speichern
-        </button>
-      </div>
-    </form>
+      <AppInput
+        v-model="form.durationSeconds"
+        type="number"
+        :min="15"
+        :max="1800"
+        :label="$t('polls.create.duration')"
+      />
+
+      <AppToggle
+        v-model="form.channelPointsVotingEnabled"
+        :label="$t('polls.create.channelPoints')"
+      />
+
+      <AppInput
+        v-if="form.channelPointsVotingEnabled"
+        v-model="form.channelPointsPerVote"
+        type="number"
+        :min="1"
+        :label="$t('polls.create.channelPointsCost')"
+      />
+    </div>
+
+    <template #footer>
+      <AppButton variant="ghost" @click="emit('close')">{{ $t('common.cancel') }}</AppButton>
+      <AppButton variant="primary" :disabled="!hasEnoughChoices" @click="emit('submit', { ...form })">
+        {{ $t('common.save') }}
+      </AppButton>
+    </template>
   </BaseModal>
 </template>

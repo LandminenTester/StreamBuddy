@@ -1,5 +1,10 @@
 <script setup lang="ts">
 import { reactive } from 'vue'
+import AppButton from '@renderer/components/ui/AppButton.vue'
+import AppInput from '@renderer/components/ui/AppInput.vue'
+import AppSelect from '@renderer/components/ui/AppSelect.vue'
+import AppTextarea from '@renderer/components/ui/AppTextarea.vue'
+import AppToggle from '@renderer/components/ui/AppToggle.vue'
 import BaseModal from '@renderer/components/ui/BaseModal.vue'
 import type { CommandFormState } from '@renderer/views/commands/types'
 import { deliveryModeOptions, permissionOptions } from '@renderer/views/commands/utils'
@@ -8,108 +13,65 @@ const props = defineProps<{ initial: CommandFormState }>()
 const emit = defineEmits<{ close: []; submit: [form: CommandFormState] }>()
 
 const form = reactive<CommandFormState>({ ...props.initial })
-
-function handleSubmit(): void {
-  emit('submit', { ...form })
-}
 </script>
 
 <template>
   <BaseModal
-    :title="form.id === null ? 'Neuer Command' : 'Command bearbeiten'"
+    :title="form.id === null ? $t('commands.new') : $t('commands.edit')"
     @close="emit('close')"
   >
-    <form class="space-y-3" @submit.prevent="handleSubmit">
-      <div>
-        <label class="block text-xs font-medium text-slate-500">Trigger</label>
-        <input
-          v-model="form.trigger"
-          type="text"
-          placeholder="!uptime"
-          required
-          class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
+    <div class="space-y-5">
+      <AppInput
+        v-model="form.trigger"
+        :label="$t('commands.form.trigger')"
+        :hint="$t('commands.form.triggerHint')"
+        placeholder="!uptime"
+        required
+      />
+
+      <AppTextarea
+        v-model="form.response"
+        :label="$t('commands.form.response')"
+        :rows="3"
+        required
+      />
+
+      <AppInput
+        v-model="form.aliasesInput"
+        :label="$t('commands.form.aliases')"
+        :hint="$t('commands.form.aliasesHint')"
+        placeholder="!time, !howlong"
+      />
+
+      <div class="grid gap-5 sm:grid-cols-2">
+        <AppSelect
+          v-model="form.permissionLevel"
+          :label="$t('commands.form.permission')"
+          :options="permissionOptions()"
+        />
+        <AppInput
+          v-model="form.cooldownSeconds"
+          type="number"
+          :min="0"
+          :label="$t('commands.form.cooldown')"
         />
       </div>
 
-      <div>
-        <label class="block text-xs font-medium text-slate-500">Antwort</label>
-        <textarea
-          v-model="form.response"
-          rows="3"
-          required
-          class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
-        />
-      </div>
+      <AppSelect
+        v-model="form.deliveryMode"
+        :label="$t('commands.form.delivery')"
+        :options="deliveryModeOptions()"
+        :hint="form.deliveryMode === 'whisper' ? $t('commands.form.whisperWarning') : undefined"
+      />
 
-      <div>
-        <label class="block text-xs font-medium text-slate-500"> Aliase (kommagetrennt) </label>
-        <input
-          v-model="form.aliasesInput"
-          type="text"
-          placeholder="!time, !howlong"
-          class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
-        />
-      </div>
+      <AppToggle v-model="form.enabled" :label="$t('commands.form.enabled')" />
+    </div>
 
-      <div class="grid grid-cols-2 gap-3">
-        <div>
-          <label class="block text-xs font-medium text-slate-500">Berechtigung</label>
-          <select
-            v-model="form.permissionLevel"
-            class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
-          >
-            <option v-for="option in permissionOptions()" :key="option.value" :value="option.value">
-              {{ option.label }}
-            </option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-xs font-medium text-slate-500">Cooldown (Sek.)</label>
-          <input
-            v-model.number="form.cooldownSeconds"
-            type="number"
-            min="0"
-            class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
-          />
-        </div>
-      </div>
-
-      <div>
-        <label class="block text-xs font-medium text-slate-500">Zustellart</label>
-        <select
-          v-model="form.deliveryMode"
-          class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
-        >
-          <option v-for="option in deliveryModeOptions()" :key="option.value" :value="option.value">
-            {{ option.label }}
-          </option>
-        </select>
-        <p v-if="form.deliveryMode === 'whisper'" class="mt-1 text-xs text-amber-600">
-          Twitch schränkt Whispers für viele Bot-Accounts ein -- ggf. funktioniert das nicht
-          zuverlässig, unbedingt testen.
-        </p>
-      </div>
-
-      <label class="flex items-center gap-2 text-sm">
-        <input v-model="form.enabled" type="checkbox" class="h-4 w-4 accent-twitch-purple" />
-        Aktiviert
-      </label>
-
-      <div class="flex justify-end gap-2 pt-2">
-        <button
-          type="button"
-          class="rounded-md border border-slate-300 px-4 py-2 text-sm dark:border-neutral-700"
-          @click="emit('close')"
-        >
-          Abbrechen
-        </button>
-        <button
-          type="submit"
-          class="rounded-md bg-twitch-purple px-4 py-2 text-sm font-medium text-white hover:opacity-90"
-        >
-          Speichern
-        </button>
-      </div>
-    </form>
+    <template #footer>
+      <AppButton variant="ghost" @click="emit('close')">{{ $t('common.cancel') }}</AppButton>
+      <AppButton variant="primary" @click="emit('submit', { ...form })">
+        {{ $t('common.save') }}
+      </AppButton>
+    </template>
   </BaseModal>
 </template>

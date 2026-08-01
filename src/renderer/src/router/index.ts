@@ -33,8 +33,20 @@ export const router = createRouter({
     },
     {
       path: '/automessages',
-      name: 'automessages',
-      component: () => import('@renderer/views/automessages/AutomessagesView.vue')
+      component: () => import('@renderer/views/automessages/AutomessagesView.vue'),
+      children: [
+        { path: '', redirect: { name: 'automessages-messages' } },
+        {
+          path: 'messages',
+          name: 'automessages-messages',
+          component: () => import('@renderer/views/automessages/messages/MessagesView.vue')
+        },
+        {
+          path: 'ad-message',
+          name: 'automessages-ad-message',
+          component: () => import('@renderer/views/automessages/adMessage/AdMessageView.vue')
+        }
+      ]
     },
     {
       path: '/polls',

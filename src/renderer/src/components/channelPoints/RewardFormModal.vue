@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import { onMounted, reactive } from 'vue'
+import { computed, onMounted, reactive } from 'vue'
+import AppButton from '@renderer/components/ui/AppButton.vue'
+import AppInput from '@renderer/components/ui/AppInput.vue'
+import AppSelect from '@renderer/components/ui/AppSelect.vue'
+import AppTextarea from '@renderer/components/ui/AppTextarea.vue'
+import AppToggle from '@renderer/components/ui/AppToggle.vue'
 import BaseModal from '@renderer/components/ui/BaseModal.vue'
 import { useCommandsStore } from '@renderer/stores/commands.store'
 import type { RewardFormState } from '@renderer/views/channelPoints/types'
@@ -17,117 +22,86 @@ onMounted(() => {
   }
 })
 
-function handleSubmit(): void {
-  emit('submit', { ...form })
-}
+const commandOptions = computed(() =>
+  commandsStore.commands.map((command) => ({
+    value: String(command.id),
+    label: command.trigger
+  }))
+)
+
+const selectedCommandId = computed({
+  get: () => (form.actionCommandId === null ? '' : String(form.actionCommandId)),
+  set: (value: string) => {
+    form.actionCommandId = value ? Number(value) : null
+  }
+})
 </script>
 
 <template>
   <BaseModal
-    :title="form.id === null ? 'Neuer Reward' : 'Reward bearbeiten'"
+    :title="form.id === null ? $t('channelPoints.new') : $t('channelPoints.edit')"
     @close="emit('close')"
   >
-    <form class="space-y-3" @submit.prevent="handleSubmit">
-      <div>
-        <label class="block text-xs font-medium text-slate-500">Titel</label>
-        <input
-          v-model="form.title"
-          type="text"
-          required
-          class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
-        />
-      </div>
+    <div class="space-y-5">
+      <AppInput v-model="form.title" :label="$t('channelPoints.form.title')" required />
 
-      <div class="grid grid-cols-2 gap-3">
+      <div class="grid gap-5 sm:grid-cols-2">
+        <AppInput
+          v-model="form.cost"
+          type="number"
+          :min="1"
+          :label="$t('channelPoints.form.cost')"
+        />
         <div>
-          <label class="block text-xs font-medium text-slate-500">Kosten</label>
+          <label class="block text-xs font-medium text-fg-muted" for="reward-color">
+            {{ $t('channelPoints.form.color') }}
+          </label>
           <input
-            v-model.number="form.cost"
-            type="number"
-            min="1"
-            required
-            class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
-          />
-        </div>
-        <div>
-          <label class="block text-xs font-medium text-slate-500">Farbe</label>
-          <input
+            id="reward-color"
             v-model="form.backgroundColor"
             type="color"
-            class="mt-1 h-9 w-full rounded-md border border-slate-300 dark:border-neutral-700"
+            class="mt-1.5 h-9 w-full cursor-pointer rounded-md border border-line-strong bg-surface p-1"
           />
         </div>
       </div>
 
-      <div>
-        <label class="block text-xs font-medium text-slate-500">Prompt (optional)</label>
-        <textarea
-          v-model="form.prompt"
-          rows="2"
-          class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
-        />
-      </div>
+      <AppTextarea
+        v-model="form.prompt"
+        :label="$t('channelPoints.form.prompt')"
+        :rows="2"
+      />
 
-      <div>
-        <label class="block text-xs font-medium text-slate-500">Aktion bei Einlösung</label>
-        <select
-          v-model="form.actionType"
-          class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
-        >
-          <option v-for="option in actionTypeOptions()" :key="option.value" :value="option.value">
-            {{ option.label }}
-          </option>
-        </select>
-      </div>
+      <AppSelect
+        v-model="form.actionType"
+        :label="$t('channelPoints.form.actionType')"
+        :options="actionTypeOptions()"
+      />
 
-      <div v-if="form.actionType === 'chat_message'">
-        <label class="block text-xs font-medium text-slate-500">Nachricht</label>
-        <input
-          v-model="form.actionMessage"
-          type="text"
-          class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
-        />
-      </div>
+      <AppTextarea
+        v-if="form.actionType === 'chat_message'"
+        v-model="form.actionMessage"
+        :label="$t('channelPoints.form.actionMessage')"
+        :rows="2"
+      />
 
-      <div v-else-if="form.actionType === 'trigger_command'">
-        <label class="block text-xs font-medium text-slate-500">Command</label>
-        <select
-          v-model.number="form.actionCommandId"
-          class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
-        >
-          <option :value="null" disabled>Command wählen</option>
-          <option v-for="command in commandsStore.commands" :key="command.id" :value="command.id">
-            {{ command.trigger }}
-          </option>
-        </select>
-      </div>
+      <AppSelect
+        v-if="form.actionType === 'trigger_command'"
+        v-model="selectedCommandId"
+        :label="$t('channelPoints.form.actionCommand')"
+        :options="commandOptions"
+      />
 
-      <div class="flex items-center gap-4">
-        <label class="flex items-center gap-2 text-sm">
-          <input v-model="form.isEnabled" type="checkbox" class="h-4 w-4 accent-twitch-purple" />
-          Aktiviert
-        </label>
-        <label class="flex items-center gap-2 text-sm">
-          <input v-model="form.autoFulfill" type="checkbox" class="h-4 w-4 accent-twitch-purple" />
-          Auto-Fulfill
-        </label>
+      <div class="space-y-4">
+        <AppToggle v-model="form.isEnabled" :label="$t('channelPoints.form.isEnabled')" />
+        <AppToggle v-model="form.autoFulfill" :label="$t('channelPoints.form.autoFulfill')" />
       </div>
+    </div>
 
-      <div class="flex justify-end gap-2 pt-2">
-        <button
-          type="button"
-          class="rounded-md border border-slate-300 px-4 py-2 text-sm dark:border-neutral-700"
-          @click="emit('close')"
-        >
-          Abbrechen
-        </button>
-        <button
-          type="submit"
-          class="rounded-md bg-twitch-purple px-4 py-2 text-sm font-medium text-white hover:opacity-90"
-        >
-          Speichern
-        </button>
-      </div>
-    </form>
+    <template #footer>
+      <AppButton variant="ghost" @click="emit('close')">{{ $t('common.cancel') }}</AppButton>
+      <AppButton variant="primary" @click="emit('submit', { ...form })">
+        {{ $t('common.save') }}
+      </AppButton>
+    </template>
   </BaseModal>
 </template>

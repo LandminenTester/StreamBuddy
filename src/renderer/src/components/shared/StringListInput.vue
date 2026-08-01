@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { Plus, X } from 'lucide-vue-next'
+import { CONTROL_BASE } from '@renderer/components/ui/controlClasses'
+
 const props = defineProps<{ modelValue: string[]; placeholder?: string }>()
 const emit = defineEmits<{ 'update:modelValue': [value: string[]] }>()
 
@@ -27,24 +30,25 @@ function removeItem(index: number): void {
         type="text"
         :value="item"
         :placeholder="placeholder"
-        class="flex-1 rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
+        :class="[CONTROL_BASE, 'border-line-strong focus:border-accent']"
         @input="updateItem(index, ($event.target as HTMLInputElement).value)"
       />
       <button
         type="button"
-        class="shrink-0 text-slate-400 hover:text-slate-600 dark:hover:text-neutral-200"
-        aria-label="Option entfernen"
+        class="shrink-0 rounded-md p-1.5 text-fg-subtle transition-colors hover:bg-surface-subtle hover:text-fg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        :aria-label="$t('common.delete')"
         @click="removeItem(index)"
       >
-        ✕
+        <X class="h-4 w-4" />
       </button>
     </div>
     <button
       type="button"
-      class="rounded-md border border-slate-300 px-3 py-1.5 text-xs hover:bg-slate-50 dark:border-neutral-700 dark:hover:bg-neutral-800"
+      class="inline-flex items-center gap-1.5 rounded-md border border-line-strong px-2.5 py-1.5 text-xs font-medium text-fg transition-colors hover:bg-surface-subtle focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
       @click="addItem"
     >
-      + Option hinzufügen
+      <Plus class="h-3.5 w-3.5" />
+      {{ $t('common.add') }}
     </button>
   </div>
 </template>

@@ -1,82 +1,82 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useAppInfoStore } from '@renderer/stores/appInfo.store'
+import AppButton from '@renderer/components/ui/AppButton.vue'
 import BaseModal from '@renderer/components/ui/BaseModal.vue'
+import DefinitionList, { type DefinitionItem } from '@renderer/components/ui/DefinitionList.vue'
 import ChangelogList from './ChangelogList.vue'
 import { updateStatusLabel } from './appUpdateStatus'
 
 const emit = defineEmits<{ close: [] }>()
+const { t } = useI18n()
 const appInfoStore = useAppInfoStore()
 
-function handleCheckForUpdate(): void {
-  void appInfoStore.checkForUpdate()
-}
-
-function handleInstallUpdate(): void {
-  void appInfoStore.installUpdate()
-}
+const metadataItems = computed<DefinitionItem[]>(() => {
+  const metadata = appInfoStore.metadata
+  if (!metadata) return []
+  const items: DefinitionItem[] = [
+    { key: 'author', label: t('update.author'), value: metadata.author },
+    { key: 'license', label: t('update.license'), value: metadata.license }
+  ]
+  if (metadata.repositoryUrl) {
+    items.push({ key: 'repository', label: t('update.repository') })
+  }
+  return items
+})
 </script>
 
 <template>
   <BaseModal :title="$t('nav.about')" max-width="max-w-2xl" @close="emit('close')">
-    <div class="space-y-4">
-      <div class="flex items-center justify-between gap-4">
-        <div>
-          <p class="font-medium">Version {{ appInfoStore.version || '–' }}</p>
-          <p class="mt-1 text-xs text-slate-500 dark:text-neutral-400">
+    <div class="space-y-6">
+      <div class="flex items-start justify-between gap-4">
+        <div class="min-w-0">
+          <p class="font-medium text-fg">
+            {{ $t('update.version') }} {{ appInfoStore.version || '–' }}
+          </p>
+          <p class="mt-1 text-xs text-fg-muted">
             {{ updateStatusLabel(appInfoStore.updateStatus) }}
           </p>
         </div>
-        <div class="flex shrink-0 items-center gap-2">
-          <button
-            v-if="appInfoStore.updateStatus.state === 'downloaded'"
-            class="rounded-md bg-twitch-purple px-4 py-2 text-sm font-medium text-white hover:opacity-90"
-            @click="handleInstallUpdate"
-          >
-            Jetzt installieren
-          </button>
-          <button
-            v-else
-            class="rounded-md border border-slate-300 px-3 py-2 text-sm hover:bg-slate-50 disabled:opacity-50 dark:border-neutral-700 dark:hover:bg-neutral-800"
-            :disabled="appInfoStore.updateStatus.state === 'checking'"
-            @click="handleCheckForUpdate"
-          >
-            Nach Updates suchen
-          </button>
-        </div>
+        <AppButton
+          v-if="appInfoStore.updateStatus.state === 'downloaded'"
+          variant="primary"
+          size="sm"
+          @click="appInfoStore.installUpdate()"
+        >
+          {{ $t('update.install') }}
+        </AppButton>
+        <AppButton
+          v-else
+          size="sm"
+          :disabled="appInfoStore.updateStatus.state === 'checking'"
+          @click="appInfoStore.checkForUpdate()"
+        >
+          {{ $t('settings.general.checkForUpdate') }}
+        </AppButton>
       </div>
-      <p
-        v-if="appInfoStore.updateStatus.state === 'downloaded'"
-        class="text-xs text-amber-600 dark:text-amber-400"
-      >
-        Die App wird beim Installieren beendet und neu gestartet -- nicht während eines laufenden
-        Streams ausführen.
+
+      <p v-if="appInfoStore.updateStatus.state === 'downloaded'" class="text-xs text-warning">
+        {{ $t('update.restartWarning') }}
       </p>
 
-      <dl
-        v-if="appInfoStore.metadata"
-        class="grid grid-cols-2 gap-x-4 gap-y-2 border-t border-slate-100 pt-3 text-sm dark:border-neutral-800"
-      >
-        <dt class="text-slate-500 dark:text-neutral-400">Ersteller</dt>
-        <dd>{{ appInfoStore.metadata.author }}</dd>
-        <dt class="text-slate-500 dark:text-neutral-400">Lizenz</dt>
-        <dd>{{ appInfoStore.metadata.license }}</dd>
-        <template v-if="appInfoStore.metadata.repositoryUrl">
-          <dt class="text-slate-500 dark:text-neutral-400">Repository</dt>
-          <dd class="min-w-0 break-all">
+      <div v-if="metadataItems.length > 0" class="border-t border-line pt-5">
+        <DefinitionList :items="metadataItems">
+          <template #repository>
             <a
-              :href="appInfoStore.metadata.repositoryUrl"
+              :href="appInfoStore.metadata!.repositoryUrl!"
               target="_blank"
               rel="noopener"
-              class="text-twitch-purple underline"
+              class="break-all text-accent hover:underline"
             >
-              {{ appInfoStore.metadata.repositoryUrl.replace('https://', '') }}
+              {{ appInfoStore.metadata!.repositoryUrl!.replace('https://', '') }}
             </a>
-          </dd>
-        </template>
-      </dl>
+          </template>
+        </DefinitionList>
+      </div>
 
-      <div class="border-t border-slate-100 pt-3 dark:border-neutral-800">
-        <p class="mb-2 text-sm font-medium">Changelog</p>
+      <div class="border-t border-line pt-5">
+        <p class="mb-3 text-sm font-medium text-fg">{{ $t('update.changelog') }}</p>
         <div class="custom-scrollbar max-h-80 overflow-y-auto pr-1">
           <ChangelogList :entries="appInfoStore.changelog" />
         </div>
