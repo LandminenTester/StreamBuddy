@@ -1,4 +1,4 @@
-# StreamingBot
+# StreamBuddy
 
 Electron-Desktop-App (TypeScript, Vue 3, Tailwind CSS) zur Verwaltung eines Twitch-Bot-Accounts: Chat-Commands, Automessages, Umfragen, Kanalpunkte, ein eigenes Loyalty-Währungssystem mit Games sowie Stream-Statistiken.
 
