@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.1](https://github.com/LandminenTester/StreamingBot/compare/v2.0.0...v2.0.1) (2026-08-01)
+
+
+### Features
+
+* **audience:** Follower-Tracking und Viewer-Session-Tracking ([#28](https://github.com/LandminenTester/StreamingBot/issues/28)) ([d80a493](https://github.com/LandminenTester/StreamingBot/commit/d80a493d6e200c0233d454b6ac0b098a61d9d680))
+
 ## [2.0.0](https://github.com/LandminenTester/StreamingBot/compare/v1.9.0...v2.0.0) (2026-08-01)
 
 
