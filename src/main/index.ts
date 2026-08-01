@@ -10,6 +10,9 @@ import { seedLoyaltyDefaults } from './loyalty/seedDefaults'
 import { checkForUpdate, initUpdater } from './updater'
 import { applyTheme, getTheme } from './theme'
 import { logger } from './logger'
+import { setPresenceCallbacks } from './twitch/chat/presenceTracker'
+import { onUserJoined, onUserLeft } from './twitch/viewers/viewerSessionTracker'
+import { startFollowerSyncScheduler } from './twitch/followers/followerSync'
 
 app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.vinewoodlegacy.streamingbot')
@@ -24,8 +27,12 @@ app.whenReady().then(() => {
   seedLoyaltyDefaults()
   registerIpcHandlers()
   createMainWindow()
+
+  setPresenceCallbacks({ onJoined: onUserJoined, onLeft: onUserLeft })
+
   void connectChatClient()
   void syncEventSubConnection()
+  startFollowerSyncScheduler()
 
   initUpdater()
   // Verzoegert, damit der Update-Check nicht mit dem App-Start um Ressourcen konkurriert.

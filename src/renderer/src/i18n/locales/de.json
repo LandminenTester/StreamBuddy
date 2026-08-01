@@ -30,6 +30,7 @@
     "channelPoints": "Kanalpunkte",
     "loyalty": "Loyalty",
     "games": "Games",
+    "audience": "Zuschauer",
     "settings": "Einstellungen",
     "about": "Über StreamingBot"
   },
@@ -537,7 +538,8 @@
       "viewers": "Viewer",
       "messagesLastHour": "Nachrichten/Std.",
       "streamState": "Stream",
-      "chatState": "Chat"
+      "chatState": "Chat",
+      "followers": "Follower"
     },
     "live": "Live",
     "offline": "Offline",
@@ -553,6 +555,69 @@
       "title": "Twitch-Chat",
       "empty": "Noch keine Nachrichten empfangen.",
       "emptyHint": "Sobald der Bot mit dem Kanal verbunden ist, laufen die Nachrichten hier ein."
+    },
+    "viewers": {
+      "title": "Zuschauer im Chat",
+      "empty": "Aktuell niemand im Chat.",
+      "emptyOffline": "Bot ist nicht verbunden."
+    }
+  },
+  "audience": {
+    "title": "Zuschauer",
+    "description": "Follower-Verwaltung und Stream-Archiv",
+    "tabs": {
+      "followers": "Follower",
+      "archive": "Stream-Archiv"
+    },
+    "followers": {
+      "title": "Followerliste",
+      "syncNow": "Jetzt synchronisieren",
+      "syncing": "Synchronisiert…",
+      "lastSync": "Letzte Sync",
+      "neverSynced": "Noch nie",
+      "searchPlaceholder": "Suche nach Name…",
+      "total": "{count} Follower gesamt",
+      "empty": "Noch keine Follower gespeichert",
+      "emptyHint": "Starte eine Synchronisierung, um die Followerliste zu laden.",
+      "noMatches": "Keine Treffer",
+      "filter": {
+        "all": "Alle",
+        "follow": "Aktiv",
+        "unfollow": "Verloren"
+      },
+      "columns": {
+        "name": "Name",
+        "followedAt": "Gefolgt seit",
+        "status": "Status",
+        "duration": "Dauer"
+      },
+      "status": {
+        "active": "Aktiv",
+        "unfollowed": "Entfolgt"
+      },
+      "durationDays": "{days} T",
+      "durationHours": "{hours} Std",
+      "durationMinutes": "{minutes} Min"
+    },
+    "archive": {
+      "title": "Stream-Archiv",
+      "empty": "Noch keine Streams aufgezeichnet",
+      "emptyHint": "Streams werden automatisch erfasst, sobald der Kanal live geht.",
+      "live": "Live",
+      "ongoing": "Läuft",
+      "noViewers": "Keine Chat-Einträge für diesen Stream.",
+      "columns": {
+        "duration": "Dauer",
+        "peakViewers": "Peak",
+        "uniqueChatters": "Chatter",
+        "viewer": "Zuschauer",
+        "joined": "Beigetreten",
+        "viewTime": "Sehzeit"
+      },
+      "stats": {
+        "uniqueChatters": "Unique Chatter",
+        "avgDuration": "Ø Sehzeit"
+      }
     }
   }
 }

@@ -4,16 +4,24 @@ import { getMessagesPerHour, insertViewerCountSample } from '../db/repositories/
 import { getMainWindow } from '../window'
 import { IpcChannels } from '@shared/ipc/channels'
 import { logger } from '../logger'
+import {
+  startStream,
+  endStream as trackerEndStream,
+  updateGame,
+  updatePeakViewers
+} from '../twitch/viewers/viewerSessionTracker'
 
 const LIVE_POLL_INTERVAL_MS = 60_000
 const OFFLINE_POLL_INTERVAL_MS = 5 * 60_000
 
 interface StreamsResponse {
-  data: { id: string; viewer_count: number }[]
+  data: { id: string; viewer_count: number; game_name: string; title: string }[]
 }
 
 let pollTimer: NodeJS.Timeout | null = null
 let isCurrentlyLive = false
+let lastStreamId: string | null = null
+let lastGameName: string | null = null
 
 function messagesInLastHour(): number {
   const buckets = getMessagesPerHour(Date.now() - 60 * 60 * 1000)
@@ -37,7 +45,7 @@ async function pollOnce(): Promise<void> {
       `/streams?user_login=${encodeURIComponent(targetChannel)}`
     )
     const stream = response.data[0]
-    isCurrentlyLive = Boolean(stream)
+    const nowLive = Boolean(stream)
 
     if (stream) {
       insertViewerCountSample({
@@ -45,8 +53,30 @@ async function pollOnce(): Promise<void> {
         viewerCount: stream.viewer_count,
         streamId: stream.id
       })
+
+      // Stream-Start
+      if (!isCurrentlyLive || lastStreamId !== stream.id) {
+        startStream(stream.id, stream.game_name || null, stream.title || null)
+        lastStreamId = stream.id
+        lastGameName = stream.game_name || null
+      }
+
+      // Spielwechsel
+      const newGame = stream.game_name || null
+      if (newGame !== lastGameName) {
+        updateGame(newGame)
+        lastGameName = newGame
+      }
+
+      updatePeakViewers(stream.viewer_count)
+    } else if (isCurrentlyLive) {
+      // Stream-Ende
+      trackerEndStream()
+      lastStreamId = null
+      lastGameName = null
     }
 
+    isCurrentlyLive = nowLive
     broadcastLiveUpdate(isCurrentlyLive, stream?.viewer_count ?? null)
   } catch (error) {
     logger.error('Viewer-Count-Poll fehlgeschlagen', error)

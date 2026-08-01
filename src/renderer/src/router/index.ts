@@ -97,6 +97,23 @@ export const router = createRouter({
       component: () => import('@renderer/views/games/GameDetailView.vue')
     },
     {
+      path: '/audience',
+      component: () => import('@renderer/views/audience/AudienceView.vue'),
+      children: [
+        { path: '', redirect: { name: 'audience-followers' } },
+        {
+          path: 'followers',
+          name: 'audience-followers',
+          component: () => import('@renderer/views/audience/followers/FollowersView.vue')
+        },
+        {
+          path: 'archive',
+          name: 'audience-archive',
+          component: () => import('@renderer/views/audience/archive/ArchiveView.vue')
+        }
+      ]
+    },
+    {
       path: '/settings',
       component: () => import('@renderer/views/settings/SettingsView.vue'),
       children: [
