@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.0.0](https://github.com/LandminenTester/StreamingBot/compare/v1.9.0...v2.0.0) (2026-08-01)
+
+
+### Features
+
+* **shell:** Navigation mit Icons, Gruppierung und Verbindungsstatus ([b06c845](https://github.com/LandminenTester/StreamingBot/commit/b06c845bdde51490c8154771f78ad2cc145478f9))
+* **games:** eigener Games-Bereich mit Uebersicht und Detailseiten ([731f8d5](https://github.com/LandminenTester/StreamingBot/commit/731f8d51415aaccfad0bc997a93185f43b880e1d))
+* **settings:** Tab-System Allgemein/Verbindung/Features ([ccbfe6e](https://github.com/LandminenTester/StreamingBot/commit/ccbfe6e3371550c52ff7815e40341829596ac7bb))
+* **dashboard:** kompaktes Zwei-Spalten-Layout mit vollhohem Chat ([2a4548d](https://github.com/LandminenTester/StreamingBot/commit/2a4548d6f9eceb2d4a901c8b3c2c59cdd021c800))
+* **setup:** gefuehrter Ersteinrichtungs-Wizard ([5b07d6b](https://github.com/LandminenTester/StreamingBot/commit/5b07d6b24f3d8bb7d35f54a85e3e17876499b7c8))
+* **i18n:** vue-i18n mit de/en-Locales und Key-Pruefskript ([233c583](https://github.com/LandminenTester/StreamingBot/commit/233c583ce46e5ca36ed92e08eb3fe7832a36f43e))
+* **ui:** Basis-Komponenten-Bibliothek unter components/ui ([44235dd](https://github.com/LandminenTester/StreamingBot/commit/44235dda9d04824fa5abcb63c541f06f1458d51e))
+* **theme:** semantische Design-Tokens und waehlbare Akzentfarbe ([f7605d8](https://github.com/LandminenTester/StreamingBot/commit/f7605d8f06de765a0694ca3aa8244fdf2cfb10c3))
+
 ## [1.9.0](https://github.com/LandminenTester/StreamingBot/compare/v1.8.1...v1.9.0) (2026-08-01)
 
 
