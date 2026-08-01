@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.3.0](https://github.com/LandminenTester/StreamingBot/compare/v2.2.0...v2.3.0) (2026-08-01)
+
+
+### Features
+
+* Follower/Viewer-Tracking, Dual-Account & UX-Fixes (Patch) ([#31](https://github.com/LandminenTester/StreamingBot/issues/31)) ([affe1c9](https://github.com/LandminenTester/StreamingBot/commit/affe1c98c84b55ca507026ef0f9efe768ba1435b))
+
 ## [2.2.0](https://github.com/LandminenTester/StreamingBot/compare/v2.1.0...v2.2.0) (2026-08-01)
 
 
