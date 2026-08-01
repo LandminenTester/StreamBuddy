@@ -32,7 +32,8 @@
     "games": "Games",
     "audience": "Audience",
     "settings": "Settings",
-    "about": "About StreamBuddy"
+    "about": "About StreamBuddy",
+    "updateAvailable": "Update available!"
   },
   "settings": {
     "language": {
@@ -73,9 +74,9 @@
       "botTextsReset": "Bot texts reset."
     },
     "connection": {
-      "twitchTitle": "Twitch connection",
-      "twitchDescription": "The bot account should be a separate Twitch account that is a moderator in the target channel.",
-      "account": "Bot account",
+      "twitchTitle": "Broadcaster account",
+      "twitchDescription": "Sign in with your main Twitch account (broadcaster). This account is used for ads detection, sub events and follow events.",
+      "account": "Broadcaster account",
       "notConnected": "Not connected",
       "clientId": "Client ID",
       "clientIdNotSet": "Not set",
@@ -87,11 +88,12 @@
       "editClientId": "Change client ID",
       "missingScopes": "The enabled features still need permissions: {scopes}",
       "grantScopes": "Grant permissions",
-      "modTitle": "Mod account",
-      "modDescription": "Optional second account for commands, auto messages, and loyalty games.",
-      "modAccount": "Mod account",
-      "modNotConnected": "Not connected (broadcaster takes over)",
-      "modConnect": "Connect mod account",
+      "modTitle": "Bot account",
+      "modDescription": "Optional separate account that writes in chat (commands, auto messages, loyalty games). If not connected, the broadcaster account handles chat.",
+      "modAccount": "Bot account",
+      "modNotConnected": "Not connected (broadcaster writes in chat)",
+      "modConnect": "Connect bot account",
+      "sameAccountWarning": "Broadcaster account and bot account are the same. Connect a separate Twitch account as the bot for the separation to work.",
       "chatTitle": "Chat connection",
       "chatDescription": "The channel the bot reads and writes in.",
       "channel": "Target channel",
@@ -435,9 +437,15 @@
   "update": {
     "idle": "Not checked yet.",
     "checking": "Checking for updates…",
-    "available": "Update v{version} available -- downloading…",
+    "availableLabel": "Update v{version} available.",
+    "available": "Update v{version} available.",
+    "availableBanner": "Update v{version} available",
+    "availableBannerHint": "Download the update and install it with one click.",
+    "startDownload": "Download now",
+    "downloadingTitle": "Downloading update…",
     "downloading": "Downloading… {percent}%",
     "downloaded": "Update v{version} ready to install.",
+    "downloadedBanner": "Update v{version} ready",
     "notAvailable": "You're on the latest version.",
     "error": "Update check failed.",
     "errorWithMessage": "Update check failed: {message}",

@@ -134,16 +134,17 @@ const hasUpdateNotice = computed(() => {
           <p class="truncate text-xs text-fg-subtle">v{{ appInfoStore.version }}</p>
           <button
             type="button"
-            class="inline-flex items-center gap-1 text-xs font-medium text-fg-muted transition-colors hover:text-fg"
+            class="flex flex-col items-start text-xs font-medium transition-colors"
+            :class="hasUpdateNotice ? 'text-accent' : 'text-fg-muted hover:text-fg'"
             @click="isAboutOpen = true"
           >
-            <Info class="h-3.5 w-3.5" />
-            {{ $t('nav.about') }}
-            <span
-              v-if="hasUpdateNotice"
-              class="ml-0.5 font-bold text-accent"
-              aria-label="Update verfügbar"
-            >!</span>
+            <span class="inline-flex items-center gap-1">
+              <Info class="h-3.5 w-3.5" />
+              {{ $t('nav.about') }}
+            </span>
+            <span v-if="hasUpdateNotice" class="mt-0.5 pl-5 font-semibold">
+              {{ $t('nav.updateAvailable') }}
+            </span>
           </button>
         </div>
       </footer>
