@@ -3,7 +3,7 @@
   "version": "2.3.0",
   "description": "StreamBuddy — Twitch Bot Desktop App (Electron + Vue 3)",
   "main": "./out/main/index.js",
-  "author": "Vinewood Legacy",
+  "author": "Landminen Tester",
   "license": "GPL-3.0-or-later",
   "repository": {
     "type": "git",
