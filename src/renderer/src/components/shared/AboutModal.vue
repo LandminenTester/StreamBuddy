@@ -17,7 +17,7 @@ function handleInstallUpdate(): void {
 </script>
 
 <template>
-  <BaseModal title="Über StreamerBot" max-width="max-w-2xl" @close="emit('close')">
+  <BaseModal :title="$t('nav.about')" max-width="max-w-2xl" @close="emit('close')">
     <div class="space-y-4">
       <div class="flex items-center justify-between gap-4">
         <div>
