@@ -13,6 +13,10 @@ export interface AuthStatus {
   grantedScopes: string[]
   /** Scopes, die für mind. ein aktiviertes Feature fehlen -> Reauth nötig. */
   missingScopes: string[]
+  /** Ob ein optionaler Mod-Account für Commands/Automessages/Games verbunden ist. */
+  modConnected: boolean
+  /** Twitch-Login des verbundenen Mod-Accounts, falls vorhanden. */
+  modTwitchLogin: string | null
 }
 
 /** Device-Code-Grant-Flow: Nutzer muss diesen Code auf der Verification-URL eingeben. */

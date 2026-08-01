@@ -9,6 +9,7 @@ import { SETUP_STEPS, type SetupStep } from './types'
 import WelcomeStep from './steps/WelcomeStep.vue'
 import AppearanceStep from './steps/AppearanceStep.vue'
 import ConnectionStep from './steps/ConnectionStep.vue'
+import ModAccountStep from './steps/ModAccountStep.vue'
 import ChannelStep from './steps/ChannelStep.vue'
 import FeaturesStep from './steps/FeaturesStep.vue'
 import SummaryStep from './steps/SummaryStep.vue'
@@ -17,6 +18,7 @@ const STEP_COMPONENTS: Record<SetupStep, unknown> = {
   welcome: WelcomeStep,
   appearance: AppearanceStep,
   connection: ConnectionStep,
+  mod_account: ModAccountStep,
   channel: ChannelStep,
   features: FeaturesStep,
   summary: SummaryStep

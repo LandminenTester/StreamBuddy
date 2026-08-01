@@ -1,8 +1,7 @@
-import type { Client } from 'tmi.js'
 import { listAutomessages, touchAutomessageLastSent } from '../../db/repositories/automessages.repo'
+import { getActiveChatClient } from './chatClientAccessor'
 import { logger } from '../../logger'
 
-let activeClient: Client | null = null
 let activeChannel: string | null = null
 
 const intervalTimers = new Map<number, NodeJS.Timeout>()
@@ -18,12 +17,13 @@ function nextRotationMessage(automessageId: number, messages: string[]): string 
 }
 
 async function sendAutomessage(id: number, messages: string[]): Promise<void> {
-  if (!activeClient || !activeChannel || messages.length === 0) return
+  const sender = getActiveChatClient()
+  if (!sender || !activeChannel || messages.length === 0) return
 
   const message = nextRotationMessage(id, messages)
 
   try {
-    await activeClient.say(activeChannel, message)
+    await sender.say(activeChannel, message)
     touchAutomessageLastSent(id, Date.now())
     linesSinceLastSent.set(id, 0)
   } catch (error) {
@@ -37,8 +37,7 @@ function clearIntervalTimers(): void {
 }
 
 /** Startet Interval-Timer für alle aktiven interval-Automessages. Aufgerufen bei Chat-Connect. */
-export function startAutomessageScheduler(client: Client, channel: string): void {
-  activeClient = client
+export function startAutomessageScheduler(channel: string): void {
   activeChannel = channel
   clearIntervalTimers()
 
@@ -67,7 +66,6 @@ export function stopAutomessageScheduler(): void {
   clearIntervalTimers()
   rotationIndex.clear()
   linesSinceLastSent.clear()
-  activeClient = null
   activeChannel = null
 }
 

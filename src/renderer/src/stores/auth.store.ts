@@ -12,11 +12,15 @@ export const useAuthStore = defineStore('auth', () => {
     connected: false,
     twitchLogin: null,
     grantedScopes: [],
-    missingScopes: []
+    missingScopes: [],
+    modConnected: false,
+    modTwitchLogin: null
   })
   const features = ref<FeatureScopeDefinition[]>([])
   const isConnecting = ref(false)
+  const isConnectingMod = ref(false)
   const deviceAuthPrompt = ref<DeviceAuthPrompt | null>(null)
+  const modDeviceAuthPrompt = ref<DeviceAuthPrompt | null>(null)
   const clientId = ref('')
   const isSavingClientId = ref(false)
 
@@ -58,6 +62,22 @@ export const useAuthStore = defineStore('auth', () => {
     await fetchStatus()
   }
 
+  async function connectMod(): Promise<void> {
+    isConnectingMod.value = true
+    modDeviceAuthPrompt.value = null
+    try {
+      status.value = await window.api.invoke('auth:startModOAuth', undefined)
+    } finally {
+      isConnectingMod.value = false
+      modDeviceAuthPrompt.value = null
+    }
+  }
+
+  async function disconnectMod(): Promise<void> {
+    await window.api.invoke('auth:disconnectMod', undefined)
+    await fetchStatus()
+  }
+
   async function setFeatureEnabled(featureKey: FeatureKey, enabled: boolean): Promise<void> {
     status.value = await window.api.invoke('auth:setFeatureEnabled', { featureKey, enabled })
     await fetchFeatures()
@@ -75,11 +95,19 @@ export const useAuthStore = defineStore('auth', () => {
     })
   }
 
+  function subscribeToModDeviceAuthPrompt(): () => void {
+    return window.api.on('auth:onModDeviceCodeReady', (prompt) => {
+      modDeviceAuthPrompt.value = prompt
+    })
+  }
+
   return {
     status,
     features,
     isConnecting,
+    isConnectingMod,
     deviceAuthPrompt,
+    modDeviceAuthPrompt,
     clientId,
     isSavingClientId,
     fetchStatus,
@@ -88,8 +116,11 @@ export const useAuthStore = defineStore('auth', () => {
     saveClientId,
     connect,
     disconnect,
+    connectMod,
+    disconnectMod,
     setFeatureEnabled,
     subscribeToStatusChanges,
-    subscribeToDeviceAuthPrompt
+    subscribeToDeviceAuthPrompt,
+    subscribeToModDeviceAuthPrompt
   }
 })

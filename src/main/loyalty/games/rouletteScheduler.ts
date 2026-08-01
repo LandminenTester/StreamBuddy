@@ -1,10 +1,10 @@
-import type { Client } from 'tmi.js'
 import type { RouletteColor } from '@shared/types/roulette'
 import { colorForNumber } from '@shared/types/roulette'
 import { creditLoyalty, debitLoyalty } from '../loyaltyLedger'
 import { getGameRuntimeConfig, isGameEnabled, pickGameText } from './gameRegistry'
 import { logRouletteRound } from '../../db/repositories/rouletteRounds.repo'
 import { isStreamLive } from '../../stats/viewerCountPoller'
+import { getActiveChatClient } from '../../twitch/chat/chatClientAccessor'
 import { logger } from '../../logger'
 
 interface RouletteConfig {
@@ -31,7 +31,6 @@ export const COLOR_EMOJI: Record<RouletteColor, string> = { rot: '🔴', schwarz
 /** Wetten der aktuell laufenden Runde, keyed by Nutzer-Login. */
 const currentRoundBets = new Map<string, RouletteBet>()
 
-let activeClient: Client | null = null
 let activeChannel: string | null = null
 let phaseTimer: NodeJS.Timeout | null = null
 let bettingOpen = false
@@ -59,9 +58,10 @@ function fillPlaceholders(template: string, values: Record<string, string | numb
 }
 
 async function announce(message: string): Promise<void> {
-  if (!activeClient || !activeChannel || !message) return
+  const sender = getActiveChatClient()
+  if (!sender || !activeChannel || !message) return
   try {
-    await activeClient.say(activeChannel, message)
+    await sender.say(activeChannel, message)
   } catch (error) {
     logger.error('Roulette: Konnte Chat-Nachricht nicht senden', error)
   }
@@ -128,7 +128,7 @@ export function placeNumberBet(
 }
 
 function startBettingWindow(): void {
-  if (!activeClient || !isGameEnabled('roulette')) return
+  if (!getActiveChatClient() || !isGameEnabled('roulette')) return
   if (!isStreamLive()) {
     scheduleLiveRetry()
     return
@@ -202,8 +202,7 @@ function scheduleLiveRetry(): void {
 }
 
 /** Startet die Runden-Statemachine, gekoppelt an die Chat-Verbindung (siehe tmiClient.ts). */
-export function startRouletteScheduler(client: Client, channel: string): void {
-  activeClient = client
+export function startRouletteScheduler(channel: string): void {
   activeChannel = channel
   startBettingWindow()
 }
@@ -212,6 +211,5 @@ export function stopRouletteScheduler(): void {
   clearPhaseTimer()
   currentRoundBets.clear()
   bettingOpen = false
-  activeClient = null
   activeChannel = null
 }

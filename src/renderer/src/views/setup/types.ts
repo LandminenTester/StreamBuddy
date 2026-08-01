@@ -2,6 +2,7 @@ export const SETUP_STEPS = [
   'welcome',
   'appearance',
   'connection',
+  'mod_account',
   'channel',
   'features',
   'summary'
