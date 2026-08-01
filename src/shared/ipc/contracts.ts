@@ -38,6 +38,13 @@ import type {
 } from '../types/loyalty'
 import type { RouletteRoundResult } from '../types/roulette'
 import type { ChatMessageStatsBucket, LiveStatsUpdate, ViewerCountSample } from '../types/stats'
+import type {
+  FollowerEntry,
+  FollowerHistoryEntry,
+  SyncResult,
+  SyncStatus
+} from '../types/followers'
+import type { StreamSummary, StreamStats, ViewerSession } from '../types/viewers'
 
 /**
  * Request/Response-Typen pro IPC-Channel. Single-Source-of-Truth für Main- und
@@ -209,4 +216,19 @@ export interface IpcContracts {
     response: ViewerCountSample[]
   }
   [IpcChannels.stats.onLiveUpdate]: { request: void; response: LiveStatsUpdate }
+
+  [IpcChannels.followers.getAll]: { request: void; response: FollowerEntry[] }
+  [IpcChannels.followers.getHistory]: {
+    request: { eventType?: 'follow' | 'unfollow'; sinceMs?: number }
+    response: FollowerHistoryEntry[]
+  }
+  [IpcChannels.followers.syncNow]: { request: void; response: SyncResult }
+  [IpcChannels.followers.getSyncStatus]: { request: void; response: SyncStatus }
+  [IpcChannels.followers.onSyncComplete]: { request: void; response: SyncResult }
+
+  [IpcChannels.viewers.getPresent]: { request: void; response: string[] }
+  [IpcChannels.viewers.getStreams]: { request: { limit?: number; offset?: number }; response: StreamSummary[] }
+  [IpcChannels.viewers.getStreamViewers]: { request: { streamId: string }; response: ViewerSession[] }
+  [IpcChannels.viewers.getStreamStats]: { request: { streamId: string }; response: StreamStats }
+  [IpcChannels.viewers.onPresenceUpdate]: { request: void; response: string[] }
 }

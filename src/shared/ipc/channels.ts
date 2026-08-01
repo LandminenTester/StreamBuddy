@@ -105,5 +105,19 @@ export const IpcChannels = {
     getMessagesPerHour: 'stats:getMessagesPerHour',
     getViewerCountSeries: 'stats:getViewerCountSeries',
     onLiveUpdate: 'stats:onLiveUpdate'
+  },
+  followers: {
+    getAll: 'followers:getAll',
+    getHistory: 'followers:getHistory',
+    syncNow: 'followers:syncNow',
+    getSyncStatus: 'followers:getSyncStatus',
+    onSyncComplete: 'followers:onSyncComplete'
+  },
+  viewers: {
+    getPresent: 'viewers:getPresent',
+    getStreams: 'viewers:getStreams',
+    getStreamViewers: 'viewers:getStreamViewers',
+    getStreamStats: 'viewers:getStreamStats',
+    onPresenceUpdate: 'viewers:onPresenceUpdate'
   }
 } as const
