@@ -55,6 +55,54 @@
         "green": "Grün",
         "neutral": "Neutral"
       }
+    },
+    "title": "Einstellungen",
+    "description": "Verbindung, Features und Erscheinungsbild.",
+    "tabs": {
+      "general": "Allgemein",
+      "connection": "Verbindung",
+      "features": "Features"
+    },
+    "general": {
+      "appVersion": "App-Version",
+      "updateStatus": "Update-Status",
+      "checkForUpdate": "Nach Update suchen",
+      "changelog": "Änderungen anzeigen",
+      "setup": "Einrichtung",
+      "botTextsReset": "Bot-Texte zurückgesetzt."
+    },
+    "connection": {
+      "twitchTitle": "Twitch-Verbindung",
+      "twitchDescription": "Der Bot-Account sollte ein separater Twitch-Account sein, der im Zielkanal als Moderator eingesetzt ist.",
+      "account": "Bot-Account",
+      "notConnected": "Nicht verbunden",
+      "clientId": "Client-ID",
+      "clientIdNotSet": "Nicht hinterlegt",
+      "showClientId": "Client-ID anzeigen",
+      "hideClientId": "Client-ID verbergen",
+      "connect": "Mit Twitch verbinden",
+      "connecting": "Verbinde…",
+      "disconnect": "Trennen",
+      "editClientId": "Client-ID ändern",
+      "missingScopes": "Für die aktivierten Features fehlen noch Berechtigungen: {scopes}",
+      "grantScopes": "Berechtigungen erweitern",
+      "chatTitle": "Chat-Verbindung",
+      "chatDescription": "Kanal, in dem der Bot mitliest und schreibt.",
+      "channel": "Zielkanal",
+      "noChannel": "Kein Kanal gesetzt",
+      "editChannel": "Kanal ändern",
+      "chatStatus": "Status",
+      "connectedTo": "Verbunden mit #{channel}",
+      "disconnected": "Nicht verbunden",
+      "autoConnect": "Automatisch verbinden",
+      "autoConnectOn": "Beim App-Start aktiv",
+      "autoConnectOff": "Manuell",
+      "connectNow": "Jetzt verbinden"
+    },
+    "features": {
+      "title": "Features",
+      "description": "Jedes Feature fordert bei der Verbindung nur die Berechtigungen an, die es braucht.",
+      "requiredScopes": "Benötigt: {scopes}"
     }
   },
   "features": {

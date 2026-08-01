@@ -53,8 +53,25 @@ export const router = createRouter({
     },
     {
       path: '/settings',
-      name: 'settings',
-      component: () => import('@renderer/views/settings/SettingsView.vue')
+      component: () => import('@renderer/views/settings/SettingsView.vue'),
+      children: [
+        { path: '', redirect: { name: 'settings-general' } },
+        {
+          path: 'general',
+          name: 'settings-general',
+          component: () => import('@renderer/views/settings/general/GeneralSettingsView.vue')
+        },
+        {
+          path: 'connection',
+          name: 'settings-connection',
+          component: () => import('@renderer/views/settings/connection/ConnectionSettingsView.vue')
+        },
+        {
+          path: 'features',
+          name: 'settings-features',
+          component: () => import('@renderer/views/settings/features/FeaturesSettingsView.vue')
+        }
+      ]
     }
   ]
 })

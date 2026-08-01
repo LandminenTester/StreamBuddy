@@ -55,6 +55,54 @@
         "green": "Green",
         "neutral": "Neutral"
       }
+    },
+    "title": "Settings",
+    "description": "Connection, features and appearance.",
+    "tabs": {
+      "general": "General",
+      "connection": "Connection",
+      "features": "Features"
+    },
+    "general": {
+      "appVersion": "App version",
+      "updateStatus": "Update status",
+      "checkForUpdate": "Check for update",
+      "changelog": "Show changes",
+      "setup": "Setup",
+      "botTextsReset": "Bot texts reset."
+    },
+    "connection": {
+      "twitchTitle": "Twitch connection",
+      "twitchDescription": "The bot account should be a separate Twitch account that is a moderator in the target channel.",
+      "account": "Bot account",
+      "notConnected": "Not connected",
+      "clientId": "Client ID",
+      "clientIdNotSet": "Not set",
+      "showClientId": "Show client ID",
+      "hideClientId": "Hide client ID",
+      "connect": "Connect to Twitch",
+      "connecting": "Connecting…",
+      "disconnect": "Disconnect",
+      "editClientId": "Change client ID",
+      "missingScopes": "The enabled features still need permissions: {scopes}",
+      "grantScopes": "Grant permissions",
+      "chatTitle": "Chat connection",
+      "chatDescription": "The channel the bot reads and writes in.",
+      "channel": "Target channel",
+      "noChannel": "No channel set",
+      "editChannel": "Change channel",
+      "chatStatus": "Status",
+      "connectedTo": "Connected to #{channel}",
+      "disconnected": "Not connected",
+      "autoConnect": "Auto connect",
+      "autoConnectOn": "On app start",
+      "autoConnectOff": "Manual",
+      "connectNow": "Connect now"
+    },
+    "features": {
+      "title": "Features",
+      "description": "Each feature only requests the permissions it needs when connecting.",
+      "requiredScopes": "Requires: {scopes}"
     }
   },
   "features": {
