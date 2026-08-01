@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.0](https://github.com/LandminenTester/StreamingBot/compare/v2.0.1...v2.1.0) (2026-08-01)
+
+
+### Features
+
+* StreamBuddy-Rebranding + Update-Badge im Über-Dialog ([#29](https://github.com/LandminenTester/StreamingBot/issues/29)) ([f03768a](https://github.com/LandminenTester/StreamingBot/commit/f03768afc3324b8789c4816e53ebca605c672725))
+
 ## [2.0.1](https://github.com/LandminenTester/StreamingBot/compare/v2.0.0...v2.0.1) (2026-08-01)
 
 
