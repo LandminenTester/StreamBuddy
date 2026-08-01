@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.2.0](https://github.com/LandminenTester/StreamingBot/compare/v2.1.0...v2.2.0) (2026-08-01)
+
+
+### Features
+
+* **auth:** Dual-Account — Broadcaster + optionaler Mod-Account ([#30](https://github.com/LandminenTester/StreamingBot/issues/30)) ([30f03c7](https://github.com/LandminenTester/StreamingBot/commit/30f03c751a910055401dbb7e3698dff65f6853ef))
+
 ## [2.1.0](https://github.com/LandminenTester/StreamingBot/compare/v2.0.1...v2.1.0) (2026-08-01)
 
 

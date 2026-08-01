@@ -83,6 +83,7 @@ const sameAccountWarning = computed(() => {
   )
 })
 
+
 async function copyModCode(code: string): Promise<void> {
   await navigator.clipboard.writeText(code)
 }
