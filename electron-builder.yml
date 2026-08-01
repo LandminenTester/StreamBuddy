@@ -1,5 +1,5 @@
-appId: com.vinewoodlegacy.streamingbot
-productName: StreamingBot
+appId: com.vinewoodlegacy.streambuddy
+productName: StreamBuddy
 directories:
   buildResources: build
 files:

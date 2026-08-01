@@ -32,7 +32,8 @@
     "games": "Games",
     "audience": "Zuschauer",
     "settings": "Einstellungen",
-    "about": "Über StreamBuddy"
+    "about": "Über StreamBuddy",
+    "updateAvailable": "Update verfügbar!"
   },
   "settings": {
     "language": {
@@ -73,9 +74,9 @@
       "botTextsReset": "Bot-Texte zurückgesetzt."
     },
     "connection": {
-      "twitchTitle": "Twitch-Verbindung",
-      "twitchDescription": "Der Bot-Account sollte ein separater Twitch-Account sein, der im Zielkanal als Moderator eingesetzt ist.",
-      "account": "Bot-Account",
+      "twitchTitle": "Broadcaster-Account",
+      "twitchDescription": "Melde dich mit deinem Haupt-Twitch-Account (Broadcaster) an. Dieser Account wird für Ads-Detection, Sub-Events und Follow-Events verwendet.",
+      "account": "Broadcaster-Account",
       "notConnected": "Nicht verbunden",
       "clientId": "Client-ID",
       "clientIdNotSet": "Nicht hinterlegt",
@@ -87,11 +88,12 @@
       "editClientId": "Client-ID ändern",
       "missingScopes": "Für die aktivierten Features fehlen noch Berechtigungen: {scopes}",
       "grantScopes": "Berechtigungen erweitern",
-      "modTitle": "Mod-Account",
-      "modDescription": "Optionaler zweiter Account für Commands, Automessages und Loyalty-Games.",
-      "modAccount": "Mod-Account",
-      "modNotConnected": "Nicht verbunden (Broadcaster übernimmt)",
-      "modConnect": "Mod-Account verbinden",
+      "modTitle": "Bot-Account",
+      "modDescription": "Optionaler separater Account, der im Chat schreibt (Commands, Automessages, Loyalty-Games). Wird dieser Account nicht verbunden, übernimmt der Broadcaster-Account das Schreiben.",
+      "modAccount": "Bot-Account",
+      "modNotConnected": "Nicht verbunden (Broadcaster schreibt im Chat)",
+      "modConnect": "Bot-Account verbinden",
+      "sameAccountWarning": "Broadcaster-Account und Bot-Account sind identisch. Verbinde einen separaten Twitch-Account als Bot, damit die Trennung funktioniert.",
       "chatTitle": "Chat-Verbindung",
       "chatDescription": "Kanal, in dem der Bot mitliest und schreibt.",
       "channel": "Zielkanal",
@@ -435,9 +437,15 @@
   "update": {
     "idle": "Noch nicht geprüft.",
     "checking": "Suche nach Updates…",
-    "available": "Update v{version} verfügbar -- wird heruntergeladen…",
+    "availableLabel": "Update v{version} verfügbar.",
+    "available": "Update v{version} verfügbar.",
+    "availableBanner": "Update v{version} verfügbar",
+    "availableBannerHint": "Lade das Update herunter und installiere es mit einem Klick.",
+    "startDownload": "Jetzt herunterladen",
+    "downloadingTitle": "Update wird heruntergeladen…",
     "downloading": "Lädt herunter… {percent}%",
     "downloaded": "Update v{version} bereit zur Installation.",
+    "downloadedBanner": "Update v{version} bereit",
     "notAvailable": "Du hast die neueste Version.",
     "error": "Update-Check fehlgeschlagen.",
     "errorWithMessage": "Update-Check fehlgeschlagen: {message}",

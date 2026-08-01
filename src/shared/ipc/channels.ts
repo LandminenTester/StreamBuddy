@@ -8,6 +8,7 @@ export const IpcChannels = {
     getMetadata: 'app:getMetadata',
     getChangelog: 'app:getChangelog',
     checkForUpdate: 'app:checkForUpdate',
+    downloadUpdate: 'app:downloadUpdate',
     installUpdate: 'app:installUpdate',
     onUpdateStatus: 'app:onUpdateStatus',
     getTheme: 'app:getTheme',

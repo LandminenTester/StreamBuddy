@@ -24,6 +24,10 @@ export const useAppInfoStore = defineStore('appInfo', () => {
     await window.api.invoke('app:checkForUpdate', undefined)
   }
 
+  async function downloadUpdate(): Promise<void> {
+    await window.api.invoke('app:downloadUpdate', undefined)
+  }
+
   async function installUpdate(): Promise<void> {
     await window.api.invoke('app:installUpdate', undefined)
   }
@@ -43,6 +47,7 @@ export const useAppInfoStore = defineStore('appInfo', () => {
     fetchMetadata,
     fetchChangelog,
     checkForUpdate,
+    downloadUpdate,
     installUpdate,
     subscribeToUpdateStatus
   }

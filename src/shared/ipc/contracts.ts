@@ -56,6 +56,7 @@ export interface IpcContracts {
   [IpcChannels.app.getMetadata]: { request: void; response: AppMetadata }
   [IpcChannels.app.getChangelog]: { request: void; response: ChangelogEntry[] }
   [IpcChannels.app.checkForUpdate]: { request: void; response: void }
+  [IpcChannels.app.downloadUpdate]: { request: void; response: void }
   [IpcChannels.app.installUpdate]: { request: void; response: void }
   [IpcChannels.app.onUpdateStatus]: { request: void; response: UpdateStatus }
   [IpcChannels.app.getTheme]: { request: void; response: AppTheme }

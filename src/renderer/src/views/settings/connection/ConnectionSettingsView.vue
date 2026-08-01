@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Eye, EyeOff, Copy } from 'lucide-vue-next'
+import { AlertCircle, Eye, EyeOff, Copy } from 'lucide-vue-next'
 import AppButton from '@renderer/components/ui/AppButton.vue'
 import AppInput from '@renderer/components/ui/AppInput.vue'
 import AppToggle from '@renderer/components/ui/AppToggle.vue'
@@ -71,6 +71,18 @@ async function saveChannel(): Promise<void> {
   await chatStore.saveTargetChannel(value)
   channelModalOpen.value = false
 }
+
+const sameAccountWarning = computed(() => {
+  const login = authStore.status.twitchLogin
+  const modLogin = authStore.status.modTwitchLogin
+  return (
+    authStore.status.connected &&
+    authStore.status.modConnected &&
+    login !== null &&
+    login === modLogin
+  )
+})
+
 
 async function copyModCode(code: string): Promise<void> {
   await navigator.clipboard.writeText(code)
@@ -214,6 +226,14 @@ async function copyModCode(code: string): Promise<void> {
           <span v-else class="text-fg-muted">{{ $t('settings.connection.modNotConnected') }}</span>
         </template>
       </DefinitionList>
+
+      <div
+        v-if="sameAccountWarning"
+        class="mt-4 flex items-start gap-3 rounded-md bg-warning-bg p-4 text-sm text-warning"
+      >
+        <AlertCircle class="mt-0.5 h-4 w-4 shrink-0" />
+        <p>{{ $t('settings.connection.sameAccountWarning') }}</p>
+      </div>
 
       <div
         v-if="authStore.isConnectingMod && authStore.modDeviceAuthPrompt"
