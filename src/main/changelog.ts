@@ -7,7 +7,7 @@ import { logger } from './logger'
 const VERSION_HEADER = /^##\s+(?:\[([^\]]+)]\([^)]*\)|(\S+))\s*(?:\(([^)]+)\))?\s*$/
 const SECTION_HEADER = /^###\s+(.+)$/
 const BULLET_LINE = /^\*\s+(.+)$/
-// release-please haengt bei Bullets mit referenzierter Issue/PR sowohl einen
+// scripts/release.mjs haengt bei Bullets mit referenzierter Issue/PR sowohl einen
 // "([#15](.../issues/15))"- als auch einen "([hash](.../commit/hash))"-Link an --
 // beide Gruppen muessen entfernt werden, nicht nur die letzte.
 const TRAILING_LINKS = /(?:\s*\(\[[^\]]+]\([^)]*\)\))+\s*$/
@@ -21,7 +21,7 @@ function parseBullet(raw: string): ChangelogItem {
 }
 
 /**
- * Parst das von release-please erzeugte CHANGELOG.md-Format (Conventional Commits,
+ * Parst das von scripts/release.mjs erzeugte CHANGELOG.md-Format (Conventional Commits,
  * `## [x.y.z](compare-url) (Datum)` bzw. `## x.y.z (Datum)` fuers allererste Release,
  * gefolgt von `### Features`/`### Bug Fixes`-Abschnitten mit `* **scope:** text ([hash](url))`-
  * Bullets). Absichtlich ein schlanker eigener Parser statt einer Markdown-Bibliothek --

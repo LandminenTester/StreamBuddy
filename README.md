@@ -52,18 +52,44 @@ Laufzeit-Abhängigkeiten siehe `package.json` (`dependencies`). Kernbibliotheken
 
 ## CI/CD
 
-- `.github/workflows/ci.yml`: Typecheck, Lint, Test, Build bei jedem Push/PR (windows-latest, Node 20)
-- `.github/workflows/release.yml`: Bei Git-Tag `v*` -> baut den NSIS-Installer und lädt ihn als GitHub-Release-Asset hoch
-- `.github/workflows/release-please.yml`: Automatisierter Versions-Bump + CHANGELOG.md aus Conventional Commits (PR-basiert, Merge erzeugt den Tag)
+Ein einziger Workflow, `.github/workflows/ci.yml` (windows-latest, Node 20): Typecheck, Lint,
+i18n-Key-Pruefung, Test und Build bei jedem Push/PR. Bei einem Push auf `main` haengen im selben
+Lauf die Release-Schritte an -- `scripts/release.mjs` berechnet Version und Changelog aus den
+Conventional-Commits seit dem letzten Tag, committet und taggt sie, veroeffentlicht das
+GitHub-Release und haengt den bereits gebauten Windows-Installer an.
 
-Code-Signing für Windows-Builds ist aktuell **nicht** aktiv (SmartScreen-Warnung beim ersten Start wird akzeptiert) -- siehe Kommentare in `electron-builder.yml` für die spätere Ergänzung.
+Code-Signing fuer Windows-Builds ist aktuell **nicht** aktiv (SmartScreen-Warnung beim ersten Start
+wird akzeptiert) -- siehe Kommentare in `electron-builder.yml` fuer die spaetere Ergaenzung.
 
-### Neuen Release veröffentlichen
+### Versionierung
+
+Die Version wird pro Push auf `main` **nur in der Patch-Stelle** angehoben (`1.9.0` -> `1.9.1` ->
+`1.9.2`), unabhaengig davon ob es sich um `feat`- oder `fix`-Commits handelt.
+
+Ein Minor- oder Major-Sprung wird bewusst angefordert, indem ein Commit im Release-Bereich einen
+Footer traegt:
+
+```
+feat(games): neue Spielart ergaenzt
+
+Release-As: minor
+```
+
+Erlaubt sind `Release-As: patch|minor|major`. `feat!:` bzw. ein `BREAKING CHANGE:`-Footer loesen
+weiterhin automatisch einen Major-Sprung aus. Damit buendelt eine Minor-Version mehrere
+Patch-Releases, statt bei jedem einzelnen Feature-Commit hochzuspringen.
+
+### Neuen Release veroeffentlichen
 
 1. Auf `main` committen/mergen (Conventional-Commits-Format, z.B. `feat: ...`, `fix: ...`).
-2. `release-please` öffnet automatisch einen PR mit Versions-Bump + Changelog.
-3. Diesen PR mergen -> release-please erstellt den Git-Tag `vX.Y.Z`.
-4. Der Tag-Push triggert `release.yml`, das den Windows-Installer baut und an die GitHub-Release anhängt.
+2. Der CI-Lauf berechnet die naechste Version, schreibt `package.json` und `CHANGELOG.md`,
+   setzt den Tag `vX.Y.Z` und veroeffentlicht das Release samt Installer.
+
+Lokal pruefen, was der naechste Lauf tun wuerde:
+
+```bash
+node scripts/release.mjs --dry-run
+```
 
 ## Projektstatus
 

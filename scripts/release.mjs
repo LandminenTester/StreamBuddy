@@ -18,7 +18,14 @@ const isDryRun = process.argv.includes('--dry-run')
 
 const COMMIT_REGEX = /^(\w+)(?:\(([^)]+)\))?(!)?:\s*(.+?)\s*(?:\(#(\d+)\))?$/
 const SECTION_BY_TYPE = { feat: 'Features', fix: 'Bug Fixes' }
-const BUMP_BY_TYPE = { feat: 'minor', fix: 'patch' }
+
+// Standard ist immer PATCH -- auch fuer feat. Ein Minor- oder Major-Sprung wird
+// bewusst angefordert, indem ein Commit im Range einen Release-As-Footer traegt:
+//   Release-As: minor
+// So buendelt eine Minor-Version mehrere Patch-Releases, statt bei jedem einzelnen
+// Feature-Commit hochzuspringen (siehe CLAUDE.md, Abschnitt Versionierung).
+const RELEASE_AS_REGEX = /^Release-As:\s*(major|minor|patch)\s*$/im
+const BUMP_PRIORITY = { patch: 0, minor: 1, major: 2 }
 
 function git(args) {
   return execFileSync('git', args, { cwd: ROOT, encoding: 'utf-8' }).trim()
@@ -34,19 +41,35 @@ function getLastTag() {
 
 function getCommitsSince(lastTag) {
   const range = lastTag ? `${lastTag}..HEAD` : 'HEAD'
-  const raw = git(['log', range, '--pretty=format:%H%x1f%s'])
+  // %b wird mitgelesen, damit der Release-As-Footer im Commit-Body gefunden wird.
+  // \x1e trennt die Commits, weil ein Body selbst Zeilenumbrueche enthaelt.
+  const raw = git(['log', range, '--pretty=format:%H%x1f%s%x1f%b%x1e'])
   if (!raw) return []
-  return raw.split('\n').map((line) => {
-    const [hash, subject] = line.split('\x1f')
-    return { hash, subject }
-  })
+  return raw
+    .split('\x1e')
+    .map((entry) => entry.replace(/^\n/, ''))
+    .filter((entry) => entry.trim().length > 0)
+    .map((entry) => {
+      const [hash, subject, body] = entry.split('\x1f')
+      return { hash, subject, body: body ?? '' }
+    })
 }
 
-function parseCommit({ hash, subject }) {
+function parseCommit({ hash, subject, body }) {
   const match = subject.match(COMMIT_REGEX)
   if (!match) return null
   const [, type, scope, breaking, description, prNumber] = match
-  return { hash, type, scope: scope ?? null, breaking: Boolean(breaking), description, prNumber }
+  const releaseAs = body.match(RELEASE_AS_REGEX)?.[1] ?? null
+  const isBreaking = Boolean(breaking) || /^BREAKING[ -]CHANGE:/im.test(body)
+  return {
+    hash,
+    type,
+    scope: scope ?? null,
+    breaking: isBreaking,
+    description,
+    prNumber,
+    releaseAs
+  }
 }
 
 function bumpVersion(current, bump) {
@@ -88,16 +111,27 @@ function main() {
 
   const sections = { feat: [], fix: [] }
   let bump = null
+  let hasReleasableCommit = false
+
   for (const commit of commits) {
-    if (!(commit.type in SECTION_BY_TYPE)) continue
-    sections[commit.type].push(commit)
-    if (commit.breaking) bump = 'major'
-    else if (bump !== 'major' && BUMP_BY_TYPE[commit.type] === 'minor') bump = 'minor'
-    else if (!bump) bump = 'patch'
+    if (commit.type in SECTION_BY_TYPE) {
+      sections[commit.type].push(commit)
+      hasReleasableCommit = true
+    }
+
+    // Ein Release-As-Footer oder ein Breaking Change zaehlt unabhaengig vom Typ --
+    // so laesst sich ein Sprung auch in einem chore-Commit anfordern.
+    const requested = commit.breaking ? 'major' : commit.releaseAs
+    if (requested) {
+      hasReleasableCommit = true
+      if (!bump || BUMP_PRIORITY[requested] > BUMP_PRIORITY[bump]) bump = requested
+    }
   }
 
+  if (hasReleasableCommit && !bump) bump = 'patch'
+
   if (!bump) {
-    console.log('Keine feat/fix-Commits seit dem letzten Tag -- kein Release noetig.')
+    console.log('Kein releasefaehiger Commit seit dem letzten Tag -- kein Release noetig.')
     if (process.env.GITHUB_OUTPUT) {
       writeFileSync(process.env.GITHUB_OUTPUT, 'released=false\n', { flag: 'a' })
     }
