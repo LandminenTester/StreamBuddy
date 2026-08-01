@@ -37,7 +37,7 @@ export function createMainWindow(): BrowserWindow {
   mainWindow.on('page-title-updated', (event) => {
     event.preventDefault()
   })
-  mainWindow.setTitle(`StreamingBot by Landminen Tester - V. ${app.getVersion()}`)
+  mainWindow.setTitle(`StreamBuddy by Landminen Tester - V. ${app.getVersion()}`)
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
     shell.openExternal(details.url)

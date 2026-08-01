@@ -1,6 +1,6 @@
 {
   "app": {
-    "name": "StreamingBot",
+    "name": "StreamBuddy",
     "credit": "Built by Landminen Tester"
   },
   "common": {
@@ -32,7 +32,7 @@
     "games": "Games",
     "audience": "Audience",
     "settings": "Settings",
-    "about": "About StreamingBot"
+    "about": "About StreamBuddy"
   },
   "settings": {
     "language": {
@@ -473,7 +473,7 @@
       "summary": "Done"
     },
     "welcome": {
-      "title": "Welcome to StreamingBot",
+      "title": "Welcome to StreamBuddy",
       "description": "A few steps and your bot is ready. First: which language would you like to use the app in?",
       "botTextNote": "The bot's chat texts will be created in this language at the end. You can adjust each of them afterwards."
     },
@@ -483,7 +483,7 @@
     },
     "connection": {
       "title": "Connect to Twitch",
-      "description": "StreamingBot needs its own Twitch application. Create it once in the developer console and paste the client ID here.",
+      "description": "StreamBuddy needs its own Twitch application. Create it once in the developer console and paste the client ID here.",
       "consoleLink": "Open Twitch Developer Console",
       "clientIdLabel": "Client ID",
       "clientIdPlaceholder": "Paste client ID",

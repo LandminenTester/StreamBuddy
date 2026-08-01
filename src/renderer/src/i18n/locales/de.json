@@ -1,6 +1,6 @@
 {
   "app": {
-    "name": "StreamingBot",
+    "name": "StreamBuddy",
     "credit": "Erstellt von Landminen Tester"
   },
   "common": {
@@ -32,7 +32,7 @@
     "games": "Games",
     "audience": "Zuschauer",
     "settings": "Einstellungen",
-    "about": "Über StreamingBot"
+    "about": "Über StreamBuddy"
   },
   "settings": {
     "language": {
@@ -473,7 +473,7 @@
       "summary": "Fertig"
     },
     "welcome": {
-      "title": "Willkommen bei StreamingBot",
+      "title": "Willkommen bei StreamBuddy",
       "description": "In wenigen Schritten ist dein Bot eingerichtet. Zuerst: In welcher Sprache möchtest du die App bedienen?",
       "botTextNote": "Die Chat-Texte des Bots werden am Ende in dieser Sprache angelegt. Du kannst sie danach jederzeit einzeln anpassen."
     },
@@ -483,7 +483,7 @@
     },
     "connection": {
       "title": "Mit Twitch verbinden",
-      "description": "StreamingBot braucht eine eigene Twitch-Anwendung. Lege sie einmalig in der Developer-Konsole an und trage hier die Client-ID ein.",
+      "description": "StreamBuddy braucht eine eigene Twitch-Anwendung. Lege sie einmalig in der Developer-Konsole an und trage hier die Client-ID ein.",
       "consoleLink": "Twitch Developer Console öffnen",
       "clientIdLabel": "Client-ID",
       "clientIdPlaceholder": "Client-ID einfügen",

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import {
   Coins,
@@ -19,7 +19,6 @@ import { useChatStore } from '@renderer/stores/chat.store'
 import AppBadge from '@renderer/components/ui/AppBadge.vue'
 import AboutModal from './AboutModal.vue'
 import ThemeToggle from './ThemeToggle.vue'
-import UpdateAvailableModal from './UpdateAvailableModal.vue'
 
 interface NavItem {
   to: string
@@ -68,8 +67,6 @@ const { t } = useI18n()
 const appInfoStore = useAppInfoStore()
 const chatStore = useChatStore()
 const isAboutOpen = ref(false)
-const isUpdateModalOpen = ref(false)
-const dismissedUpdateVersion = ref<string | null>(null)
 
 let unsubscribeUpdateStatus: (() => void) | null = null
 let unsubscribeChatStatus: (() => void) | null = null
@@ -90,30 +87,16 @@ onUnmounted(() => {
   unsubscribeChatStatus?.()
 })
 
-watch(
-  () => appInfoStore.updateStatus,
-  (status) => {
-    if (
-      (status.state === 'available' || status.state === 'downloaded') &&
-      status.version &&
-      status.version !== dismissedUpdateVersion.value
-    ) {
-      isUpdateModalOpen.value = true
-    }
-  },
-  { deep: true }
-)
-
 const connectionLabel = computed(() =>
   chatStore.status.connected
     ? `#${chatStore.status.channel}`
     : t('settings.connection.disconnected')
 )
 
-function closeUpdateModal(): void {
-  dismissedUpdateVersion.value = appInfoStore.updateStatus.version ?? null
-  isUpdateModalOpen.value = false
-}
+const hasUpdateNotice = computed(() => {
+  const s = appInfoStore.updateStatus.state
+  return s === 'available' || s === 'downloading' || s === 'downloaded'
+})
 </script>
 
 <template>
@@ -156,6 +139,11 @@ function closeUpdateModal(): void {
           >
             <Info class="h-3.5 w-3.5" />
             {{ $t('nav.about') }}
+            <span
+              v-if="hasUpdateNotice"
+              class="ml-0.5 font-bold text-accent"
+              aria-label="Update verfügbar"
+            >!</span>
           </button>
         </div>
       </footer>
@@ -166,6 +154,5 @@ function closeUpdateModal(): void {
     </main>
 
     <AboutModal v-if="isAboutOpen" @close="isAboutOpen = false" />
-    <UpdateAvailableModal v-if="isUpdateModalOpen" @close="closeUpdateModal" />
   </div>
 </template>

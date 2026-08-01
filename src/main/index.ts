@@ -15,7 +15,7 @@ import { onUserJoined, onUserLeft } from './twitch/viewers/viewerSessionTracker'
 import { startFollowerSyncScheduler } from './twitch/followers/followerSync'
 
 app.whenReady().then(() => {
-  electronApp.setAppUserModelId('com.vinewoodlegacy.streamingbot')
+  electronApp.setAppUserModelId('com.vinewoodlegacy.streambuddy')
 
   app.on('browser-window-created', (_event, window) => {
     optimizer.watchWindowShortcuts(window)
