@@ -1,4 +1,5 @@
 import { getSetting, setSetting } from '../../db/repositories/appSettings.repo'
+import { AppError } from '../../appError'
 
 const SETTING_KEY = 'twitch_client_id'
 
@@ -14,7 +15,7 @@ export function setTwitchClientId(clientId: string): void {
 export function requireTwitchClientId(): string {
   const clientId = getTwitchClientId()
   if (!clientId) {
-    throw new Error('Twitch-Client-ID fehlt -- in den Einstellungen eintragen')
+    throw new AppError('errors.oauth.clientIdMissing', 'Twitch-Client-ID fehlt -- in den Einstellungen eintragen')
   }
   return clientId
 }

@@ -1,6 +1,7 @@
 import { readTokens, storeTokens, type DecryptedTokens } from './tokenStore'
 import { requireTwitchClientId } from './clientId'
 import { logger } from '../../logger'
+import { AppError } from '../../appError'
 
 const TOKEN_ENDPOINT = 'https://id.twitch.tv/oauth2/token'
 /** Proaktiver Refresh, sobald weniger als 5 Minuten Restlaufzeit verbleiben. */
@@ -25,7 +26,8 @@ async function refreshAccessToken(current: DecryptedTokens): Promise<DecryptedTo
   const response = await fetch(TOKEN_ENDPOINT, { method: 'POST', body })
 
   if (!response.ok) {
-    throw new Error(
+    throw new AppError(
+      'errors.oauth.tokenRefreshFailed',
       `Twitch Token-Refresh fehlgeschlagen: ${response.status} ${await response.text()}`
     )
   }
@@ -55,7 +57,7 @@ async function refreshAccessToken(current: DecryptedTokens): Promise<DecryptedTo
 export async function getValidAccessToken(): Promise<DecryptedTokens> {
   const tokens = readTokens()
   if (!tokens) {
-    throw new Error('Kein Twitch-Bot-Account verbunden')
+    throw new AppError('errors.oauth.noTokenStored', 'Kein Twitch-Bot-Account verbunden')
   }
 
   if (tokens.expiresAt - Date.now() > REFRESH_MARGIN_MS) {
@@ -69,7 +71,7 @@ export async function getValidAccessToken(): Promise<DecryptedTokens> {
 export async function forceRefresh(): Promise<DecryptedTokens> {
   const tokens = readTokens()
   if (!tokens) {
-    throw new Error('Kein Twitch-Bot-Account verbunden')
+    throw new AppError('errors.oauth.noTokenStored', 'Kein Twitch-Bot-Account verbunden')
   }
   return refreshAccessToken(tokens)
 }

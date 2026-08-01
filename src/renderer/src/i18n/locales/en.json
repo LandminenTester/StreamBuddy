@@ -457,7 +457,8 @@
       "deviceCodeExpired": "Device code expired -- authorization wasn't completed in time.",
       "tokenRequestFailed": "Token request failed.",
       "tokenRefreshFailed": "Token could not be refreshed -- please reconnect.",
-      "noTokenStored": "No stored Twitch connection found."
+      "noTokenStored": "No stored Twitch connection found.",
+      "encryptionUnavailable": "safeStorage encryption is not available on this system — the OS keychain is missing."
     }
   },
   "setup": {

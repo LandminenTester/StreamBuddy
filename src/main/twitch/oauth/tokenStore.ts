@@ -4,6 +4,7 @@ import {
   getStoredAuthToken,
   upsertAuthToken
 } from '../../db/repositories/authTokens.repo'
+import { AppError } from '../../appError'
 
 export interface DecryptedTokens {
   twitchUserId: string
@@ -24,7 +25,8 @@ export function storeTokens(data: {
   expiresAt: number
 }): void {
   if (!safeStorage.isEncryptionAvailable()) {
-    throw new Error(
+    throw new AppError(
+      'errors.oauth.encryptionUnavailable',
       'safeStorage-Verschlüsselung ist auf diesem System nicht verfügbar (OS-Keychain fehlt)'
     )
   }

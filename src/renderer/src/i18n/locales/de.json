@@ -457,7 +457,8 @@
       "deviceCodeExpired": "Device-Code abgelaufen -- Autorisierung nicht rechtzeitig abgeschlossen.",
       "tokenRequestFailed": "Token-Anfrage fehlgeschlagen.",
       "tokenRefreshFailed": "Token konnte nicht erneuert werden -- bitte neu verbinden.",
-      "noTokenStored": "Keine gespeicherte Twitch-Verbindung gefunden."
+      "noTokenStored": "Keine gespeicherte Twitch-Verbindung gefunden.",
+      "encryptionUnavailable": "safeStorage-Verschlüsselung ist auf diesem System nicht verfügbar — der Betriebssystem-Schlüsselbund fehlt."
     }
   },
   "setup": {

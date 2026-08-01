@@ -4,6 +4,7 @@ import { storeTokens } from './tokenStore'
 import { getRequiredScopesForEnabledFeatures } from './scopeRegistry'
 import { requireTwitchClientId } from './clientId'
 import { logger } from '../../logger'
+import { AppError } from '../../appError'
 
 const DEVICE_ENDPOINT = 'https://id.twitch.tv/oauth2/device'
 const TOKEN_ENDPOINT = 'https://id.twitch.tv/oauth2/token'
@@ -78,7 +79,8 @@ async function requestDeviceCode(clientId: string, scopes: string[]): Promise<De
   const response = await fetch(DEVICE_ENDPOINT, { method: 'POST', body })
 
   if (!response.ok) {
-    throw new Error(
+    throw new AppError(
+      'errors.oauth.deviceCodeRequestFailed',
       `Device-Code-Anfrage fehlgeschlagen: ${response.status} ${await response.text()}`
     )
   }
@@ -117,10 +119,16 @@ async function pollForToken(
       continue
     }
 
-    throw new Error(`Device-Code-Autorisierung fehlgeschlagen: ${response.status} ${message}`)
+    throw new AppError(
+      'errors.oauth.tokenRequestFailed',
+      `Device-Code-Autorisierung fehlgeschlagen: ${response.status} ${message}`
+    )
   }
 
-  throw new Error('Device-Code abgelaufen -- Autorisierung nicht rechtzeitig abgeschlossen')
+  throw new AppError(
+    'errors.oauth.deviceCodeExpired',
+    'Device-Code abgelaufen -- Autorisierung nicht rechtzeitig abgeschlossen'
+  )
 }
 
 function sleep(ms: number): Promise<void> {
@@ -132,7 +140,10 @@ async function validateToken(accessToken: string): Promise<ValidateResponse> {
     headers: { Authorization: `OAuth ${accessToken}` }
   })
   if (!response.ok) {
-    throw new Error(`Token-Validierung fehlgeschlagen: ${response.status}`)
+    throw new AppError(
+      'errors.oauth.tokenRequestFailed',
+      `Token-Validierung fehlgeschlagen: ${response.status}`
+    )
   }
   return (await response.json()) as ValidateResponse
 }

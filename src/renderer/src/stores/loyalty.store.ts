@@ -9,6 +9,7 @@ import type {
   LoyaltyLeaderboardEntry
 } from '@shared/types/loyalty'
 import type { RouletteRoundResult } from '@shared/types/roulette'
+import { translateError } from '@renderer/i18n/errors'
 
 export const useLoyaltyStore = defineStore('loyalty', () => {
   const leaderboard = ref<LoyaltyLeaderboardEntry[]>([])
@@ -50,7 +51,7 @@ export const useLoyaltyStore = defineStore('loyalty', () => {
     try {
       leaderboard.value = await window.api.invoke('loyalty:manualAdjust', { userLogins, amount })
     } catch (err) {
-      error.value = (err as Error).message
+      error.value = translateError(err)
     }
   }
 
@@ -59,7 +60,7 @@ export const useLoyaltyStore = defineStore('loyalty', () => {
     try {
       leaderboard.value = await window.api.invoke('loyalty:updateAccount', { userLogin, balance })
     } catch (err) {
-      error.value = (err as Error).message
+      error.value = translateError(err)
     }
   }
 

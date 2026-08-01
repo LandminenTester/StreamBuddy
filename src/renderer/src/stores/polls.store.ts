@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import type { Poll, PollCreateInput } from '@shared/types/poll'
+import { translateError } from '@renderer/i18n/errors'
 
 export const usePollsStore = defineStore('polls', () => {
   const polls = ref<Poll[]>([])
@@ -18,7 +19,7 @@ export const usePollsStore = defineStore('polls', () => {
       const created = await window.api.invoke('polls:create', input)
       polls.value.unshift(created)
     } catch (err) {
-      error.value = (err as Error).message
+      error.value = translateError(err)
     } finally {
       isCreating.value = false
     }

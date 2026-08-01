@@ -5,6 +5,7 @@ import type {
   ChannelPointRewardInput,
   RedemptionLogEntry
 } from '@shared/types/channelPointReward'
+import { translateError } from '@renderer/i18n/errors'
 
 export const useChannelPointsStore = defineStore('channelPoints', () => {
   const rewards = ref<ChannelPointReward[]>([])
@@ -31,7 +32,7 @@ export const useChannelPointsStore = defineStore('channelPoints', () => {
       const created = await window.api.invoke('channelPoints:create', input)
       rewards.value.push(created)
     } catch (err) {
-      error.value = (err as Error).message
+      error.value = translateError(err)
       throw err
     }
   }
