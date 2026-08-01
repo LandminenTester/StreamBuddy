@@ -9,10 +9,16 @@ export const FEATURE_SCOPE_MAP: Record<FeatureKey, string[]> = {
   core_chat: ['chat:read', 'chat:edit', 'user:read:chat', 'user:write:chat'],
   channel_points: ['channel:read:redemptions', 'channel:manage:redemptions'],
   polls: ['channel:read:polls', 'channel:manage:polls'],
-  loyalty_follow_sub: ['moderator:read:followers', 'channel:read:subscriptions']
+  loyalty_follow_sub: ['moderator:read:followers', 'channel:read:subscriptions'],
+  ad_schedule: ['channel:read:ads']
 }
 
-const OPTIONAL_FEATURES: FeatureKey[] = ['channel_points', 'polls', 'loyalty_follow_sub']
+const OPTIONAL_FEATURES: FeatureKey[] = [
+  'channel_points',
+  'polls',
+  'loyalty_follow_sub',
+  'ad_schedule'
+]
 
 /** Synchronisiert die Feature->Scope-Zuordnung in `feature_scopes`, ohne bestehende enabled-Flags zu überschreiben. */
 export function syncFeatureScopes(): void {

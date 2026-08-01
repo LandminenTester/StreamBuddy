@@ -1,10 +1,17 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import type { Automessage, AutomessageInput } from '@shared/types/automessage'
+import type {
+  AdMessageSettings,
+  AdScheduleStatus,
+  Automessage,
+  AutomessageInput
+} from '@shared/types/automessage'
 
 export const useAutomessagesStore = defineStore('automessages', () => {
   const automessages = ref<Automessage[]>([])
   const isLoading = ref(false)
+  const adMessageSettings = ref<AdMessageSettings>({ enabled: false, leadSeconds: 120, texts: [] })
+  const adScheduleStatus = ref<AdScheduleStatus | null>(null)
 
   async function fetchAutomessages(): Promise<void> {
     isLoading.value = true
@@ -31,12 +38,33 @@ export const useAutomessagesStore = defineStore('automessages', () => {
     automessages.value = automessages.value.filter((a) => a.id !== id)
   }
 
+  async function fetchAdMessageSettings(): Promise<void> {
+    adMessageSettings.value = await window.api.invoke(
+      'automessages:getAdMessageSettings',
+      undefined
+    )
+  }
+
+  async function saveAdMessageSettings(settings: AdMessageSettings): Promise<void> {
+    await window.api.invoke('automessages:setAdMessageSettings', settings)
+    adMessageSettings.value = settings
+  }
+
+  async function fetchAdScheduleStatus(): Promise<void> {
+    adScheduleStatus.value = await window.api.invoke('automessages:getAdScheduleStatus', undefined)
+  }
+
   return {
     automessages,
     isLoading,
+    adMessageSettings,
+    adScheduleStatus,
     fetchAutomessages,
     createAutomessage,
     updateAutomessage,
-    deleteAutomessage
+    deleteAutomessage,
+    fetchAdMessageSettings,
+    saveAdMessageSettings,
+    fetchAdScheduleStatus
   }
 })

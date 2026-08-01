@@ -13,3 +13,15 @@ export interface Automessage {
 }
 
 export type AutomessageInput = Omit<Automessage, 'id' | 'lastSentAt' | 'createdAt'>
+
+export interface AdMessageSettings {
+  enabled: boolean
+  leadSeconds: number
+  texts: string[]
+}
+
+export interface AdScheduleStatus {
+  nextAdAt: string | null
+  lastAdAt: string | null
+  durationSeconds: number | null
+}

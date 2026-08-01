@@ -2,6 +2,7 @@ import type { LoyaltyGame, LoyaltyGameContext } from './LoyaltyGame'
 import { getOrCreateAccount } from '../../db/repositories/loyalty.repo'
 import { creditLoyalty } from '../loyaltyLedger'
 import { parseBetAmount } from './betParser'
+import { resolveCommandTrigger } from './gameRegistry'
 
 interface DuelConfig {
   acceptWindowSeconds: number
@@ -18,21 +19,18 @@ interface PendingDuel {
 /** Offene Duell-Anfragen, keyed by Login des herausgeforderten Gegners. */
 const pendingDuels = new Map<string, PendingDuel>()
 
-async function handleDuel(ctx: LoyaltyGameContext): Promise<void> {
+async function handleChallenge(ctx: LoyaltyGameContext): Promise<void> {
   const config = ctx.config as unknown as DuelConfig
-
-  if (ctx.args[0]?.toLowerCase() === 'accept') {
-    await acceptDuel(ctx)
-    return
-  }
-
   await challengeDuel(ctx, config)
 }
 
 export const duelGame: LoyaltyGame = {
   id: 'duel',
   defaultConfig: { acceptWindowSeconds: 60, minBet: 10, maxBet: 1000 } satisfies DuelConfig,
-  commands: [{ key: 'challenge', defaultTrigger: '!duel', handleCommand: handleDuel }]
+  commands: [
+    { key: 'challenge', defaultTrigger: '!duel', handleCommand: handleChallenge },
+    { key: 'accept', defaultTrigger: '!accept', handleCommand: acceptDuel }
+  ]
 }
 
 async function challengeDuel(ctx: LoyaltyGameContext, config: DuelConfig): Promise<void> {
@@ -60,9 +58,11 @@ async function challengeDuel(ctx: LoyaltyGameContext, config: DuelConfig): Promi
     expiresAt: Date.now() + config.acceptWindowSeconds * 1000
   })
 
+  const acceptCommand = duelGame.commands.find((c) => c.key === 'accept')!
+  const acceptTrigger = resolveCommandTrigger('duel', acceptCommand)
   await ctx.reply(
     `@${opponentLogin} wurde von @${ctx.userLogin} zu einem Duell um ${amount} Punkte herausgefordert! ` +
-      `Mit "!duel accept" annehmen (${config.acceptWindowSeconds}s Zeit).`
+      `Mit "${acceptTrigger}" annehmen (${config.acceptWindowSeconds}s Zeit).`
   )
 }
 

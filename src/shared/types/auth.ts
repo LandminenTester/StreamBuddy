@@ -1,4 +1,5 @@
-export type FeatureKey = 'core_chat' | 'channel_points' | 'polls' | 'loyalty_follow_sub'
+export type FeatureKey =
+  'core_chat' | 'channel_points' | 'polls' | 'loyalty_follow_sub' | 'ad_schedule'
 
 export interface FeatureScopeDefinition {
   featureKey: FeatureKey
