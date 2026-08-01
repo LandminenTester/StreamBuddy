@@ -6,7 +6,7 @@ export function updateStatusLabel(status: UpdateStatus): string {
     case 'checking':
       return t('update.checking')
     case 'available':
-      return t('update.available', { version: status.version ?? '' })
+      return t('update.availableLabel', { version: status.version ?? '' })
     case 'downloading':
       return t('update.downloading', { percent: status.percent ?? 0 })
     case 'downloaded':

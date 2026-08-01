@@ -30,7 +30,7 @@ export function getUpdateStatus(): UpdateStatus {
 export function initUpdater(): void {
   if (!app.isPackaged) return
 
-  autoUpdater.autoDownload = true
+  autoUpdater.autoDownload = false
   autoUpdater.autoInstallOnAppQuit = false
 
   autoUpdater.on('checking-for-update', () => {
@@ -57,6 +57,15 @@ export function initUpdater(): void {
     logger.error('Update-Check fehlgeschlagen', error)
     setStatus({ state: 'error', message: error.message })
   })
+}
+
+export async function downloadUpdate(): Promise<void> {
+  if (!app.isPackaged) return
+  try {
+    await autoUpdater.downloadUpdate()
+  } catch (error) {
+    logger.error('downloadUpdate() fehlgeschlagen', error)
+  }
 }
 
 export async function checkForUpdate(): Promise<void> {

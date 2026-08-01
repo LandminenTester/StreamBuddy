@@ -3,7 +3,7 @@ import { IpcChannels } from '@shared/ipc/channels'
 import { handleTyped } from './handleTyped'
 import { getAppMetadata } from '../appMetadata'
 import { getChangelog } from '../changelog'
-import { checkForUpdate, installUpdate } from '../updater'
+import { checkForUpdate, downloadUpdate, installUpdate } from '../updater'
 import { applyTheme, getAccent, getTheme, setAccent, setTheme } from '../theme'
 import { getLocale, setLocale } from '../locale'
 import { completeSetup, getSetupState, resetSetup } from '../setup'
@@ -18,6 +18,10 @@ export function registerAppIpc(): void {
 
   handleTyped(IpcChannels.app.checkForUpdate, async () => {
     await checkForUpdate()
+  })
+
+  handleTyped(IpcChannels.app.downloadUpdate, async () => {
+    await downloadUpdate()
   })
 
   handleTyped(IpcChannels.app.installUpdate, () => {
