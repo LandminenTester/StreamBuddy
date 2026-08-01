@@ -30,4 +30,7 @@ export interface AppMetadata {
   repositoryUrl: string | null
 }
 
-export type AppTheme = 'light' | 'dark'
+export type AppTheme = 'light' | 'dark' | 'system'
+
+/** Waehlbare Akzentfarbe; die konkreten Werte liegen in src/renderer/src/theme/accents.ts. */
+export type AccentColor = 'purple' | 'blue' | 'orange' | 'green' | 'neutral'

@@ -11,7 +11,9 @@ export const IpcChannels = {
     installUpdate: 'app:installUpdate',
     onUpdateStatus: 'app:onUpdateStatus',
     getTheme: 'app:getTheme',
-    setTheme: 'app:setTheme'
+    setTheme: 'app:setTheme',
+    getAccent: 'app:getAccent',
+    setAccent: 'app:setAccent'
   },
   commands: {
     list: 'commands:list',

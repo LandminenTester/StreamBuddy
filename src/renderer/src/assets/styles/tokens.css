@@ -1,0 +1,54 @@
+/*
+ * Semantische Design-Tokens als RGB-Tripel, damit Tailwind sie ueber
+ * rgb(var(--token) / <alpha-value>) mit Opacity-Modifiern nutzen kann.
+ *
+ * Die Werte entsprechen 1:1 der bisherigen Palette -- sie werden hier nur benannt
+ * statt an ~224 Stellen als slate-/neutral-Literale wiederholt.
+ *
+ * --accent und --accent-fg werden bewusst NICHT hier gesetzt, sondern zur Laufzeit
+ * vom Theme-Store aus src/renderer/src/theme/accents.ts geschrieben.
+ */
+
+:root {
+  /* Flaechen */
+  --bg: 255 255 255; /* weiss */
+  --bg-subtle: 248 250 252; /* slate-50 */
+  --bg-elevated: 255 255 255;
+
+  /* Text */
+  --fg: 15 23 42; /* slate-900 */
+  --fg-muted: 100 116 139; /* slate-500 */
+  --fg-subtle: 148 163 184; /* slate-400 */
+
+  /* Linien */
+  --border: 226 232 240; /* slate-200 */
+  --border-strong: 203 213 225; /* slate-300 */
+
+  /* Semantische Zustaende */
+  --success: 21 128 61; /* green-700 */
+  --success-bg: 220 252 231; /* green-100 */
+  --warning: 180 83 9; /* amber-700 */
+  --warning-bg: 254 243 199; /* amber-100 */
+  --danger: 220 38 38; /* red-600 */
+  --danger-bg: 254 226 226; /* red-100 */
+}
+
+.dark {
+  --bg: 23 23 23; /* neutral-900 */
+  --bg-subtle: 38 38 38; /* neutral-800 */
+  --bg-elevated: 38 38 38;
+
+  --fg: 245 245 245; /* neutral-100 */
+  --fg-muted: 163 163 163; /* neutral-400 */
+  --fg-subtle: 115 115 115; /* neutral-500 */
+
+  --border: 38 38 38; /* neutral-800 */
+  --border-strong: 64 64 64; /* neutral-700 */
+
+  --success: 134 239 172; /* green-300 */
+  --success-bg: 5 46 22; /* green-950 */
+  --warning: 253 230 138; /* amber-200 */
+  --warning-bg: 69 26 3; /* amber-950 */
+  --danger: 248 113 113; /* red-400 */
+  --danger-bg: 69 10 10; /* red-950 */
+}

@@ -11,6 +11,7 @@ import {
   type ChartData,
   type ChartOptions
 } from 'chart.js'
+import { useChartTheme } from './useChartTheme'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip)
 
@@ -20,14 +21,16 @@ const props = defineProps<{
   label: string
 }>()
 
+const chartTheme = useChartTheme()
+
 const chartData = computed<ChartData<'line'>>(() => ({
   labels: props.labels,
   datasets: [
     {
       label: props.label,
       data: props.values,
-      borderColor: '#9146FF',
-      backgroundColor: 'rgba(145, 70, 255, 0.15)',
+      borderColor: chartTheme.value.accent,
+      backgroundColor: chartTheme.value.accentFill,
       tension: 0.3,
       fill: true,
       pointRadius: 0
@@ -35,12 +38,22 @@ const chartData = computed<ChartData<'line'>>(() => ({
   ]
 }))
 
-const chartOptions: ChartOptions<'line'> = {
+const chartOptions = computed<ChartOptions<'line'>>(() => ({
   responsive: true,
   maintainAspectRatio: false,
   plugins: { legend: { display: false } },
-  scales: { y: { beginAtZero: true } }
-}
+  scales: {
+    x: {
+      ticks: { color: chartTheme.value.tick },
+      grid: { color: chartTheme.value.grid }
+    },
+    y: {
+      beginAtZero: true,
+      ticks: { color: chartTheme.value.tick },
+      grid: { color: chartTheme.value.grid }
+    }
+  }
+}))
 </script>
 
 <template>
