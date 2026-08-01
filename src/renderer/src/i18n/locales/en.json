@@ -223,5 +223,30 @@
     "skip": "Set up later",
     "restart": "Run setup again",
     "restartHint": "Walks you through every step again. No data is deleted."
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "description": "Live status and the last 24 hours.",
+    "stats": {
+      "viewers": "Viewers",
+      "messagesLastHour": "Messages/hr",
+      "streamState": "Stream",
+      "chatState": "Chat"
+    },
+    "live": "Live",
+    "offline": "Offline",
+    "chatConnected": "Connected",
+    "chatDisconnected": "Disconnected",
+    "charts": {
+      "viewers": "Viewer history (24 h)",
+      "viewersSeries": "Viewers",
+      "messages": "Messages per hour (24 h)",
+      "messagesSeries": "Messages"
+    },
+    "chat": {
+      "title": "Twitch chat",
+      "empty": "No messages received yet.",
+      "emptyHint": "Once the bot is connected to the channel, messages appear here."
+    }
   }
 }

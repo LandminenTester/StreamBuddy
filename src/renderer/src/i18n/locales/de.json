@@ -223,5 +223,30 @@
     "skip": "Später einrichten",
     "restart": "Einrichtung erneut durchlaufen",
     "restartHint": "Führt dich noch einmal durch alle Schritte. Es werden keine Daten gelöscht."
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "description": "Live-Status und die letzten 24 Stunden.",
+    "stats": {
+      "viewers": "Viewer",
+      "messagesLastHour": "Nachrichten/Std.",
+      "streamState": "Stream",
+      "chatState": "Chat"
+    },
+    "live": "Live",
+    "offline": "Offline",
+    "chatConnected": "Verbunden",
+    "chatDisconnected": "Getrennt",
+    "charts": {
+      "viewers": "Viewer-Verlauf (24 h)",
+      "viewersSeries": "Viewer",
+      "messages": "Nachrichten pro Stunde (24 h)",
+      "messagesSeries": "Nachrichten"
+    },
+    "chat": {
+      "title": "Twitch-Chat",
+      "empty": "Noch keine Nachrichten empfangen.",
+      "emptyHint": "Sobald der Bot mit dem Kanal verbunden ist, laufen die Nachrichten hier ein."
+    }
   }
 }
