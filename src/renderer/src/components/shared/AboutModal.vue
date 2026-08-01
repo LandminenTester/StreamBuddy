@@ -16,7 +16,7 @@ const metadataItems = computed<DefinitionItem[]>(() => {
   const metadata = appInfoStore.metadata
   if (!metadata) return []
   const items: DefinitionItem[] = [
-    { key: 'author', label: t('update.author'), value: metadata.author },
+    { key: 'author', label: t('update.author'), value: metadata.author + " with ♥️ for TTV/ItsSemmel" },
     { key: 'license', label: t('update.license'), value: metadata.license }
   ]
   if (metadata.repositoryUrl) {
