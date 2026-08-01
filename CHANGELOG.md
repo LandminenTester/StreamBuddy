@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.9.0](https://github.com/LandminenTester/StreamingBot/compare/v1.8.1...v1.9.0) (2026-08-01)
+
+
+### Features
+
+* Loyalty-Erweiterungen (Blacklist, Duell, Roulette-Zahlen) + Werbungsnachricht ([#27](https://github.com/LandminenTester/StreamingBot/issues/27)) ([b3a111e](https://github.com/LandminenTester/StreamingBot/commit/b3a111eaf402a455e15bdb1675edf0af1496bf7b))
+
 ## [1.8.1](https://github.com/LandminenTester/StreamingBot/compare/v1.8.0...v1.8.1) (2026-07-31)
 
 
