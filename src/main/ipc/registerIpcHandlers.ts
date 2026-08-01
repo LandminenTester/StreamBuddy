@@ -8,6 +8,8 @@ import { registerPollsIpc } from './polls.ipc'
 import { registerPollTemplatesIpc } from './pollTemplates.ipc'
 import { registerLoyaltyIpc } from './loyalty.ipc'
 import { registerStatsIpc } from './stats.ipc'
+import { registerFollowersIpc } from './followers.ipc'
+import { registerViewersIpc } from './viewers.ipc'
 
 /**
  * Zentrale Registrierungsstelle für alle IPC-Handler.
@@ -25,4 +27,6 @@ export function registerIpcHandlers(): void {
   registerPollTemplatesIpc()
   registerLoyaltyIpc()
   registerStatsIpc()
+  registerFollowersIpc()
+  registerViewersIpc()
 }
