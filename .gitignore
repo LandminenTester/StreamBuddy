@@ -6,6 +6,9 @@ release
 *.local
 .release-notes.md
 
+# Interne Umsetzungsplaene (nicht Teil des Repos)
+plan/
+
 # SQLite Laufzeitdaten (nicht Teil des Repos)
 *.sqlite
 *.sqlite-shm
