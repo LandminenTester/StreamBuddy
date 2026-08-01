@@ -1,9 +1,12 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
+import { useSetupStore } from '@renderer/stores/setup.store'
 
 /**
  * Zentrale Routen-Definition. Bei jeder neuen View wird diese Datei erweitert.
  * createWebHashHistory wird genutzt, da die Renderer-Seite in Produktion via
  * loadFile() als lokale Datei geladen wird (kein Server, kein History-API-Fallback nötig).
+ *
+ * meta.standalone markiert Routen, die ohne die AppShell (Sidebar) gerendert werden.
  */
 export const router = createRouter({
   history: createWebHashHistory(),
@@ -11,6 +14,12 @@ export const router = createRouter({
     {
       path: '/',
       redirect: '/dashboard'
+    },
+    {
+      path: '/setup',
+      name: 'setup',
+      meta: { standalone: true },
+      component: () => import('@renderer/views/setup/SetupView.vue')
     },
     {
       path: '/dashboard',
@@ -48,4 +57,20 @@ export const router = createRouter({
       component: () => import('@renderer/views/settings/SettingsView.vue')
     }
   ]
+})
+
+/**
+ * Solange die Einrichtung nicht abgeschlossen ist, landet der erste Aufruf im
+ * Wizard. Wer dort auf "Später einrichten" klickt, navigiert bewusst weiter --
+ * deshalb greift die Umleitung nur beim allerersten Routing-Vorgang.
+ */
+let setupRedirectChecked = false
+
+router.beforeEach(async (to) => {
+  if (setupRedirectChecked || to.name === 'setup') return true
+  setupRedirectChecked = true
+
+  const setupStore = useSetupStore()
+  const state = await setupStore.fetchState()
+  return state.completed ? true : { name: 'setup' }
 })

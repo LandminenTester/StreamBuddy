@@ -154,5 +154,74 @@
       "tokenRefreshFailed": "Token konnte nicht erneuert werden -- bitte neu verbinden.",
       "noTokenStored": "Keine gespeicherte Twitch-Verbindung gefunden."
     }
+  },
+  "setup": {
+    "progress": "Schritt {current} von {total}",
+    "steps": {
+      "welcome": "Willkommen",
+      "appearance": "Erscheinungsbild",
+      "connection": "Twitch-Verbindung",
+      "channel": "Kanal",
+      "features": "Features",
+      "summary": "Fertig"
+    },
+    "welcome": {
+      "title": "Willkommen bei StreamingBot",
+      "description": "In wenigen Schritten ist dein Bot eingerichtet. Zuerst: In welcher Sprache möchtest du die App bedienen?",
+      "botTextNote": "Die Chat-Texte des Bots werden am Ende in dieser Sprache angelegt. Du kannst sie danach jederzeit einzeln anpassen."
+    },
+    "appearance": {
+      "title": "Wie soll es aussehen?",
+      "description": "Beides lässt sich später in den Einstellungen ändern."
+    },
+    "connection": {
+      "title": "Mit Twitch verbinden",
+      "description": "StreamingBot braucht eine eigene Twitch-Anwendung. Lege sie einmalig in der Developer-Konsole an und trage hier die Client-ID ein.",
+      "consoleLink": "Twitch Developer Console öffnen",
+      "clientIdLabel": "Client-ID",
+      "clientIdPlaceholder": "Client-ID einfügen",
+      "clientIdHint": "Als Kategorie „Chat Bot“ wählen, keine Redirect-URI nötig.",
+      "botAccountNote": "Melde dich mit dem Account an, der als Bot schreiben soll — idealerweise ein separater Account, der im Zielkanal Moderator ist.",
+      "connect": "Mit Twitch verbinden",
+      "connecting": "Verbinde…",
+      "connectedAs": "Verbunden als {login}",
+      "deviceTitle": "Autorisierung abschließen",
+      "deviceStep1": "Die Seite {url} öffnet sich automatisch im Browser.",
+      "deviceStep2": "Gib dort diesen Code ein:",
+      "deviceWaiting": "Wartet auf Bestätigung…",
+      "copyCode": "Code kopieren",
+      "copied": "Kopiert"
+    },
+    "channel": {
+      "title": "In welchem Kanal soll der Bot mitlesen?",
+      "description": "Das ist der Kanal, in dem der Bot Nachrichten liest und schreibt.",
+      "label": "Twitch-Kanal",
+      "placeholder": "z.B. dein_kanalname",
+      "autoConnect": "Beim Start automatisch verbinden",
+      "autoConnectHint": "Der Bot verbindet sich mit dem Chat, sobald die App startet."
+    },
+    "features": {
+      "title": "Was soll der Bot können?",
+      "description": "Jedes Feature fordert bei der Verbindung nur die Berechtigungen an, die es wirklich braucht. Du kannst das später jederzeit ändern.",
+      "coreChat": "Chat lesen und schreiben",
+      "coreChatDescription": "Grundlage für Commands und Automessages — immer aktiv."
+    },
+    "summary": {
+      "title": "Alles bereit",
+      "description": "Prüfe kurz deine Auswahl. Mit „Einrichtung abschließen“ werden die Bot-Texte in der gewählten Sprache angelegt.",
+      "language": "Sprache",
+      "appearance": "Darstellung",
+      "accent": "Akzentfarbe",
+      "twitch": "Twitch-Account",
+      "channel": "Kanal",
+      "features": "Aktive Features",
+      "notConnected": "Nicht verbunden",
+      "noFeatures": "Keine optionalen Features",
+      "finish": "Einrichtung abschließen",
+      "finishing": "Wird eingerichtet…"
+    },
+    "skip": "Später einrichten",
+    "restart": "Einrichtung erneut durchlaufen",
+    "restartHint": "Führt dich noch einmal durch alle Schritte. Es werden keine Daten gelöscht."
   }
 }

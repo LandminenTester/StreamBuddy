@@ -4,6 +4,7 @@ import { getOrCreateAccount } from '../../db/repositories/loyalty.repo'
 import { listRecentRouletteColors } from '../../db/repositories/rouletteRounds.repo'
 import { parseBetAmount } from './betParser'
 import { placeBet, placeNumberBet, COLOR_EMOJI } from './rouletteScheduler'
+import { BOT_TEXTS } from '../botTexts'
 
 interface RouletteConfig {
   bettingWindowSeconds: number
@@ -94,21 +95,7 @@ export const rouletteGame: LoyaltyGame = {
     greenPayoutMultiplier: 14,
     numberPayoutMultiplier: 14
   } satisfies RouletteConfig,
-  defaultTexts: {
-    roundStart: [
-      '🎡 Neue Roulette-Runde! {seconds}s Zeit zum Setzen: !red / !black / !green / !number <0-36> <Einsatz|all|xx%> -- nur eine Wette pro Runde!',
-      '🎲 Setzt eure Punkte! {seconds}s bis die Kugel rollt -- !red, !black, !green oder !number, nur eine Wette erlaubt.',
-      '🎰 Runde eröffnet! {seconds}s Wettfenster: !red / !black / !green / !number <Zahl> <Einsatz>. Grün und Zahlen zahlen am meisten, aber am seltensten!'
-    ],
-    spinning: [
-      '🎡 Die Kugel rollt und dreht sich...',
-      '🌀 Alles auf Rot, Schwarz, Grün oder eine Zahl? Die Kugel läuft...',
-      '🎲 Und sie dreht sich... gleich ist es soweit!'
-    ],
-    result: [
-      '🎉 {colorEmoji} {number} ({color}) gewinnt! {winners}/{total} Wetten haben gewonnen.',
-      '🏆 Die Kugel landet auf {colorEmoji} {number} ({color})! {winners}/{total} Gewinner.',
-      '🎊 Es ist {colorEmoji} {number} ({color})! {winners} von {total} Wetten waren richtig.'
-    ]
-  }
+  // Master-Sprache Deutsch; die tatsaechlich genutzten Texte legt der Setup-Wizard
+  // in der gewaehlten Sprache in der DB ab (siehe botTexts.ts).
+  defaultTexts: BOT_TEXTS.de.gameTexts.roulette
 }

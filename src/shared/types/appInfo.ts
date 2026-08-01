@@ -40,3 +40,10 @@ export type AccentColor = 'purple' | 'blue' | 'orange' | 'green' | 'neutral'
  * anderen Sprache, wird der deutsche Text angezeigt.
  */
 export type AppLocale = 'de' | 'en'
+
+/** Zustand der gefuehrten Ersteinrichtung. */
+export interface SetupState {
+  completed: boolean
+  /** Version des zuletzt durchlaufenen Wizards; 0 = nie durchlaufen. */
+  version: number
+}

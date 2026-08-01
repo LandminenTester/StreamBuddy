@@ -15,7 +15,11 @@ export const IpcChannels = {
     getAccent: 'app:getAccent',
     setAccent: 'app:setAccent',
     getLocale: 'app:getLocale',
-    setLocale: 'app:setLocale'
+    setLocale: 'app:setLocale',
+    getSetupState: 'app:getSetupState',
+    completeSetup: 'app:completeSetup',
+    resetSetup: 'app:resetSetup',
+    resetBotTexts: 'app:resetBotTexts'
   },
   commands: {
     list: 'commands:list',

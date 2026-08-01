@@ -154,5 +154,74 @@
       "tokenRefreshFailed": "Token could not be refreshed -- please reconnect.",
       "noTokenStored": "No stored Twitch connection found."
     }
+  },
+  "setup": {
+    "progress": "Step {current} of {total}",
+    "steps": {
+      "welcome": "Welcome",
+      "appearance": "Appearance",
+      "connection": "Twitch connection",
+      "channel": "Channel",
+      "features": "Features",
+      "summary": "Done"
+    },
+    "welcome": {
+      "title": "Welcome to StreamingBot",
+      "description": "A few steps and your bot is ready. First: which language would you like to use the app in?",
+      "botTextNote": "The bot's chat texts will be created in this language at the end. You can adjust each of them afterwards."
+    },
+    "appearance": {
+      "title": "How should it look?",
+      "description": "Both can be changed later in settings."
+    },
+    "connection": {
+      "title": "Connect to Twitch",
+      "description": "StreamingBot needs its own Twitch application. Create it once in the developer console and paste the client ID here.",
+      "consoleLink": "Open Twitch Developer Console",
+      "clientIdLabel": "Client ID",
+      "clientIdPlaceholder": "Paste client ID",
+      "clientIdHint": "Pick the “Chat Bot” category, no redirect URI needed.",
+      "botAccountNote": "Sign in with the account that should post as the bot — ideally a separate account that is a moderator in the target channel.",
+      "connect": "Connect to Twitch",
+      "connecting": "Connecting…",
+      "connectedAs": "Connected as {login}",
+      "deviceTitle": "Finish authorization",
+      "deviceStep1": "The page {url} opens automatically in your browser.",
+      "deviceStep2": "Enter this code there:",
+      "deviceWaiting": "Waiting for confirmation…",
+      "copyCode": "Copy code",
+      "copied": "Copied"
+    },
+    "channel": {
+      "title": "Which channel should the bot follow?",
+      "description": "This is the channel the bot reads and writes messages in.",
+      "label": "Twitch channel",
+      "placeholder": "e.g. your_channel_name",
+      "autoConnect": "Connect automatically on start",
+      "autoConnectHint": "The bot joins the chat as soon as the app starts."
+    },
+    "features": {
+      "title": "What should the bot do?",
+      "description": "Each feature only requests the permissions it actually needs. You can change this any time.",
+      "coreChat": "Read and write chat",
+      "coreChatDescription": "The basis for commands and auto messages — always on."
+    },
+    "summary": {
+      "title": "All set",
+      "description": "Give your choices a quick check. “Finish setup” creates the bot texts in the selected language.",
+      "language": "Language",
+      "appearance": "Appearance",
+      "accent": "Accent color",
+      "twitch": "Twitch account",
+      "channel": "Channel",
+      "features": "Active features",
+      "notConnected": "Not connected",
+      "noFeatures": "No optional features",
+      "finish": "Finish setup",
+      "finishing": "Setting up…"
+    },
+    "skip": "Set up later",
+    "restart": "Run setup again",
+    "restartHint": "Walks you through every step again. No data is deleted."
   }
 }

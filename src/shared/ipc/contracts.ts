@@ -5,6 +5,7 @@ import type {
   AppMetadata,
   AppTheme,
   ChangelogEntry,
+  SetupState,
   UpdateStatus
 } from '../types/appInfo'
 import type { Command, CommandInput } from '../types/command'
@@ -56,6 +57,10 @@ export interface IpcContracts {
   [IpcChannels.app.setAccent]: { request: { accent: AccentColor }; response: void }
   [IpcChannels.app.getLocale]: { request: void; response: AppLocale }
   [IpcChannels.app.setLocale]: { request: { locale: AppLocale }; response: void }
+  [IpcChannels.app.getSetupState]: { request: void; response: SetupState }
+  [IpcChannels.app.completeSetup]: { request: { locale: AppLocale }; response: SetupState }
+  [IpcChannels.app.resetSetup]: { request: void; response: SetupState }
+  [IpcChannels.app.resetBotTexts]: { request: { locale: AppLocale }; response: void }
 
   [IpcChannels.commands.list]: { request: void; response: Command[] }
   [IpcChannels.commands.create]: { request: CommandInput; response: Command }
