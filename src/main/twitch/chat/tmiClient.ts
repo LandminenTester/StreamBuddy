@@ -18,6 +18,8 @@ import {
 } from '../../loyalty/games/rouletteScheduler'
 import { startViewerCountPoller, stopViewerCountPoller } from '../../stats/viewerCountPoller'
 import { startAdSchedulePoller, stopAdSchedulePoller } from '../ads/adSchedulePoller'
+import { connectModChatClient, disconnectModChatClient } from './modTmiClient'
+import { setBroadcasterClientRef } from './chatClientAccessor'
 import { getMainWindow } from '../../window'
 import { IpcChannels } from '@shared/ipc/channels'
 import { logger } from '../../logger'
@@ -96,17 +98,20 @@ export async function connectChatClient(options: { manual?: boolean } = {}): Pro
     setStatus({ connected: true, channel: targetChannel, lastError: null })
     logger.info(`Chat verbunden mit Kanal #${targetChannel}`)
     if (client) {
-      startAutomessageScheduler(client, targetChannel)
+      setBroadcasterClientRef(client)
+      startAutomessageScheduler(targetChannel)
       attachPresenceTracking(client)
       startViewTimeTicker()
       startViewerCountPoller()
-      startRouletteScheduler(client, targetChannel)
+      startRouletteScheduler(targetChannel)
       startAdSchedulePoller()
+      void connectModChatClient(targetChannel)
     }
   })
 
   client.on('disconnected', (reason) => {
     setStatus({ connected: false, lastError: reason })
+    setBroadcasterClientRef(null)
     stopAutomessageScheduler()
     stopViewTimeTicker()
     stopViewerCountPoller()
@@ -127,7 +132,7 @@ export async function connectChatClient(options: { manual?: boolean } = {}): Pro
       message,
       timestamp: Date.now()
     })
-    void handleChatMessage(client, channel, tags, message)
+    void handleChatMessage(channel, tags, message)
   })
 
   try {
@@ -141,14 +146,16 @@ export async function connectChatClient(options: { manual?: boolean } = {}): Pro
 /** Startet die Automessage-Timer neu (z.B. nach Config-Änderung), ohne die Chat-Verbindung zu kappen. */
 export function restartAutomessageSchedulerIfConnected(): void {
   if (client && status.connected && status.channel) {
-    startAutomessageScheduler(client, status.channel)
+    startAutomessageScheduler(status.channel)
   }
 }
 
 export async function disconnectChatClient(): Promise<void> {
   if (!client) return
+  await disconnectModChatClient()
   await client.disconnect()
   client = null
+  setBroadcasterClientRef(null)
   stopAutomessageScheduler()
   stopViewTimeTicker()
   stopViewerCountPoller()

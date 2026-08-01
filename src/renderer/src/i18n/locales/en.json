@@ -87,6 +87,11 @@
       "editClientId": "Change client ID",
       "missingScopes": "The enabled features still need permissions: {scopes}",
       "grantScopes": "Grant permissions",
+      "modTitle": "Mod account",
+      "modDescription": "Optional second account for commands, auto messages, and loyalty games.",
+      "modAccount": "Mod account",
+      "modNotConnected": "Not connected (broadcaster takes over)",
+      "modConnect": "Connect mod account",
       "chatTitle": "Chat connection",
       "chatDescription": "The channel the bot reads and writes in.",
       "channel": "Target channel",
@@ -468,6 +473,7 @@
       "welcome": "Welcome",
       "appearance": "Appearance",
       "connection": "Twitch connection",
+      "mod_account": "Mod account",
       "channel": "Channel",
       "features": "Features",
       "summary": "Done"
@@ -488,7 +494,7 @@
       "clientIdLabel": "Client ID",
       "clientIdPlaceholder": "Paste client ID",
       "clientIdHint": "Pick the “Chat Bot” category, no redirect URI needed.",
-      "botAccountNote": "Sign in with the account that should post as the bot — ideally a separate account that is a moderator in the target channel.",
+      "botAccountNote": "Sign in with your broadcaster account — your main Twitch account. In the next step you can optionally connect a second mod account for commands and auto messages.",
       "connect": "Connect to Twitch",
       "connecting": "Connecting…",
       "connectedAs": "Connected as {login}",
@@ -498,6 +504,15 @@
       "deviceWaiting": "Waiting for confirmation…",
       "copyCode": "Copy code",
       "copied": "Copied"
+    },
+    "modAccount": {
+      "title": "Connect a mod account (optional)",
+      "description": "You can use a separate mod account for commands, auto messages, and loyalty games. This way the broadcaster account only handles system messages (ads, sub events) and the mod account handles chat interaction.",
+      "hint": "This step is optional. Without a mod account, the broadcaster account sends all chat messages.",
+      "connect": "Connect mod account",
+      "connecting": "Connecting…",
+      "connectedAs": "Connected as {login}",
+      "disconnect": "Disconnect"
     },
     "channel": {
       "title": "Which channel should the bot follow?",
@@ -524,6 +539,8 @@
       "features": "Active features",
       "notConnected": "Not connected",
       "noFeatures": "No optional features",
+      "modAccount": "Mod account",
+      "modNotConnected": "No mod account (broadcaster takes over)",
       "finish": "Finish setup",
       "finishing": "Setting up…"
     },

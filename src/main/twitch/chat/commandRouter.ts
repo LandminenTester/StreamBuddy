@@ -1,4 +1,4 @@
-import type { ChatUserstate, Client } from 'tmi.js'
+import type { ChatUserstate } from 'tmi.js'
 import type { Command, PermissionLevel } from '@shared/types/command'
 import { incrementCommandUseCount, listCommands } from '../../db/repositories/commands.repo'
 import { getOrCreateAccount, setAccountBlacklisted } from '../../db/repositories/loyalty.repo'
@@ -10,6 +10,7 @@ import {
 } from '../../loyalty/games/gameRegistry'
 import { LOYALTY_OFFLINE_MESSAGE_KEY } from '../../loyalty/offlineMessages'
 import { isStreamLive } from '../../stats/viewerCountPoller'
+import { getActiveChatClient } from './chatClientAccessor'
 import { logger } from '../../logger'
 
 const PERMISSION_ORDER: PermissionLevel[] = ['everyone', 'subscriber', 'moderator', 'broadcaster']
@@ -34,14 +35,17 @@ function hasRequiredPermission(userLevel: PermissionLevel, required: PermissionL
 /**
  * Verarbeitet eingehende Chat-Nachrichten: prüft auf `!trigger`, matched gegen
  * Commands (inkl. Aliase), prüft Permission-Level + Cooldown, sendet die Response.
+ * Antworten werden über den aktiven Chat-Client gesendet (Mod wenn verbunden, sonst Broadcaster).
  */
 export async function handleChatMessage(
-  client: Client,
   channel: string,
   tags: ChatUserstate,
   message: string
 ): Promise<void> {
   if (!message.startsWith('!')) return
+
+  const sender = getActiveChatClient()
+  if (!sender) return
 
   const parts = message.trim().split(/\s+/)
   const trigger = parts[0].toLowerCase()
@@ -54,7 +58,7 @@ export async function handleChatMessage(
     if (!targetLogin) return
     getOrCreateAccount(targetLogin)
     setAccountBlacklisted(targetLogin, true)
-    await client.say(channel, `🚫 ${targetLogin} wurde blacklisted.`)
+    await sender.say(channel, `🚫 ${targetLogin} wurde blacklisted.`)
     return
   }
 
@@ -66,7 +70,7 @@ export async function handleChatMessage(
     // stattdessen eine launige "geschlossen"-Meldung statt der Ausfuehrung.
     if (!isStreamLive()) {
       const offlineMessage = pickRandomMessage(LOYALTY_OFFLINE_MESSAGE_KEY)
-      if (offlineMessage) await client.say(channel, offlineMessage)
+      if (offlineMessage) await sender.say(channel, offlineMessage)
       return
     }
     // Geblacklistete Konten (z.B. Bots) sind komplett von Loyalty-Games ausgeschlossen.
@@ -74,7 +78,7 @@ export async function handleChatMessage(
     await command.handleCommand({
       userLogin: tags.username ?? '',
       args: parts.slice(1),
-      reply: (text) => client.say(channel, text).then(() => undefined),
+      reply: (text) => getActiveChatClient()?.say(channel, text).then(() => undefined) ?? Promise.resolve(),
       config: getGameRuntimeConfig(game.id)
     })
     return
@@ -95,7 +99,7 @@ export async function handleChatMessage(
   lastUsedAt.set(command.id, now)
 
   try {
-    await sendCommandResponse(client, channel, tags.username ?? '', command)
+    await sendCommandResponse(channel, tags.username ?? '', command)
     incrementCommandUseCount(command.id)
   } catch (error) {
     logger.error(`Konnte Command-Response für "${command.trigger}" nicht senden`, error)
@@ -103,24 +107,26 @@ export async function handleChatMessage(
 }
 
 /**
- * Versendet die Command-Antwort gemäß konfigurierter Zustellart. Whisper hängt von
- * Twitch-seitigen Einschränkungen für den Bot-Account ab (seit 2023 für viele
- * Accounts eingeschränkt) -- Fehler werden vom Aufrufer geloggt, nicht hier verschluckt.
+ * Versendet die Command-Antwort gemäß konfigurierter Zustellart über den aktiven Client.
+ * Whisper hängt von Twitch-seitigen Einschränkungen ab (seit 2023 eingeschränkt) --
+ * Fehler werden vom Aufrufer geloggt, nicht hier verschluckt.
  */
 async function sendCommandResponse(
-  client: Client,
   channel: string,
   userLogin: string,
   command: Command
 ): Promise<void> {
+  const sender = getActiveChatClient()
+  if (!sender) return
+
   switch (command.deliveryMode) {
     case 'whisper':
-      await client.whisper(userLogin, command.response)
+      await sender.whisper(userLogin, command.response)
       return
     case 'mention':
-      await client.say(channel, `@${userLogin} ${command.response}`)
+      await sender.say(channel, `@${userLogin} ${command.response}`)
       return
     default:
-      await client.say(channel, command.response)
+      await sender.say(channel, command.response)
   }
 }

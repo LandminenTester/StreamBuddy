@@ -43,6 +43,13 @@ const items = computed<DefinitionItem[]>(() => [
     value: authStore.status.twitchLogin ?? t('setup.summary.notConnected')
   },
   {
+    key: 'modAccount',
+    label: t('setup.summary.modAccount'),
+    value: authStore.status.modConnected
+      ? authStore.status.modTwitchLogin ?? undefined
+      : t('setup.summary.modNotConnected')
+  },
+  {
     key: 'channel',
     label: t('setup.summary.channel'),
     value: chatStore.targetChannel ? `#${chatStore.targetChannel}` : undefined

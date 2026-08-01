@@ -36,7 +36,10 @@ export const IpcChannels = {
     onStatusChanged: 'auth:onStatusChanged',
     onDeviceCodeReady: 'auth:onDeviceCodeReady',
     getClientId: 'auth:getClientId',
-    setClientId: 'auth:setClientId'
+    setClientId: 'auth:setClientId',
+    startModOAuth: 'auth:startModOAuth',
+    onModDeviceCodeReady: 'auth:onModDeviceCodeReady',
+    disconnectMod: 'auth:disconnectMod'
   },
   chat: {
     getStatus: 'chat:getStatus',

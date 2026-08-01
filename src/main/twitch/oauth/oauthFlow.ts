@@ -1,10 +1,14 @@
 import { shell } from 'electron'
 import type { DeviceAuthPrompt } from '@shared/types/auth'
 import { storeTokens } from './tokenStore'
+import { storeModTokens } from './modTokenStore'
 import { getRequiredScopesForEnabledFeatures } from './scopeRegistry'
 import { requireTwitchClientId } from './clientId'
 import { logger } from '../../logger'
 import { AppError } from '../../appError'
+
+/** Scopes, die der Mod-Account für Chat-Nachrichten benötigt. */
+const MOD_ACCOUNT_SCOPES = ['chat:read', 'chat:edit', 'user:read:chat', 'user:write:chat']
 
 const DEVICE_ENDPOINT = 'https://id.twitch.tv/oauth2/device'
 const TOKEN_ENDPOINT = 'https://id.twitch.tv/oauth2/token'
@@ -69,7 +73,46 @@ export async function runOAuthFlow(
     expiresAt: Date.now() + tokenResponse.expires_in * 1000
   })
 
-  logger.info(`Twitch-Bot-Account verbunden: ${login}`)
+  logger.info(`Twitch-Broadcaster-Account verbunden: ${login}`)
+
+  return { twitchLogin: login, grantedScopes }
+}
+
+/**
+ * Startet einen separaten OAuth-Flow für den optionalen Mod-Account.
+ * Der Mod-Account erhält nur die Chat-Scopes, keine Broadcaster-spezifischen Rechte.
+ */
+export async function runModOAuthFlow(
+  onDeviceCodeReady: (prompt: DeviceAuthPrompt) => void
+): Promise<{ twitchLogin: string; grantedScopes: string[] }> {
+  const clientId = requireTwitchClientId()
+  const device = await requestDeviceCode(clientId, MOD_ACCOUNT_SCOPES)
+
+  onDeviceCodeReady({
+    userCode: device.user_code,
+    verificationUri: device.verification_uri,
+    expiresInSeconds: device.expires_in
+  })
+  void shell.openExternal(device.verification_uri)
+
+  const tokenResponse = await pollForToken(clientId, MOD_ACCOUNT_SCOPES, device)
+
+  const {
+    login,
+    scopes: grantedScopes,
+    user_id: userId
+  } = await validateToken(tokenResponse.access_token)
+
+  storeModTokens({
+    twitchUserId: userId,
+    twitchLogin: login,
+    accessToken: tokenResponse.access_token,
+    refreshToken: tokenResponse.refresh_token,
+    scopes: grantedScopes,
+    expiresAt: Date.now() + tokenResponse.expires_in * 1000
+  })
+
+  logger.info(`Twitch-Mod-Account verbunden: ${login}`)
 
   return { twitchLogin: login, grantedScopes }
 }

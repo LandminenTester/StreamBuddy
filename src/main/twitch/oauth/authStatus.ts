@@ -1,6 +1,7 @@
 import type { AuthStatus, FeatureKey, FeatureScopeDefinition } from '@shared/types/auth'
 import { listFeatureScopes, setFeatureEnabled } from '../../db/repositories/authTokens.repo'
 import { readTokens, clearTokens } from './tokenStore'
+import { readModTokens, clearModTokens } from './modTokenStore'
 import { getMissingScopes, listOptionalFeatures } from './scopeRegistry'
 import { getMainWindow } from '../../window'
 import { IpcChannels } from '@shared/ipc/channels'
@@ -8,12 +9,15 @@ import { IpcChannels } from '@shared/ipc/channels'
 /** Berechnet den aktuellen Verbindungs- und Scope-Status für die Settings-UI. */
 export function getAuthStatus(): AuthStatus {
   const tokens = readTokens()
+  const modTokens = readModTokens()
 
   return {
     connected: tokens !== null,
     twitchLogin: tokens?.twitchLogin ?? null,
     grantedScopes: tokens?.scopes ?? [],
-    missingScopes: getMissingScopes(tokens?.scopes ?? [])
+    missingScopes: getMissingScopes(tokens?.scopes ?? []),
+    modConnected: modTokens !== null,
+    modTwitchLogin: modTokens?.twitchLogin ?? null
   }
 }
 
@@ -32,6 +36,10 @@ export function toggleFeature(featureKey: FeatureKey, enabled: boolean): AuthSta
 
 export function disconnectBotAccount(): void {
   clearTokens()
+}
+
+export function disconnectModAccount(): void {
+  clearModTokens()
 }
 
 /** Sendet den aktuellen Auth-Status per Push an das Hauptfenster (z.B. nach OAuth/Reauth). */

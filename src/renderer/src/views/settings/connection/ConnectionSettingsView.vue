@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Eye, EyeOff } from 'lucide-vue-next'
+import { Eye, EyeOff, Copy } from 'lucide-vue-next'
 import AppButton from '@renderer/components/ui/AppButton.vue'
 import AppInput from '@renderer/components/ui/AppInput.vue'
 import AppToggle from '@renderer/components/ui/AppToggle.vue'
@@ -21,6 +21,16 @@ const clientIdModalOpen = ref(false)
 const channelModalOpen = ref(false)
 const clientIdDraft = ref('')
 const channelDraft = ref('')
+
+let unsubscribeModPrompt: (() => void) | null = null
+
+onMounted(() => {
+  unsubscribeModPrompt = authStore.subscribeToModDeviceAuthPrompt()
+})
+
+onUnmounted(() => {
+  unsubscribeModPrompt?.()
+})
 
 const maskedClientId = computed(() => {
   if (!authStore.clientId) return undefined
@@ -60,6 +70,10 @@ async function saveChannel(): Promise<void> {
   if (!value) return
   await chatStore.saveTargetChannel(value)
   channelModalOpen.value = false
+}
+
+async function copyModCode(code: string): Promise<void> {
+  await navigator.clipboard.writeText(code)
 }
 </script>
 
@@ -165,6 +179,70 @@ async function saveChannel(): Promise<void> {
         >
           {{ $t('settings.connection.grantScopes') }}
         </AppButton>
+      </div>
+    </PageSection>
+
+    <PageSection
+      :title="$t('settings.connection.modTitle')"
+      :description="$t('settings.connection.modDescription')"
+    >
+      <template #actions>
+        <AppButton
+          v-if="!authStore.status.modConnected"
+          variant="primary"
+          size="sm"
+          :loading="authStore.isConnectingMod"
+          :disabled="!authStore.clientId"
+          @click="authStore.connectMod()"
+        >
+          {{
+            authStore.isConnectingMod
+              ? $t('settings.connection.connecting')
+              : $t('settings.connection.modConnect')
+          }}
+        </AppButton>
+        <AppButton v-else variant="danger" size="sm" @click="authStore.disconnectMod()">
+          {{ $t('settings.connection.disconnect') }}
+        </AppButton>
+      </template>
+
+      <DefinitionList :items="[{ key: 'modAccount', label: $t('settings.connection.modAccount') }]">
+        <template #modAccount>
+          <AppBadge v-if="authStore.status.modConnected" variant="success" dot>
+            {{ authStore.status.modTwitchLogin }}
+          </AppBadge>
+          <span v-else class="text-fg-muted">{{ $t('settings.connection.modNotConnected') }}</span>
+        </template>
+      </DefinitionList>
+
+      <div
+        v-if="authStore.isConnectingMod && authStore.modDeviceAuthPrompt"
+        class="mt-6 rounded-md bg-accent/10 p-4 text-sm"
+      >
+        <p class="font-medium text-fg">{{ $t('setup.connection.deviceTitle') }}</p>
+        <p class="mt-2 text-fg-muted">
+          {{
+            $t('setup.connection.deviceStep1', {
+              url: authStore.modDeviceAuthPrompt.verificationUri
+            })
+          }}
+        </p>
+        <p class="mt-3 text-fg-muted">{{ $t('setup.connection.deviceStep2') }}</p>
+        <div class="mt-1 flex items-center gap-3">
+          <code
+            class="inline-block rounded bg-surface px-3 py-1.5 font-mono text-lg font-semibold tracking-widest text-fg"
+          >
+            {{ authStore.modDeviceAuthPrompt.userCode }}
+          </code>
+          <AppButton
+            size="sm"
+            @click="copyModCode(authStore.modDeviceAuthPrompt!.userCode)"
+          >
+            <template #icon><Copy class="h-3.5 w-3.5" /></template>
+            {{ $t('setup.connection.copyCode') }}
+          </AppButton>
+        </div>
+        <p class="mt-3 text-xs text-fg-subtle">{{ $t('setup.connection.deviceWaiting') }}</p>
       </div>
     </PageSection>
 

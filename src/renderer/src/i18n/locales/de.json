@@ -87,6 +87,11 @@
       "editClientId": "Client-ID ändern",
       "missingScopes": "Für die aktivierten Features fehlen noch Berechtigungen: {scopes}",
       "grantScopes": "Berechtigungen erweitern",
+      "modTitle": "Mod-Account",
+      "modDescription": "Optionaler zweiter Account für Commands, Automessages und Loyalty-Games.",
+      "modAccount": "Mod-Account",
+      "modNotConnected": "Nicht verbunden (Broadcaster übernimmt)",
+      "modConnect": "Mod-Account verbinden",
       "chatTitle": "Chat-Verbindung",
       "chatDescription": "Kanal, in dem der Bot mitliest und schreibt.",
       "channel": "Zielkanal",
@@ -468,6 +473,7 @@
       "welcome": "Willkommen",
       "appearance": "Erscheinungsbild",
       "connection": "Twitch-Verbindung",
+      "mod_account": "Mod-Account",
       "channel": "Kanal",
       "features": "Features",
       "summary": "Fertig"
@@ -488,7 +494,7 @@
       "clientIdLabel": "Client-ID",
       "clientIdPlaceholder": "Client-ID einfügen",
       "clientIdHint": "Als Kategorie „Chat Bot“ wählen, keine Redirect-URI nötig.",
-      "botAccountNote": "Melde dich mit dem Account an, der als Bot schreiben soll — idealerweise ein separater Account, der im Zielkanal Moderator ist.",
+      "botAccountNote": "Melde dich mit dem Broadcaster-Account an — das ist dein Haupt-Twitch-Account. Im nächsten Schritt kannst du optional einen zweiten Mod-Account für Commands und Automessages verbinden.",
       "connect": "Mit Twitch verbinden",
       "connecting": "Verbinde…",
       "connectedAs": "Verbunden als {login}",
@@ -498,6 +504,15 @@
       "deviceWaiting": "Wartet auf Bestätigung…",
       "copyCode": "Code kopieren",
       "copied": "Kopiert"
+    },
+    "modAccount": {
+      "title": "Mod-Account verbinden (optional)",
+      "description": "Du kannst einen separaten Mod-Account für Commands, Automessages und Loyalty-Games verwenden. So schreibt der Broadcaster-Account nur für Systemnachrichten (Werbung, Sub-Events) und der Mod-Account für alles andere.",
+      "hint": "Dieser Schritt ist optional. Ohne Mod-Account übernimmt der Broadcaster-Account alle Chat-Nachrichten.",
+      "connect": "Mod-Account verbinden",
+      "connecting": "Verbinde…",
+      "connectedAs": "Verbunden als {login}",
+      "disconnect": "Trennen"
     },
     "channel": {
       "title": "In welchem Kanal soll der Bot mitlesen?",
@@ -524,6 +539,8 @@
       "features": "Aktive Features",
       "notConnected": "Nicht verbunden",
       "noFeatures": "Keine optionalen Features",
+      "modAccount": "Mod-Account",
+      "modNotConnected": "Kein Mod-Account (Broadcaster übernimmt)",
       "finish": "Einrichtung abschließen",
       "finishing": "Wird eingerichtet…"
     },
