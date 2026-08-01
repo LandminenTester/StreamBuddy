@@ -3,6 +3,8 @@ import { computed, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStatsStore } from '@renderer/stores/stats.store'
 import { useChatStore } from '@renderer/stores/chat.store'
+import { useFollowersStore } from '@renderer/stores/followers.store'
+import { useViewersStore } from '@renderer/stores/viewers.store'
 import StatRow, { type StatItem } from '@renderer/components/ui/StatRow.vue'
 import LineChart from '@renderer/components/shared/LineChart.vue'
 import BarChart from '@renderer/components/shared/BarChart.vue'
@@ -13,19 +15,31 @@ import { messageBucketsToChartData, viewerSamplesToChartData } from './utils'
 const { t } = useI18n()
 const statsStore = useStatsStore()
 const chatStore = useChatStore()
+const followersStore = useFollowersStore()
+const viewersStore = useViewersStore()
 
 let unsubscribe: (() => void) | null = null
 let unsubscribeChatFeed: (() => void) | null = null
+let unsubscribeSync: (() => void) | null = null
+let unsubscribePresence: (() => void) | null = null
 
 onMounted(async () => {
   unsubscribe = await initDashboard(statsStore)
   unsubscribeChatFeed = chatStore.subscribeToMessages()
-  await chatStore.fetchStatus()
+  unsubscribeSync = followersStore.subscribeToSyncComplete()
+  unsubscribePresence = viewersStore.subscribeToPresenceUpdates()
+  await Promise.all([
+    chatStore.fetchStatus(),
+    followersStore.fetchSyncStatus(),
+    viewersStore.fetchPresent()
+  ])
 })
 
 onUnmounted(() => {
   unsubscribe?.()
   unsubscribeChatFeed?.()
+  unsubscribeSync?.()
+  unsubscribePresence?.()
 })
 
 const messageChart = computed(() => messageBucketsToChartData(statsStore.messageBuckets))
@@ -46,6 +60,13 @@ const stats = computed<StatItem[]>(() => [
     key: 'stream',
     label: t('dashboard.stats.streamState'),
     value: statsStore.live.isLive ? t('dashboard.live') : t('dashboard.offline')
+  },
+  {
+    key: 'followers',
+    label: t('dashboard.stats.followers'),
+    value: followersStore.syncStatus.totalCount > 0
+      ? followersStore.syncStatus.totalCount.toString()
+      : '–'
   }
 ])
 </script>
@@ -69,6 +90,23 @@ const stats = computed<StatItem[]>(() => [
           </span>
         </template>
       </StatRow>
+
+      <!-- Aktuelle Chat-Zuschauer -->
+      <section class="border-t border-line pt-6">
+        <h2 class="mb-3 text-base font-semibold text-fg">{{ $t('dashboard.viewers.title') }}</h2>
+        <p v-if="viewersStore.presentUsers.length === 0" class="text-sm text-fg-muted">
+          {{ statsStore.live.isLive ? $t('dashboard.viewers.empty') : $t('dashboard.viewers.emptyOffline') }}
+        </p>
+        <div v-else class="flex flex-wrap gap-1.5">
+          <span
+            v-for="user in viewersStore.presentUsers"
+            :key="user"
+            class="rounded-full bg-surface-subtle px-2.5 py-0.5 text-xs font-medium text-fg"
+          >
+            {{ user }}
+          </span>
+        </div>
+      </section>
 
       <section class="border-t border-line pt-6">
         <h2 class="text-base font-semibold text-fg">{{ $t('dashboard.charts.viewers') }}</h2>
