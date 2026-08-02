@@ -80,7 +80,10 @@ async function importCsv(): Promise<void> {
     const result = await store.importCsv({
       content: content.value,
       delimiter: delimiter.value,
-      mapping: mapping.value
+      mapping: {
+        userLoginColumn: mapping.value.userLoginColumn,
+        balanceColumn: mapping.value.balanceColumn
+      }
     })
     if (result) {
       emit('imported', result)
