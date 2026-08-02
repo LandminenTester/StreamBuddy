@@ -180,7 +180,14 @@
       "typeText": "Text",
       "insertPlaceholder": "Insert value",
       "insertOldValue": "{alter_wert}",
-      "insertNewValue": "{neuer_wert}"
+      "insertNewValue": "{neuer_wert}",
+      "currentValue": "current: {value}",
+      "previewLabel": "Preview",
+      "previewEmpty": "No response text yet.",
+      "previewMissing": "This value was not found.",
+      "oldValuePreview": "Old value from the linked action",
+      "newValuePreview": "New value from the linked action",
+      "actionPreview": "Action example: old value {oldValue}, new value {newValue}"
     }
   },
   "automessages": {

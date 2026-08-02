@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive } from 'vue'
+import { computed, onMounted, reactive, watch } from 'vue'
 import AppButton from '@renderer/components/ui/AppButton.vue'
 import AppInput from '@renderer/components/ui/AppInput.vue'
 import AppSelect from '@renderer/components/ui/AppSelect.vue'
@@ -31,7 +31,11 @@ const selectedTrackerId = computed({
   set: (value: string) => {
     form.trackerId = value ? Number(value) : null
     if (!value) form.trackerAction = null
-    else if (!form.trackerAction) form.trackerAction = 'increment'
+    else if (trackersStore.trackers.find((t) => t.id === Number(value))?.type === 'counter') {
+      if (!form.trackerAction) form.trackerAction = 'increment'
+    } else {
+      form.trackerAction = null
+    }
   }
 })
 
@@ -50,6 +54,16 @@ const selectedTrackerAction = computed({
 const linkedTrackerType = computed(() => {
   if (!form.trackerId) return null
   return trackersStore.trackers.find((t) => t.id === form.trackerId)?.type ?? null
+})
+
+const linkedTracker = computed(() => {
+  if (!form.trackerId) return null
+  return trackersStore.trackers.find((t) => t.id === form.trackerId) ?? null
+})
+
+watch(linkedTrackerType, (type) => {
+  if (type !== 'counter') form.trackerAction = null
+  else if (!form.trackerAction) form.trackerAction = 'increment'
 })
 </script>
 
@@ -72,6 +86,8 @@ const linkedTrackerType = computed(() => {
         :label="$t('commands.form.response')"
         :trackers="trackersStore.trackers"
         :linked-tracker-type="linkedTrackerType"
+        :linked-tracker="linkedTracker"
+        :linked-tracker-action="form.trackerAction"
       />
 
       <AppInput
@@ -115,7 +131,7 @@ const linkedTrackerType = computed(() => {
             :options="trackerOptions"
           />
           <AppSelect
-            v-if="form.trackerId !== null"
+            v-if="linkedTrackerType === 'counter'"
             v-model="selectedTrackerAction"
             :label="$t('commands.werte.actionLabel')"
             :options="trackerActionOptions"
