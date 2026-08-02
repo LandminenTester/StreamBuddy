@@ -20,7 +20,10 @@ export const IpcChannels = {
     getSetupState: 'app:getSetupState',
     completeSetup: 'app:completeSetup',
     resetSetup: 'app:resetSetup',
-    resetBotTexts: 'app:resetBotTexts'
+    resetBotTexts: 'app:resetBotTexts',
+    exportSettings: 'app:exportSettings',
+    importSettings: 'app:importSettings',
+    resetAll: 'app:resetAll'
   },
   commands: {
     list: 'commands:list',

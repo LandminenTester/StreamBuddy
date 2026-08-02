@@ -47,6 +47,7 @@ import type {
 } from '../types/followers'
 import type { StreamSummary, StreamStats, ViewerSession } from '../types/viewers'
 import type { CommandTracker, TrackerInput } from '../types/tracker'
+import type { SettingsFileResult } from '../types/settings'
 import type { CsvDelimiter, LoyaltyCsvMapping } from '../utils/loyaltyCsv'
 
 /**
@@ -72,6 +73,9 @@ export interface IpcContracts {
   [IpcChannels.app.completeSetup]: { request: { locale: AppLocale }; response: SetupState }
   [IpcChannels.app.resetSetup]: { request: void; response: SetupState }
   [IpcChannels.app.resetBotTexts]: { request: { locale: AppLocale }; response: void }
+  [IpcChannels.app.exportSettings]: { request: void; response: SettingsFileResult | null }
+  [IpcChannels.app.importSettings]: { request: void; response: SettingsFileResult | null }
+  [IpcChannels.app.resetAll]: { request: void; response: SetupState }
 
   [IpcChannels.commands.list]: { request: void; response: Command[] }
   [IpcChannels.commands.create]: { request: CommandInput; response: Command }
