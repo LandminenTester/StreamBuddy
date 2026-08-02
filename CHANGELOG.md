@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.6.4](https://github.com/LandminenTester/StreamingBot/compare/v2.6.3...v2.6.4) (2026-08-02)
+
+
+### Bug Fixes
+
+* restore command saving ([#51](https://github.com/LandminenTester/StreamingBot/issues/51)) ([79563fd](https://github.com/LandminenTester/StreamingBot/commit/79563fd1db503aea86a288d86101dce5f9290f2a))
+* **channel-points:** allow loyalty exchange rewards ([8109c91](https://github.com/LandminenTester/StreamingBot/commit/8109c91526e23101c36b55a5ed37f8362b0edccf))
+* **commands:** clone command payload before ipc ([e8fa6ba](https://github.com/LandminenTester/StreamingBot/commit/e8fa6ba1c7c99d7875f7ab14b8a8459c147020cd))
+
 ## [2.6.3](https://github.com/LandminenTester/StreamingBot/compare/v2.6.2...v2.6.3) (2026-08-02)
 
 
