@@ -11,6 +11,7 @@ files:
 asarUnpack:
   - resources/**
 win:
+  icon: favicon.ico
   target:
     - target: nsis
       arch:

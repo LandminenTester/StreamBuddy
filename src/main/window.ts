@@ -12,10 +12,13 @@ export function createMainWindow(): BrowserWindow {
   }
 
   mainWindow = new BrowserWindow({
-    width: 1472,
-    height: 920,
-    minWidth: 1178,
-    minHeight: 805,
+    width: 1693,
+    height: 1058,
+    minWidth: 1355,
+    minHeight: 926,
+    icon: is.dev
+      ? join(process.cwd(), 'src/renderer/public/favicon.ico')
+      : join(__dirname, '../renderer/favicon.ico'),
     show: false,
     autoHideMenuBar: true,
     webPreferences: {
