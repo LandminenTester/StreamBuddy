@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive } from 'vue'
+import { useI18n } from 'vue-i18n'
 import AppButton from '@renderer/components/ui/AppButton.vue'
 import AppInput from '@renderer/components/ui/AppInput.vue'
 import AppSelect from '@renderer/components/ui/AppSelect.vue'
@@ -9,10 +10,12 @@ import BaseModal from '@renderer/components/ui/BaseModal.vue'
 import { useCommandsStore } from '@renderer/stores/commands.store'
 import type { RewardFormState } from '@renderer/views/channelPoints/types'
 import { actionTypeOptions } from '@renderer/views/channelPoints/utils'
+import type { SelectOption } from '@renderer/components/ui/AppSelect.vue'
 
 const props = defineProps<{ initial: RewardFormState }>()
 const emit = defineEmits<{ close: []; submit: [form: RewardFormState] }>()
 
+const { t } = useI18n()
 const form = reactive<RewardFormState>({ ...props.initial })
 const commandsStore = useCommandsStore()
 
@@ -34,6 +37,19 @@ const selectedCommandId = computed({
   set: (value: string) => {
     form.actionCommandId = value ? Number(value) : null
   }
+})
+
+const exchangeModeOptions = computed<SelectOption[]>(() => [
+  { value: 'rate', label: t('channelPoints.loyaltyExchange.modeRate') },
+  { value: 'fixed', label: t('channelPoints.loyaltyExchange.modeFixed') }
+])
+
+const exchangePreview = computed<string>(() => {
+  if (form.loyaltyExchangeMode === 'rate') {
+    const pts = Math.floor(form.cost / (form.loyaltyExchangeValue || 1))
+    return t('channelPoints.loyaltyExchange.previewRate', { cost: form.cost, value: form.loyaltyExchangeValue, pts })
+  }
+  return t('channelPoints.loyaltyExchange.previewFixed', { pts: form.loyaltyExchangeValue })
 })
 </script>
 
@@ -90,6 +106,25 @@ const selectedCommandId = computed({
         :label="$t('channelPoints.form.actionCommand')"
         :options="commandOptions"
       />
+
+      <template v-if="form.actionType === 'loyalty_exchange'">
+        <div class="grid gap-4 sm:grid-cols-2">
+          <AppSelect
+            v-model="form.loyaltyExchangeMode"
+            :label="$t('channelPoints.loyaltyExchange.mode')"
+            :options="exchangeModeOptions"
+          />
+          <AppInput
+            v-model="form.loyaltyExchangeValue"
+            type="number"
+            :min="1"
+            :label="form.loyaltyExchangeMode === 'rate'
+              ? $t('channelPoints.loyaltyExchange.rateLabel')
+              : $t('channelPoints.loyaltyExchange.fixedLabel')"
+          />
+        </div>
+        <p class="text-xs text-fg-muted">{{ exchangePreview }}</p>
+      </template>
 
       <div class="space-y-4">
         <AppToggle v-model="form.isEnabled" :label="$t('channelPoints.form.isEnabled')" />

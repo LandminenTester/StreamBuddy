@@ -34,16 +34,21 @@ const filtered = computed(() => {
 })
 
 function formatDate(ts: number): string {
+  if (!ts || ts <= 0) return '—'
   return d(new Date(ts * 1000), 'short')
 }
 
 function formatDuration(seconds: number | null): string {
-  if (seconds === null) return '—'
-  const days = Math.floor(seconds / 86400)
-  if (days >= 1) return t('audience.followers.durationDays', { days })
-  const hours = Math.floor(seconds / 3600)
-  if (hours >= 1) return t('audience.followers.durationHours', { hours })
-  return t('audience.followers.durationMinutes', { minutes: Math.floor(seconds / 60) })
+  if (seconds === null || seconds < 0) return '—'
+  const totalDays = Math.floor(seconds / 86400)
+  const years = Math.floor(totalDays / 365)
+  const months = Math.floor((totalDays % 365) / 30)
+  const days = totalDays % 30
+  const parts: string[] = []
+  if (years > 0) parts.push(t('audience.followers.durationYears', { years }))
+  if (months > 0) parts.push(t('audience.followers.durationMonths', { months }))
+  if (days > 0 || parts.length === 0) parts.push(t('audience.followers.durationDays', { days }))
+  return parts.join(' ')
 }
 
 function lastSyncLabel(): string {

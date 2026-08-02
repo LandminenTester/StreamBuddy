@@ -15,7 +15,9 @@ export async function submitCommandForm(
     permissionLevel: form.permissionLevel,
     cooldownSeconds: form.cooldownSeconds,
     deliveryMode: form.deliveryMode,
-    enabled: form.enabled
+    enabled: form.enabled,
+    trackerId: form.trackerId,
+    trackerAction: form.trackerAction
   }
 
   if (form.id === null) {

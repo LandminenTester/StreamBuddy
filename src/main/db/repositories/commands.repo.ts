@@ -1,5 +1,6 @@
 import { getDb } from '../connection'
 import type { Command, CommandInput } from '@shared/types/command'
+import type { TrackerAction } from '@shared/types/tracker'
 
 interface CommandRow {
   id: number
@@ -13,6 +14,8 @@ interface CommandRow {
   use_count: number
   created_at: number
   updated_at: number
+  tracker_id: number | null
+  tracker_action: TrackerAction | null
 }
 
 function toDomain(row: CommandRow): Command {
@@ -27,7 +30,9 @@ function toDomain(row: CommandRow): Command {
     enabled: Boolean(row.enabled),
     useCount: row.use_count,
     createdAt: row.created_at,
-    updatedAt: row.updated_at
+    updatedAt: row.updated_at,
+    trackerId: row.tracker_id ?? null,
+    trackerAction: row.tracker_action ?? null
   }
 }
 
@@ -40,8 +45,8 @@ export function createCommand(input: CommandInput): Command {
   const now = Date.now()
   const result = getDb()
     .prepare(
-      `INSERT INTO commands (trigger, response, aliases, permission_level, cooldown_seconds, delivery_mode, enabled, created_at, updated_at)
-       VALUES (@trigger, @response, @aliases, @permissionLevel, @cooldownSeconds, @deliveryMode, @enabled, @now, @now)`
+      `INSERT INTO commands (trigger, response, aliases, permission_level, cooldown_seconds, delivery_mode, enabled, tracker_id, tracker_action, created_at, updated_at)
+       VALUES (@trigger, @response, @aliases, @permissionLevel, @cooldownSeconds, @deliveryMode, @enabled, @trackerId, @trackerAction, @now, @now)`
     )
     .run({
       trigger: input.trigger,
@@ -51,6 +56,8 @@ export function createCommand(input: CommandInput): Command {
       cooldownSeconds: input.cooldownSeconds,
       deliveryMode: input.deliveryMode,
       enabled: input.enabled ? 1 : 0,
+      trackerId: input.trackerId ?? null,
+      trackerAction: input.trackerAction ?? null,
       now
     })
 
@@ -65,7 +72,9 @@ export function updateCommand(id: number, patch: Partial<CommandInput>): Command
     .prepare(
       `UPDATE commands SET trigger = @trigger, response = @response, aliases = @aliases,
          permission_level = @permissionLevel, cooldown_seconds = @cooldownSeconds,
-         delivery_mode = @deliveryMode, enabled = @enabled, updated_at = @now
+         delivery_mode = @deliveryMode, enabled = @enabled,
+         tracker_id = @trackerId, tracker_action = @trackerAction,
+         updated_at = @now
        WHERE id = @id`
     )
     .run({
@@ -77,6 +86,8 @@ export function updateCommand(id: number, patch: Partial<CommandInput>): Command
       cooldownSeconds: merged.cooldownSeconds,
       deliveryMode: merged.deliveryMode,
       enabled: merged.enabled ? 1 : 0,
+      trackerId: merged.trackerId ?? null,
+      trackerAction: merged.trackerAction ?? null,
       now: Date.now()
     })
 

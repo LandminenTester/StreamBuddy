@@ -31,7 +31,9 @@ export function commandToFormState(command: Command): CommandFormState {
     permissionLevel: command.permissionLevel,
     cooldownSeconds: command.cooldownSeconds,
     deliveryMode: command.deliveryMode,
-    enabled: command.enabled
+    enabled: command.enabled,
+    trackerId: command.trackerId,
+    trackerAction: command.trackerAction
   }
 }
 

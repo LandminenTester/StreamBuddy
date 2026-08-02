@@ -2,12 +2,14 @@ import type { ChatUserstate } from 'tmi.js'
 import type { Command, PermissionLevel } from '@shared/types/command'
 import { incrementCommandUseCount, listCommands } from '../../db/repositories/commands.repo'
 import { getOrCreateAccount, setAccountBlacklisted } from '../../db/repositories/loyalty.repo'
+import { adjustTracker } from '../../db/repositories/trackers.repo'
 import { pickRandomMessage } from '../../db/repositories/botMessages.repo'
 import {
   getGameByTrigger,
   getGameRuntimeConfig,
   isGameEnabled
 } from '../../loyalty/games/gameRegistry'
+import { getLoyaltyEnabled } from '../../loyalty/loyaltySettings'
 import { LOYALTY_OFFLINE_MESSAGE_KEY } from '../../loyalty/offlineMessages'
 import { isStreamLive } from '../../stats/viewerCountPoller'
 import { getActiveChatClient } from './chatClientAccessor'
@@ -65,7 +67,7 @@ export async function handleChatMessage(
   const match = getGameByTrigger(trigger)
   if (match) {
     const { game, command } = match
-    if (!isGameEnabled(game.id)) return
+    if (!getLoyaltyEnabled() || !isGameEnabled(game.id)) return
     // Loyalty-Games laufen nur, waehrend der Stream live ist -- offline gibt es
     // stattdessen eine launige "geschlossen"-Meldung statt der Ausfuehrung.
     if (!isStreamLive()) {
@@ -93,14 +95,20 @@ export async function handleChatMessage(
   const userLevel = getUserPermissionLevel(tags)
   if (!hasRequiredPermission(userLevel, command.permissionLevel)) return
 
-  const lastUsed = lastUsedAt.get(command.id) ?? 0
   const now = Date.now()
-  if (now - lastUsed < command.cooldownSeconds * 1000) return
+  if (userLevel !== 'broadcaster') {
+    const lastUsed = lastUsedAt.get(command.id) ?? 0
+    if (now - lastUsed < command.cooldownSeconds * 1000) return
+  }
   lastUsedAt.set(command.id, now)
 
   try {
     await sendCommandResponse(channel, tags.username ?? '', command)
     incrementCommandUseCount(command.id)
+    if (command.trackerId && command.trackerAction) {
+      const delta = command.trackerAction === 'increment' ? 1 : -1
+      adjustTracker(command.trackerId, delta)
+    }
   } catch (error) {
     logger.error(`Konnte Command-Response für "${command.trigger}" nicht senden`, error)
   }

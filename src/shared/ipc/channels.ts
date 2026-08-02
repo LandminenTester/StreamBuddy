@@ -103,7 +103,18 @@ export const IpcChannels = {
     getGameStats: 'loyalty:getGameStats',
     listRouletteColors: 'loyalty:listRouletteColors',
     getOfflineMessages: 'loyalty:getOfflineMessages',
-    setOfflineMessages: 'loyalty:setOfflineMessages'
+    setOfflineMessages: 'loyalty:setOfflineMessages',
+    getEnabled: 'loyalty:getEnabled',
+    setEnabled: 'loyalty:setEnabled',
+    getPointName: 'loyalty:getPointName',
+    setPointName: 'loyalty:setPointName'
+  },
+  trackers: {
+    list: 'trackers:list',
+    create: 'trackers:create',
+    update: 'trackers:update',
+    delete: 'trackers:delete',
+    adjust: 'trackers:adjust'
   },
   stats: {
     getMessagesPerHour: 'stats:getMessagesPerHour',

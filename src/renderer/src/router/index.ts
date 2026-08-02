@@ -83,6 +83,11 @@ export const router = createRouter({
           name: 'loyalty-offline-messages',
           component: () =>
             import('@renderer/views/loyalty/offlineMessages/OfflineMessagesView.vue')
+        },
+        {
+          path: 'settings',
+          name: 'loyalty-settings',
+          component: () => import('@renderer/views/loyalty/LoyaltySettingsView.vue')
         }
       ]
     },

@@ -167,6 +167,14 @@
       "delivery": "Delivery",
       "whisperWarning": "Twitch restricts whispers for many bot accounts — be sure to test.",
       "enabled": "Enabled"
+    },
+    "trackers": {
+      "title": "Trackers",
+      "empty": "No trackers created yet.",
+      "placeholder": "Tracker name",
+      "formSection": "Link tracker",
+      "selectLabel": "Tracker",
+      "actionLabel": "Action"
     }
   },
   "automessages": {
@@ -265,7 +273,17 @@
     "actionType": {
       "none": "No action",
       "chat_message": "Send chat message",
-      "trigger_command": "Trigger command"
+      "trigger_command": "Trigger command",
+      "loyalty_exchange": "Grant loyalty points"
+    },
+    "loyaltyExchange": {
+      "mode": "Mode",
+      "modeRate": "Rate (CP → points)",
+      "modeFixed": "Fixed amount",
+      "rateLabel": "CP per point",
+      "fixedLabel": "Points",
+      "previewRate": "At {cost} CP and rate 1:{value} → {pts} points",
+      "previewFixed": "Always {pts} points"
     },
     "title": "Channel points",
     "description": "Custom rewards and their actions.",
@@ -305,11 +323,20 @@
     },
     "title": "Loyalty",
     "description": "Your own channel currency, earned through follows, subs, gifted subs and view time — only while the stream is live.",
+    "pointName": "Points",
     "tabs": {
       "leaderboard": "Leaderboard",
       "blacklist": "Blacklist",
       "earnRules": "Earn rules",
-      "offlineMessages": "Offline messages"
+      "offlineMessages": "Offline messages",
+      "settings": "Settings"
+    },
+    "settings": {
+      "generalTitle": "General",
+      "enabledLabel": "Loyalty system",
+      "enabledHint": "Award loyalty points and keep games active",
+      "pointNameLabel": "Points display name",
+      "pointNameHint": "Shown everywhere in the interface as the name of your channel currency."
     },
     "leaderboard": {
       "title": "Leaderboard",
@@ -620,6 +647,8 @@
         "active": "Active",
         "unfollowed": "Unfollowed"
       },
+      "durationYears": "{years} yr",
+      "durationMonths": "{months} mo",
       "durationDays": "{days} d",
       "durationHours": "{hours} h",
       "durationMinutes": "{minutes} min"

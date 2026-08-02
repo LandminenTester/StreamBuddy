@@ -39,7 +39,7 @@ export async function handleRedemptionAddEvent(
     redeemedAt: Date.parse(redemption.redeemed_at)
   })
 
-  await runRedemptionAction(localReward)
+  await runRedemptionAction(localReward, redemption.user_login)
 
   if (localReward.autoFulfill) {
     try {
