@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.6.5](https://github.com/LandminenTester/StreamingBot/compare/v2.6.4...v2.6.5) (2026-08-02)
+
+
+### Bug Fixes
+
+* edit loyalty earn rules ([#52](https://github.com/LandminenTester/StreamingBot/issues/52)) ([09cceff](https://github.com/LandminenTester/StreamingBot/commit/09cceff7515f7464dc8b08b6e7a5b69d4a5b4c67))
+* **loyalty:** clone earn rule before ipc ([77b69a4](https://github.com/LandminenTester/StreamingBot/commit/77b69a48143268951c4f3c378c4919be8b170aab))
+
 ## [2.6.4](https://github.com/LandminenTester/StreamingBot/compare/v2.6.3...v2.6.4) (2026-08-02)
 
 
