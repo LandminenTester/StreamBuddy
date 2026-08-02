@@ -17,6 +17,7 @@ const props = withDefaults(
     max?: number
     step?: number
     required?: boolean
+    list?: string
   }>(),
   { type: 'text', disabled: false, required: false }
 )
@@ -44,6 +45,7 @@ function onInput(event: Event): void {
       :max="max"
       :step="step"
       :required="required"
+      :list="list"
       :aria-invalid="Boolean(error)"
       :class="classes"
       @input="onInput"

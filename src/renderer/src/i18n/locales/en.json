@@ -29,6 +29,7 @@
     "polls": "Polls",
     "channelPoints": "Channel points",
     "loyalty": "Loyalty",
+    "greetings": "Greetings",
     "games": "Games",
     "audience": "Audience",
     "settings": "Settings",
@@ -349,7 +350,6 @@
       "blacklist": "Blacklist",
       "earnRules": "Earn rules",
       "offlineMessages": "Offline messages",
-      "greetings": "Greetings",
       "settings": "Settings"
     },
     "settings": {
@@ -441,6 +441,7 @@
       "userLogin": "Twitch name",
       "userPlaceholder": "twitch_name",
       "personalTexts": "Personal texts",
+      "personalTextsHint": "Several variants are possible. One text is picked at random when greeting.",
       "personalTextPlaceholder": "Hey {user}, good to see you!",
       "saved": "Greetings saved."
     },

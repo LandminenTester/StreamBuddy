@@ -7,6 +7,7 @@ import {
   Gauge,
   Gift,
   Info,
+  MessageCircleMore,
   MessageSquareText,
   Repeat2,
   Settings,
@@ -56,6 +57,10 @@ const NAV_GROUPS: NavGroup[] = [
       { to: '/games', labelKey: 'nav.games', icon: Dices },
       { to: '/audience', labelKey: 'nav.audience', icon: Users }
     ]
+  },
+  {
+    key: 'engagement',
+    items: [{ to: '/greetings', labelKey: 'nav.greetings', icon: MessageCircleMore }]
   },
   {
     key: 'system',
