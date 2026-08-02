@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.5.11](https://github.com/LandminenTester/StreamingBot/compare/v2.5.10...v2.5.11) (2026-08-02)
+
+
+### Features
+
+* improve greetings, app icon and follower dates ([#46](https://github.com/LandminenTester/StreamingBot/issues/46)) ([5f51aa4](https://github.com/LandminenTester/StreamingBot/commit/5f51aa46a57123c76485637dfa58f173d8370aac))
+* **greetings:** move greetings to dedicated navigation ([5981953](https://github.com/LandminenTester/StreamingBot/commit/598195319c9638fbcb774dfb815a8b23d5f3a3ee))
+
+### Bug Fixes
+
+* **followers:** derive follow date and duration reliably ([c806aec](https://github.com/LandminenTester/StreamingBot/commit/c806aecc7a50a8feb59ac8600c9e3905519a2f89))
+
 ## [2.5.10](https://github.com/LandminenTester/StreamingBot/compare/v2.5.9...v2.5.10) (2026-08-02)
 
 
