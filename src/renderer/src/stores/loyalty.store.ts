@@ -40,7 +40,12 @@ export const useLoyaltyStore = defineStore('loyalty', () => {
   }
 
   async function updateEarnRule(rule: LoyaltyEarnRule): Promise<void> {
-    earnRules.value = await window.api.invoke('loyalty:updateEarnRule', rule)
+    earnRules.value = await window.api.invoke('loyalty:updateEarnRule', {
+      reason: rule.reason,
+      points: Number(rule.points),
+      enabled: Boolean(rule.enabled),
+      cooldownSeconds: Number(rule.cooldownSeconds)
+    })
   }
 
   async function fetchGames(): Promise<void> {
