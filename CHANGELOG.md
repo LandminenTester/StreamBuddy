@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.5.9](https://github.com/LandminenTester/StreamingBot/compare/v2.5.8...v2.5.9) (2026-08-02)
+
+
+### Bug Fixes
+
+* **loyalty:** clone csv import payload ([c7d1c15](https://github.com/LandminenTester/StreamingBot/commit/c7d1c158cc80d7f5792aa361e69054211103ca6c))
+
 ## [2.5.8](https://github.com/LandminenTester/StreamingBot/compare/v2.5.7...v2.5.8) (2026-08-02)
 
 
