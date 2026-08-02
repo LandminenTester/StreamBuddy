@@ -74,6 +74,20 @@
       "setup": "Einrichtung",
       "botTextsReset": "Bot-Texte zurückgesetzt."
     },
+    "data": {
+      "title": "Daten und Sicherung",
+      "description": "Exportiert deine StreamBuddy-Konfiguration. Twitch-Accounts, Tokens, Laufzeitdaten und Loyalty-Konten bleiben immer außen vor.",
+      "export": "Einstellungen exportieren",
+      "import": "Einstellungen importieren",
+      "exported": "Einstellungen nach {fileName} exportiert.",
+      "imported": "Einstellungen aus {fileName} importiert. Starte StreamBuddy neu, damit alle Änderungen greifen.",
+      "resetTitle": "StreamBuddy komplett zurücksetzen",
+      "resetDescription": "Löscht alle lokalen Einstellungen, Inhalte, Konten und Verbindungen und startet danach die Einrichtung erneut.",
+      "resetButton": "StreamBuddy komplett zurücksetzen",
+      "resetConfirmTitle": "StreamBuddy komplett zurücksetzen?",
+      "resetConfirmMessage": "Dabei werden alle lokalen Daten einschließlich Twitch-Verbindungen, Commands, Loyalty-Konten und Statistiken unwiderruflich gelöscht.",
+      "resetConfirm": "Alles löschen"
+    },
     "connection": {
       "twitchTitle": "Broadcaster-Account",
       "twitchDescription": "Melde dich mit deinem Haupt-Twitch-Account (Broadcaster) an. Dieser Account wird für Ads-Detection, Sub-Events und Follow-Events verwendet.",

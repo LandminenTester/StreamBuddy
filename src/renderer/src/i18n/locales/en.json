@@ -74,6 +74,20 @@
       "setup": "Setup",
       "botTextsReset": "Bot texts reset."
     },
+    "data": {
+      "title": "Data and backup",
+      "description": "Exports your StreamBuddy configuration. Twitch accounts, tokens, runtime data and loyalty accounts are always excluded.",
+      "export": "Export settings",
+      "import": "Import settings",
+      "exported": "Settings exported to {fileName}.",
+      "imported": "Settings imported from {fileName}. Restart StreamBuddy to apply all changes.",
+      "resetTitle": "Reset StreamBuddy completely",
+      "resetDescription": "Deletes all local settings, content, accounts and connections, then starts setup again.",
+      "resetButton": "Reset StreamBuddy completely",
+      "resetConfirmTitle": "Reset StreamBuddy completely?",
+      "resetConfirmMessage": "This permanently deletes all local data, including Twitch connections, commands, loyalty accounts and statistics.",
+      "resetConfirm": "Delete everything"
+    },
     "connection": {
       "twitchTitle": "Broadcaster account",
       "twitchDescription": "Sign in with your main Twitch account (broadcaster). This account is used for ads detection, sub events and follow events.",
