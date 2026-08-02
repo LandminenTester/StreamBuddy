@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.6.3](https://github.com/LandminenTester/StreamingBot/compare/v2.6.2...v2.6.3) (2026-08-02)
+
+
+### Bug Fixes
+
+* include loyalty users and balances in backups ([#50](https://github.com/LandminenTester/StreamingBot/issues/50)) ([5a67de7](https://github.com/LandminenTester/StreamingBot/commit/5a67de70898a73105c549e39a85fff14f0f92ea1))
+* **settings:** include loyalty accounts in backups ([553ae16](https://github.com/LandminenTester/StreamingBot/commit/553ae1695f769ea344f1ab7a7fb71f3faeff177a))
+
 ## [2.6.2](https://github.com/LandminenTester/StreamingBot/compare/v2.6.1...v2.6.2) (2026-08-02)
 
 
