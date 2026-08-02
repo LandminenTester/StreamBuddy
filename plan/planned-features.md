@@ -332,6 +332,7 @@ ueber `scripts/release.mjs` bestimmt.
 | 4 | [Chat Realtime](04-chat-realtime.md) | Geplant | Patch 2 |
 | 5 | [Stream Archive](05-stream-archive.md) | Geplant | Patch 3 |
 | 6 | [Ad Schedule](06-ad-schedule.md) | Geplant | Patch 1 |
+| 7 | [Automessages and Greetings](07-automessages-and-greetings.md) | Geplant | Minor |
 
 ## Abhaengigkeiten
 
@@ -340,5 +341,7 @@ ueber `scripts/release.mjs` bestimmt.
 - Die Duel-History-Tabelle aus Bundle 02 muss vor der neuen Duel-Ansicht
   eingefuehrt werden.
 - Die erweiterte Archiv-API aus Bundle 05 wird vor der UI-Anzeige umgesetzt.
+- Automessage-/Greeting-Session-Logik aus Bundle 07 bleibt von der globalen
+  Chat-Subscription aus Bundle 04 getrennt, nutzt aber dieselbe Chat-Verbindung.
 - Jeder Bundle-Branch wird separat geprueft, als PR erstellt und erst nach
   bestandenen Checks gemerged.
