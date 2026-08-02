@@ -33,6 +33,11 @@ ihren Rang abfragen koennen.
    Fehlende Konten werden ueber `getOrCreateAccount` angelegt.
 7. Antworten, Berechtigungsfehler, unbekannte Nutzer und ungueltige Betraege in
    Deutsch und Englisch lokalisieren.
+8. Die Rangliste bei offenen Views nach erfolgreichen Ledger-Aenderungen live
+   aktualisieren, ohne manuelles Neuladen.
+9. Earn Rules fuer Follow, Sub, Gift-Sub und View Time als vollstaendige
+   Konfiguration pruefen; insbesondere Sub-/View-Time-Events muessen die
+   gespeicherten Regeln verwenden.
 
 ## Datenfluss und Vertraege
 
@@ -47,6 +52,9 @@ ihren Rang abfragen koennen.
 - Rang: Top-10-Grenze, eigener Rang ausserhalb Top 10, leere Rangliste.
 - Punkteaktion: positiver Betrag, Entzug, fehlendes Konto, unzureichende Rechte.
 - UI: Fehler bleibt sichtbar, erfolgreicher Save aktualisiert die Tabelle.
+- Live-Rangliste: Punkteaenderung erscheint in einer offenen Rangliste.
+- Earn Events: Sub und View Time verwenden Punkte, Aktivierung und Cooldown aus
+  der gespeicherten Rule.
 
 ## Release-Grenze
 

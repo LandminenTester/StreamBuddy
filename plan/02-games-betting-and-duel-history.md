@@ -27,6 +27,16 @@ Match statt als irrefuehrende Statistik dargestellt werden.
 4. Bei null Einsaetzen eine lokalisierte Meldung wie `Keine Wetten gesetzt`
    verwenden; keine Ausgabe `0 von 0`.
 5. Konfiguration, Hinweise und Beispieltexte in Deutsch und Englisch ergaenzen.
+6. Eine sichtbare Countdown-Quelle fuer den naechsten Rundenstart bereitstellen
+   und im Dashboard mit dem Roulette-Status synchronisieren.
+7. Nach einer erfolgreichen Roulette-Runde einen zusammengefassten Verlauf
+   erzeugen: pro Nutzer eine Gewinn- oder Verlustbuchung statt separater
+   Einsatz-/Gewinnzeilen.
+8. Gewinner in der Ergebnisnachricht mit `@user` und ausgezahltem Betrag nennen.
+9. Eine nachtraegliche Erhoehung der eigenen offenen Farb-Wette erlauben; der
+   weitere Einsatz muss erneut validiert und atomar abgebucht werden.
+10. Fuer Gamble einen eigenen Cooldown zwischen Einsaetzen einfuehren und
+    Ablehnungen mit verbleibender Wartezeit beantworten.
 
 ## Duel
 
@@ -51,6 +61,11 @@ Match statt als irrefuehrende Statistik dargestellt werden.
 - Roulette startet nach dem Ergebnis erst nach dem konfigurierten Cooldown.
 - Wetten waehrend Cooldown werden abgelehnt.
 - Leere Runde zeigt die neue Meldung.
+- Countdown entspricht dem echten Scheduler-Zustand.
+- Roulette-History enthaelt pro Nutzer genau einen Ergebnis-Eintrag.
+- Gewinnernachricht enthaelt Nutzername und Betrag.
+- Nachtraegliches Erhoehen einer Wette respektiert Guthaben, Limits und Phase.
+- Gamble-Cooldown blockiert zu fruehe Einsaetze und laeuft danach automatisch ab.
 - Duel erzeugt exakt einen History-Eintrag pro abgeschlossenem Match.
 - Duel-Ansicht zeigt keine allgemeinen Game-Stats, aber den Match-Verlauf.
 - Migration funktioniert mit vorhandenen Loyalty-Konten und Ledger-Eintraegen.
