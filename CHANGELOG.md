@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.5.0](https://github.com/LandminenTester/StreamingBot/compare/v2.4.0...v2.5.0) (2026-08-02)
+
+
+### Features
+
+* add command refactor ([#36](https://github.com/LandminenTester/StreamingBot/issues/36)) ([ac899f3](https://github.com/LandminenTester/StreamingBot/commit/ac899f3d9254230696eb351a4fbd9409f482f937))
+
 ## [2.4.0](https://github.com/LandminenTester/StreamingBot/compare/v2.3.0...v2.4.0) (2026-08-02)
 
 
