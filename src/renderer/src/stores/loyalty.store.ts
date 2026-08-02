@@ -79,7 +79,14 @@ export const useLoyaltyStore = defineStore('loyalty', () => {
   }): Promise<{ importedCount: number; errors: string[] } | null> {
     error.value = null
     try {
-      const result = await window.api.invoke('loyalty:importCsv', input)
+      const result = await window.api.invoke('loyalty:importCsv', {
+        content: String(input.content),
+        delimiter: input.delimiter,
+        mapping: {
+          userLoginColumn: Number(input.mapping.userLoginColumn),
+          balanceColumn: Number(input.mapping.balanceColumn)
+        }
+      })
       if (result) await fetchLeaderboard()
       return result
     } catch (err) {
