@@ -35,7 +35,13 @@ const filtered = computed(() => {
 
 function formatDate(ts: number): string {
   if (!ts || ts <= 0) return '—'
-  return d(new Date(ts * 1000), 'short')
+  // Older imports may contain milliseconds; the follower repository stores seconds.
+  const milliseconds = ts > 10_000_000_000 ? ts : ts * 1000
+  return d(new Date(milliseconds), 'short')
+}
+
+function toUnixSeconds(timestamp: number): number {
+  return timestamp > 10_000_000_000 ? Math.floor(timestamp / 1000) : timestamp
 }
 
 function formatDuration(seconds: number | null): string {
@@ -44,11 +50,27 @@ function formatDuration(seconds: number | null): string {
   const years = Math.floor(totalDays / 365)
   const months = Math.floor((totalDays % 365) / 30)
   const days = totalDays % 30
+  const hours = Math.floor((seconds % 86400) / 3600)
+  const minutes = Math.floor((seconds % 3600) / 60)
   const parts: string[] = []
   if (years > 0) parts.push(t('audience.followers.durationYears', { years }))
   if (months > 0) parts.push(t('audience.followers.durationMonths', { months }))
   if (days > 0 || parts.length === 0) parts.push(t('audience.followers.durationDays', { days }))
+  if (hours > 0 && years === 0) parts.push(t('audience.followers.durationHours', { hours }))
+  if (minutes > 0 && years === 0 && months === 0 && days === 0) {
+    parts.push(t('audience.followers.durationMinutes', { minutes }))
+  }
   return parts.join(' ')
+}
+
+function followDuration(followedAt: number): number {
+  const now = Math.floor(Date.now() / 1000)
+  return followedAt > 0 ? Math.max(0, now - toUnixSeconds(followedAt)) : 0
+}
+
+function followedSince(followedAt: number): string {
+  const now = Math.floor(Date.now() / 1000)
+  return formatDate(now - followDuration(followedAt))
 }
 
 function lastSyncLabel(): string {
@@ -127,7 +149,7 @@ function lastSyncLabel(): string {
               <span class="font-medium text-fg">{{ follower.displayName ?? follower.userLogin }}</span>
               <span v-if="follower.displayName" class="ml-1.5 text-xs text-fg-muted">@{{ follower.userLogin }}</span>
             </td>
-            <td class="py-2 pr-4 text-fg-muted">{{ formatDate(follower.followedAt) }}</td>
+            <td class="py-2 pr-4 text-fg-muted">{{ followedSince(follower.followedAt) }}</td>
             <td class="py-2 pr-4">
               <AppBadge :variant="follower.isActive ? 'success' : 'neutral'">
                 {{ follower.isActive ? $t('audience.followers.status.active') : $t('audience.followers.status.unfollowed') }}
@@ -135,7 +157,7 @@ function lastSyncLabel(): string {
             </td>
             <td class="py-2 text-fg-muted">
               {{ follower.isActive
-                ? formatDuration(Math.floor(Date.now() / 1000) - follower.followedAt)
+                ? formatDuration(followDuration(follower.followedAt))
                 : '—' }}
             </td>
           </tr>
