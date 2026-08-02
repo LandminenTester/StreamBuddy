@@ -61,6 +61,20 @@ export function deleteTracker(id: number): void {
   getDb()
     .prepare('UPDATE commands SET tracker_id = NULL, tracker_action = NULL WHERE tracker_id = ?')
     .run(id)
+  getDb()
+    .prepare(
+      `UPDATE commands
+       SET tracker_actions = COALESCE(
+         (
+           SELECT json_group_array(value)
+           FROM json_each(commands.tracker_actions)
+           WHERE json_extract(value, '$.trackerId') != @id
+         ),
+         '[]'
+       )
+       WHERE tracker_actions IS NOT NULL`
+    )
+    .run({ id })
   getDb().prepare('DELETE FROM command_trackers WHERE id = ?').run(id)
 }
 

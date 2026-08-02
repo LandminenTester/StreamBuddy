@@ -1,4 +1,5 @@
 import type { CommandDeliveryMode, PermissionLevel } from '@shared/types/command'
+import type { CommandTrackerAction } from '@shared/types/command'
 import type { TrackerAction } from '@shared/types/tracker'
 
 export interface CommandFormState {
@@ -12,6 +13,7 @@ export interface CommandFormState {
   enabled: boolean
   trackerId: number | null
   trackerAction: TrackerAction | null
+  trackerActions: CommandTrackerAction[]
 }
 
 export function emptyCommandForm(): CommandFormState {
@@ -25,6 +27,7 @@ export function emptyCommandForm(): CommandFormState {
     deliveryMode: 'public',
     enabled: true,
     trackerId: null,
-    trackerAction: null
+    trackerAction: null,
+    trackerActions: []
   }
 }

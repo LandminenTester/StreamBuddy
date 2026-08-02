@@ -49,13 +49,18 @@ function hasRequiredPermission(userLevel: PermissionLevel, required: PermissionL
  */
 function resolveResponse(
   response: string,
-  oldValue?: string,
-  newValue?: string
+  oldValues: Record<number, string> = {},
+  newValues: Record<number, string> = {}
 ): string {
   let result = response
 
-  if (oldValue !== undefined) result = result.replaceAll('{alter_wert}', oldValue)
-  if (newValue !== undefined) result = result.replaceAll('{neuer_wert}', newValue)
+  const firstOldValue = Object.values(oldValues)[0]
+  const firstNewValue = Object.values(newValues)[0]
+  if (firstOldValue !== undefined) result = result.replaceAll('{alter_wert}', firstOldValue)
+  if (firstNewValue !== undefined) result = result.replaceAll('{neuer_wert}', firstNewValue)
+
+  result = result.replace(/\{old:(\d+)\}/g, (_, rawId: string) => oldValues[Number(rawId)] ?? '')
+  result = result.replace(/\{new:(\d+)\}/g, (_, rawId: string) => newValues[Number(rawId)] ?? '')
 
   const trackers = listTrackers()
   result = result.replace(WERT_PLACEHOLDER_PATTERN, (_, rawKey: string) => {
@@ -135,17 +140,22 @@ export async function handleChatMessage(
   lastUsedAt.set(command.id, now)
 
   try {
-    let oldValue: string | undefined
-    let newValue: string | undefined
+    const oldValues: Record<number, string> = {}
+    const newValues: Record<number, string> = {}
+    const trackerActions = command.trackerActions.length
+      ? command.trackerActions
+      : command.trackerId && command.trackerAction
+        ? [{ trackerId: command.trackerId, action: command.trackerAction }]
+        : []
 
-    if (command.trackerId && command.trackerAction) {
-      oldValue = getTrackerCurrentValue(command.trackerId)
-      const delta = command.trackerAction === 'increment' ? 1 : -1
-      adjustTracker(command.trackerId, delta)
-      newValue = getTrackerCurrentValue(command.trackerId)
+    for (const trackerAction of trackerActions) {
+      oldValues[trackerAction.trackerId] = getTrackerCurrentValue(trackerAction.trackerId)
+      const delta = trackerAction.action === 'increment' ? 1 : -1
+      adjustTracker(trackerAction.trackerId, delta)
+      newValues[trackerAction.trackerId] = getTrackerCurrentValue(trackerAction.trackerId)
     }
 
-    const resolvedResponse = resolveResponse(command.response, oldValue, newValue)
+    const resolvedResponse = resolveResponse(command.response, oldValues, newValues)
     await sendCommandResponse(channel, tags.username ?? '', command, resolvedResponse)
     incrementCommandUseCount(command.id)
   } catch (error) {

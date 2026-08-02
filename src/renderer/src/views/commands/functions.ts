@@ -8,6 +8,7 @@ export async function submitCommandForm(
   store: CommandsStore,
   form: CommandFormState
 ): Promise<void> {
+  const firstAction = form.trackerActions[0] ?? null
   const input = {
     trigger: normalizeTrigger(form.trigger),
     response: form.response.trim(),
@@ -16,8 +17,9 @@ export async function submitCommandForm(
     cooldownSeconds: form.cooldownSeconds,
     deliveryMode: form.deliveryMode,
     enabled: form.enabled,
-    trackerId: form.trackerId,
-    trackerAction: form.trackerAction
+    trackerId: firstAction?.trackerId ?? null,
+    trackerAction: firstAction?.action ?? null,
+    trackerActions: form.trackerActions
   }
 
   if (form.id === null) {

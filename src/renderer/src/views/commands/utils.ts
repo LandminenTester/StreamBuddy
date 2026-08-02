@@ -33,7 +33,8 @@ export function commandToFormState(command: Command): CommandFormState {
     deliveryMode: command.deliveryMode,
     enabled: command.enabled,
     trackerId: command.trackerId,
-    trackerAction: command.trackerAction
+    trackerAction: command.trackerAction,
+    trackerActions: command.trackerActions
   }
 }
 
