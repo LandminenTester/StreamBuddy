@@ -13,6 +13,7 @@ import migration011 from './011_follower_tracking.sql?raw'
 import migration012 from './012_viewer_sessions.sql?raw'
 import migration013 from './013_mod_account.sql?raw'
 import migration014 from './014_command_trackers.sql?raw'
+import migration015 from './015_werte_type.sql?raw'
 import { logger } from '../../logger'
 
 /** Migrationen in Reihenfolge, Index+1 entspricht der Ziel-`user_version`. */
@@ -30,7 +31,8 @@ const MIGRATIONS: readonly string[] = [
   migration011,
   migration012,
   migration013,
-  migration014
+  migration014,
+  migration015
 ]
 
 /**
