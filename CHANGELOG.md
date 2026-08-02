@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.5.8](https://github.com/LandminenTester/StreamingBot/compare/v2.5.7...v2.5.8) (2026-08-02)
+
+
+### Bug Fixes
+
+* **loyalty:** surface csv import feedback ([36cfe8f](https://github.com/LandminenTester/StreamingBot/commit/36cfe8fed100bf13510ea91e827fbdce85f6e12b))
+
 ## [2.5.7](https://github.com/LandminenTester/StreamingBot/compare/v2.5.6...v2.5.7) (2026-08-02)
 
 
