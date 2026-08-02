@@ -6,6 +6,7 @@ import type {
   LoyaltyGameHistoryEntry,
   LoyaltyGameInfo,
   LoyaltyGameStats,
+  LoyaltyGreetingSettings,
   LoyaltyLeaderboardEntry
 } from '@shared/types/loyalty'
 import type { RouletteRoundResult } from '@shared/types/roulette'
@@ -22,6 +23,11 @@ export const useLoyaltyStore = defineStore('loyalty', () => {
   const gameStats = ref<LoyaltyGameStats | null>(null)
   const rouletteColors = ref<RouletteRoundResult[]>([])
   const offlineMessages = ref<string[]>([])
+  const greetingSettings = ref<LoyaltyGreetingSettings>({
+    greetNewViewers: false,
+    newViewerTexts: [],
+    personalGreetings: []
+  })
   const isEnabled = ref(true)
   const pointName = ref('')
 
@@ -149,6 +155,23 @@ export const useLoyaltyStore = defineStore('loyalty', () => {
     offlineMessages.value = await window.api.invoke('loyalty:setOfflineMessages', { messages })
   }
 
+  async function fetchGreetingSettings(): Promise<void> {
+    greetingSettings.value = await window.api.invoke('loyalty:getGreetingSettings', undefined)
+  }
+
+  async function setGreetingSettings(settings: LoyaltyGreetingSettings): Promise<void> {
+    greetingSettings.value = await window.api.invoke('loyalty:setGreetingSettings', {
+      greetNewViewers: Boolean(settings.greetNewViewers),
+      newViewerTexts: [...settings.newViewerTexts],
+      personalGreetings: settings.personalGreetings.map((rule) => ({
+        id: rule.id,
+        userLogin: rule.userLogin,
+        enabled: Boolean(rule.enabled),
+        texts: [...rule.texts]
+      }))
+    })
+  }
+
   async function fetchSettings(): Promise<void> {
     isEnabled.value = await window.api.invoke('loyalty:getEnabled', undefined)
     pointName.value = await window.api.invoke('loyalty:getPointName', undefined)
@@ -172,6 +195,7 @@ export const useLoyaltyStore = defineStore('loyalty', () => {
     gameStats,
     rouletteColors,
     offlineMessages,
+    greetingSettings,
     isEnabled,
     pointName,
     fetchLeaderboard,
@@ -195,6 +219,8 @@ export const useLoyaltyStore = defineStore('loyalty', () => {
     fetchRouletteColors,
     fetchOfflineMessages,
     setOfflineMessages,
+    fetchGreetingSettings,
+    setGreetingSettings,
     fetchSettings,
     setEnabled,
     savePointName

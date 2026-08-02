@@ -20,6 +20,7 @@ import { startViewerCountPoller, stopViewerCountPoller } from '../../stats/viewe
 import { startAdSchedulePoller, stopAdSchedulePoller } from '../ads/adSchedulePoller'
 import { connectModChatClient, disconnectModChatClient } from './modTmiClient'
 import { setBroadcasterClientRef } from './chatClientAccessor'
+import { clearGreetingSession } from '../../loyalty/greetings'
 import { getMainWindow } from '../../window'
 import { IpcChannels } from '@shared/ipc/channels'
 import { logger } from '../../logger'
@@ -118,6 +119,7 @@ export async function connectChatClient(options: { manual?: boolean } = {}): Pro
     stopRouletteScheduler()
     stopAdSchedulePoller()
     clearPresence()
+    clearGreetingSession()
   })
 
   client.on('message', (channel, tags, message, self) => {
@@ -162,5 +164,6 @@ export async function disconnectChatClient(): Promise<void> {
   stopRouletteScheduler()
   stopAdSchedulePoller()
   clearPresence()
+  clearGreetingSession()
   setStatus({ connected: false, channel: null, lastError: null })
 }

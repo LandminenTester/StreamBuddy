@@ -13,6 +13,7 @@ import { logger } from './logger'
 import { setPresenceCallbacks } from './twitch/chat/presenceTracker'
 import { onUserJoined, onUserLeft } from './twitch/viewers/viewerSessionTracker'
 import { startFollowerSyncScheduler } from './twitch/followers/followerSync'
+import { handleViewerGreeting } from './loyalty/greetings'
 
 app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.vinewoodlegacy.streambuddy')
@@ -28,7 +29,13 @@ app.whenReady().then(() => {
   registerIpcHandlers()
   createMainWindow()
 
-  setPresenceCallbacks({ onJoined: onUserJoined, onLeft: onUserLeft })
+  setPresenceCallbacks({
+    onJoined: (userLogin) => {
+      onUserJoined(userLogin)
+      void handleViewerGreeting(userLogin)
+    },
+    onLeft: onUserLeft
+  })
 
   void connectChatClient()
   void syncEventSubConnection()

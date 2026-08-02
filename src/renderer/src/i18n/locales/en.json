@@ -349,6 +349,7 @@
       "blacklist": "Blacklist",
       "earnRules": "Earn rules",
       "offlineMessages": "Offline messages",
+      "greetings": "Greetings",
       "settings": "Settings"
     },
     "settings": {
@@ -425,6 +426,23 @@
     "offlineMessages": {
       "title": "Offline messages",
       "description": "Sent at random when a loyalty game is used while the stream is offline."
+    },
+    "greetings": {
+      "title": "Greetings",
+      "description": "Automatically greet new viewers or fixed Twitch names in chat.",
+      "newViewers": "Greet new viewers",
+      "newViewersHint": "Sends a random message when a name appears in the viewer list for the first time.",
+      "texts": "Texts for new viewers",
+      "textPlaceholder": "Welcome to chat, {user}!",
+      "personalTitle": "Personal greetings",
+      "personalHint": "These rules take priority over the general new-viewer texts.",
+      "addPersonal": "Add person",
+      "personalEmpty": "No personal greetings yet.",
+      "userLogin": "Twitch name",
+      "userPlaceholder": "twitch_name",
+      "personalTexts": "Personal texts",
+      "personalTextPlaceholder": "Hey {user}, good to see you!",
+      "saved": "Greetings saved."
     },
     "editAccount": "Edit account"
   },
