@@ -168,13 +168,19 @@
       "whisperWarning": "Twitch schränkt Whispers für viele Bot-Accounts ein — unbedingt testen.",
       "enabled": "Aktiv"
     },
-    "trackers": {
-      "title": "Tracker",
-      "empty": "Noch keine Tracker angelegt.",
-      "placeholder": "Name des Trackers",
-      "formSection": "Tracker verknüpfen",
-      "selectLabel": "Tracker",
-      "actionLabel": "Aktion"
+    "werte": {
+      "title": "Werte",
+      "empty": "Noch keine Werte angelegt.",
+      "emptyTextValue": "(kein Wert)",
+      "placeholder": "Name des Werts",
+      "formSection": "Wert verknüpfen",
+      "selectLabel": "Wert",
+      "actionLabel": "Aktion",
+      "typeCounter": "Zähler",
+      "typeText": "Text",
+      "insertPlaceholder": "Wert einfügen",
+      "insertOldValue": "{alter_wert}",
+      "insertNewValue": "{neuer_wert}"
     }
   },
   "automessages": {

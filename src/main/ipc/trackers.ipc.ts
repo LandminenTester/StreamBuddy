@@ -20,4 +20,8 @@ export function registerTrackersIpc(): void {
   })
 
   handleTyped(IpcChannels.trackers.adjust, ({ id, delta }) => adjustTracker(id, delta))
+
+  handleTyped(IpcChannels.trackers.setTextValue, ({ id, value }) =>
+    updateTracker(id, { textValue: value })
+  )
 }

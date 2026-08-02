@@ -3,9 +3,9 @@ import { computed, onMounted, reactive } from 'vue'
 import AppButton from '@renderer/components/ui/AppButton.vue'
 import AppInput from '@renderer/components/ui/AppInput.vue'
 import AppSelect from '@renderer/components/ui/AppSelect.vue'
-import AppTextarea from '@renderer/components/ui/AppTextarea.vue'
 import AppToggle from '@renderer/components/ui/AppToggle.vue'
 import BaseModal from '@renderer/components/ui/BaseModal.vue'
+import ResponseTextEditor from './ResponseTextEditor.vue'
 import type { CommandFormState } from '@renderer/views/commands/types'
 import { deliveryModeOptions, permissionOptions } from '@renderer/views/commands/utils'
 import { useTrackersStore } from '@renderer/stores/trackers.store'
@@ -46,6 +46,11 @@ const selectedTrackerAction = computed({
     form.trackerAction = value === 'increment' || value === 'decrement' ? value : null
   }
 })
+
+const linkedTrackerType = computed(() => {
+  if (!form.trackerId) return null
+  return trackersStore.trackers.find((t) => t.id === form.trackerId)?.type ?? null
+})
 </script>
 
 <template>
@@ -62,11 +67,11 @@ const selectedTrackerAction = computed({
         required
       />
 
-      <AppTextarea
+      <ResponseTextEditor
         v-model="form.response"
         :label="$t('commands.form.response')"
-        :rows="3"
-        required
+        :trackers="trackersStore.trackers"
+        :linked-tracker-type="linkedTrackerType"
       />
 
       <AppInput
@@ -101,18 +106,18 @@ const selectedTrackerAction = computed({
 
       <div class="border-t border-line pt-4">
         <p class="mb-3 text-xs font-medium uppercase tracking-wide text-fg-muted">
-          {{ $t('commands.trackers.formSection') }}
+          {{ $t('commands.werte.formSection') }}
         </p>
         <div class="grid gap-4 sm:grid-cols-2">
           <AppSelect
             v-model="selectedTrackerId"
-            :label="$t('commands.trackers.selectLabel')"
+            :label="$t('commands.werte.selectLabel')"
             :options="trackerOptions"
           />
           <AppSelect
             v-if="form.trackerId !== null"
             v-model="selectedTrackerAction"
-            :label="$t('commands.trackers.actionLabel')"
+            :label="$t('commands.werte.actionLabel')"
             :options="trackerActionOptions"
           />
         </div>

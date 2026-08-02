@@ -2,7 +2,10 @@ import type { ChatUserstate } from 'tmi.js'
 import type { Command, PermissionLevel } from '@shared/types/command'
 import { incrementCommandUseCount, listCommands } from '../../db/repositories/commands.repo'
 import { getOrCreateAccount, setAccountBlacklisted } from '../../db/repositories/loyalty.repo'
-import { adjustTracker } from '../../db/repositories/trackers.repo'
+import {
+  adjustTracker,
+  getTrackerCurrentValue
+} from '../../db/repositories/trackers.repo'
 import { pickRandomMessage } from '../../db/repositories/botMessages.repo'
 import {
   getGameByTrigger,
@@ -32,6 +35,31 @@ function getUserPermissionLevel(tags: ChatUserstate): PermissionLevel {
 
 function hasRequiredPermission(userLevel: PermissionLevel, required: PermissionLevel): boolean {
   return PERMISSION_ORDER.indexOf(userLevel) >= PERMISSION_ORDER.indexOf(required)
+}
+
+/**
+ * Ersetzt {wert:ID}-Platzhalter sowie {alter_wert}/{neuer_wert} in einem Response-Text.
+ * Nicht gefundene Wert-IDs werden durch einen leeren String ersetzt.
+ */
+function resolveResponse(
+  response: string,
+  oldValue?: string,
+  newValue?: string
+): string {
+  let result = response
+
+  if (oldValue !== undefined) result = result.replaceAll('{alter_wert}', oldValue)
+  if (newValue !== undefined) result = result.replaceAll('{neuer_wert}', newValue)
+
+  result = result.replace(/\{wert:(\d+)\}/g, (_, rawId: string) => {
+    try {
+      return getTrackerCurrentValue(Number(rawId))
+    } catch {
+      return ''
+    }
+  })
+
+  return result
 }
 
 /**
@@ -103,12 +131,19 @@ export async function handleChatMessage(
   lastUsedAt.set(command.id, now)
 
   try {
-    await sendCommandResponse(channel, tags.username ?? '', command)
-    incrementCommandUseCount(command.id)
+    let oldValue: string | undefined
+    let newValue: string | undefined
+
     if (command.trackerId && command.trackerAction) {
+      oldValue = getTrackerCurrentValue(command.trackerId)
       const delta = command.trackerAction === 'increment' ? 1 : -1
       adjustTracker(command.trackerId, delta)
+      newValue = getTrackerCurrentValue(command.trackerId)
     }
+
+    const resolvedResponse = resolveResponse(command.response, oldValue, newValue)
+    await sendCommandResponse(channel, tags.username ?? '', command, resolvedResponse)
+    incrementCommandUseCount(command.id)
   } catch (error) {
     logger.error(`Konnte Command-Response für "${command.trigger}" nicht senden`, error)
   }
@@ -122,19 +157,20 @@ export async function handleChatMessage(
 async function sendCommandResponse(
   channel: string,
   userLogin: string,
-  command: Command
+  command: Command,
+  resolvedResponse: string
 ): Promise<void> {
   const sender = getActiveChatClient()
   if (!sender) return
 
   switch (command.deliveryMode) {
     case 'whisper':
-      await sender.whisper(userLogin, command.response)
+      await sender.whisper(userLogin, resolvedResponse)
       return
     case 'mention':
-      await sender.say(channel, `@${userLogin} ${command.response}`)
+      await sender.say(channel, `@${userLogin} ${resolvedResponse}`)
       return
     default:
-      await sender.say(channel, command.response)
+      await sender.say(channel, resolvedResponse)
   }
 }
