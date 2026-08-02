@@ -166,7 +166,8 @@
       "cooldown": "Cooldown (sec)",
       "delivery": "Delivery",
       "whisperWarning": "Twitch restricts whispers for many bot accounts — be sure to test.",
-      "enabled": "Enabled"
+      "enabled": "Enabled",
+      "responseTab": "Response"
     },
     "werte": {
       "title": "Values",
@@ -189,6 +190,10 @@
       "newValuePreview": "New value from the linked action",
       "beforeActionValue": "Before action",
       "afterActionValue": "After action",
+      "actionsTab": "Actions ({count})",
+      "actionsHint": "Actions run from top to bottom when the command is triggered.",
+      "actionsEmpty": "No actions linked yet.",
+      "addAction": "Add action",
       "actionPreview": "Action example: old value {oldValue}, new value {newValue}"
     }
   },

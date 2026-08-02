@@ -166,7 +166,8 @@
       "cooldown": "Cooldown (Sek.)",
       "delivery": "Zustellart",
       "whisperWarning": "Twitch schränkt Whispers für viele Bot-Accounts ein — unbedingt testen.",
-      "enabled": "Aktiv"
+      "enabled": "Aktiv",
+      "responseTab": "Antwort"
     },
     "werte": {
       "title": "Werte",
@@ -189,6 +190,10 @@
       "newValuePreview": "Neuer Wert aus der verknüpften Aktion",
       "beforeActionValue": "Vor Aktion",
       "afterActionValue": "Nach Aktion",
+      "actionsTab": "Aktionen ({count})",
+      "actionsHint": "Aktionen werden beim Auslösen des Commands von oben nach unten ausgeführt.",
+      "actionsEmpty": "Noch keine Aktionen verknüpft.",
+      "addAction": "Aktion hinzufügen",
       "actionPreview": "Aktionsbeispiel: alter Wert {oldValue}, neuer Wert {newValue}"
     }
   },

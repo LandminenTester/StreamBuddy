@@ -6,6 +6,12 @@ export type PermissionLevel = 'everyone' | 'subscriber' | 'moderator' | 'broadca
  * Whisper hängt von Twitch-seitigen Einschränkungen für den Bot-Account ab.
  */
 export type CommandDeliveryMode = 'public' | 'mention' | 'whisper'
+export type CommandTrackerActionType = 'increment' | 'decrement'
+
+export interface CommandTrackerAction {
+  trackerId: number
+  action: CommandTrackerActionType
+}
 
 export interface Command {
   id: number
@@ -20,7 +26,13 @@ export interface Command {
   createdAt: number
   updatedAt: number
   trackerId: number | null
-  trackerAction: 'increment' | 'decrement' | null
+  trackerAction: CommandTrackerActionType | null
+  trackerActions: CommandTrackerAction[]
 }
 
-export type CommandInput = Omit<Command, 'id' | 'useCount' | 'createdAt' | 'updatedAt'>
+export type CommandInput = Omit<
+  Command,
+  'id' | 'useCount' | 'createdAt' | 'updatedAt' | 'trackerActions'
+> & {
+  trackerActions?: CommandTrackerAction[]
+}

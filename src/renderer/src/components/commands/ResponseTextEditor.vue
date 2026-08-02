@@ -3,7 +3,8 @@ import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ChevronDown } from 'lucide-vue-next'
 import { controlClasses } from '@renderer/components/ui/controlClasses'
-import type { CommandTracker, TrackerAction } from '@shared/types/tracker'
+import type { CommandTracker } from '@shared/types/tracker'
+import type { CommandTrackerAction } from '@shared/types/command'
 import {
   findTrackerByPlaceholderKey,
   formatTrackerCurrentValue,
@@ -13,8 +14,7 @@ import {
 const props = defineProps<{
   modelValue: string
   trackers: CommandTracker[]
-  linkedTracker?: CommandTracker | null
-  linkedTrackerAction?: TrackerAction | null
+  trackerActions?: CommandTrackerAction[]
   label?: string
 }>()
 
@@ -26,24 +26,31 @@ const textareaRef = ref<HTMLTextAreaElement | null>(null)
 const cursorPos = ref(0)
 const dropdownOpen = ref(false)
 const dropdownRef = ref<HTMLDivElement | null>(null)
-const RESPONSE_PLACEHOLDER_PATTERN = /\{wert:([a-z0-9_-]+)\}|\{alter_wert\}|\{neuer_wert\}/gi
+const RESPONSE_PLACEHOLDER_PATTERN =
+  /\{wert:([a-z0-9_-]+)\}|\{old:(\d+)\}|\{new:(\d+)\}|\{alter_wert\}|\{neuer_wert\}/gi
 
 type PreviewPart =
   | { type: 'text'; text: string }
   | { type: 'token'; text: string; title: string; missing?: boolean }
 
-const linkedTrackerExample = computed(() => {
-  const tracker = props.linkedTracker
-  if (!tracker || tracker.type !== 'counter' || !props.linkedTrackerAction) return null
+const actionPreviews = computed(() => {
+  return (props.trackerActions ?? [])
+    .map((action) => {
+      const tracker = props.trackers.find((candidate) => candidate.id === action.trackerId)
+      if (!tracker || tracker.type !== 'counter') return null
 
-  const delta = props.linkedTrackerAction === 'increment' ? 1 : -1
-  return {
-    oldValue: String(tracker.value),
-    newValue: String(tracker.value + delta)
-  }
+      const delta = action.action === 'increment' ? 1 : -1
+      return {
+        tracker,
+        oldValue: String(tracker.value),
+        newValue: String(tracker.value + delta)
+      }
+    })
+    .filter((preview): preview is NonNullable<typeof preview> => preview !== null)
 })
 
-const canInsertActionValues = computed(() => linkedTrackerExample.value !== null)
+const legacyActionExample = computed(() => actionPreviews.value[0] ?? null)
+const canInsertActionValues = computed(() => actionPreviews.value.length > 0)
 
 const previewParts = computed<PreviewPart[]>(() => {
   const parts: PreviewPart[] = []
@@ -53,12 +60,14 @@ const previewParts = computed<PreviewPart[]>(() => {
     const start = match.index ?? 0
     const placeholder = match[0]
     const rawKey = match[1]
+    const oldTrackerId = match[2] ? Number(match[2]) : null
+    const newTrackerId = match[3] ? Number(match[3]) : null
 
     if (start > lastIndex) {
       parts.push({ type: 'text', text: props.modelValue.slice(lastIndex, start) })
     }
 
-    const actionExample = linkedTrackerExample.value
+    const actionExample = legacyActionExample.value
     if (placeholder === '{alter_wert}' && actionExample) {
       parts.push({
         type: 'token',
@@ -71,6 +80,38 @@ const previewParts = computed<PreviewPart[]>(() => {
         text: actionExample.newValue,
         title: t('commands.werte.newValuePreview')
       })
+    } else if (oldTrackerId !== null) {
+      const preview = actionPreviews.value.find((candidate) => candidate.tracker.id === oldTrackerId)
+      parts.push(
+        preview
+          ? {
+              type: 'token',
+              text: preview.oldValue,
+              title: `${preview.tracker.label} - {old:${preview.tracker.id}}`
+            }
+          : {
+              type: 'token',
+              text: placeholder,
+              title: t('commands.werte.previewMissing'),
+              missing: true
+            }
+      )
+    } else if (newTrackerId !== null) {
+      const preview = actionPreviews.value.find((candidate) => candidate.tracker.id === newTrackerId)
+      parts.push(
+        preview
+          ? {
+              type: 'token',
+              text: preview.newValue,
+              title: `${preview.tracker.label} - {new:${preview.tracker.id}}`
+            }
+          : {
+              type: 'token',
+              text: placeholder,
+              title: t('commands.werte.previewMissing'),
+              missing: true
+            }
+      )
     } else if (rawKey) {
       const tracker = findTrackerByPlaceholderKey(props.trackers, rawKey)
       if (!tracker) {
@@ -178,32 +219,42 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleClickOutsi
           </div>
           <template v-if="canInsertActionValues">
             <div class="border-b border-line py-1">
-              <button
-                type="button"
-                class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs text-fg hover:bg-surface-raised"
-                @click="insertPlaceholder('{alter_wert}')"
-              >
-                <span class="min-w-0 flex-1">
-                  <span class="block truncate">{{ t('commands.werte.beforeActionValue') }}</span>
-                  <span class="block truncate text-[11px] text-fg-muted">
-                    {{ t('commands.werte.oldValuePreview') }}
+              <template v-for="preview in actionPreviews" :key="preview.tracker.id">
+                <button
+                  type="button"
+                  class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs text-fg hover:bg-surface-raised"
+                  @click="insertPlaceholder('{old:' + preview.tracker.id + '}')"
+                >
+                  <span class="min-w-0 flex-1">
+                    <span class="block truncate">
+                      {{ t('commands.werte.beforeActionValue') }} - {{ preview.tracker.label }}
+                    </span>
+                    <span class="block truncate text-[11px] text-fg-muted">
+                      {{ t('commands.werte.oldValuePreview') }}
+                    </span>
                   </span>
-                </span>
-                <span class="shrink-0 font-mono text-fg-muted">{{ '{alter_wert}' }}</span>
-              </button>
-              <button
-                type="button"
-                class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs text-fg hover:bg-surface-raised"
-                @click="insertPlaceholder('{neuer_wert}')"
-              >
-                <span class="min-w-0 flex-1">
-                  <span class="block truncate">{{ t('commands.werte.afterActionValue') }}</span>
-                  <span class="block truncate text-[11px] text-fg-muted">
-                    {{ t('commands.werte.newValuePreview') }}
+                  <span class="shrink-0 font-mono text-fg-muted">
+                    {{ '{old:' + preview.tracker.id + '}' }}
                   </span>
-                </span>
-                <span class="shrink-0 font-mono text-fg-muted">{{ '{neuer_wert}' }}</span>
-              </button>
+                </button>
+                <button
+                  type="button"
+                  class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs text-fg hover:bg-surface-raised"
+                  @click="insertPlaceholder('{new:' + preview.tracker.id + '}')"
+                >
+                  <span class="min-w-0 flex-1">
+                    <span class="block truncate">
+                      {{ t('commands.werte.afterActionValue') }} - {{ preview.tracker.label }}
+                    </span>
+                    <span class="block truncate text-[11px] text-fg-muted">
+                      {{ t('commands.werte.newValuePreview') }}
+                    </span>
+                  </span>
+                  <span class="shrink-0 font-mono text-fg-muted">
+                    {{ '{new:' + preview.tracker.id + '}' }}
+                  </span>
+                </button>
+              </template>
             </div>
           </template>
           <button
@@ -247,8 +298,8 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleClickOutsi
           </span>
         </template>
       </p>
-      <p v-if="linkedTrackerExample" class="mt-1.5 text-[11px] text-fg-muted">
-        {{ $t('commands.werte.actionPreview', linkedTrackerExample) }}
+      <p v-if="legacyActionExample" class="mt-1.5 text-[11px] text-fg-muted">
+        {{ $t('commands.werte.actionPreview', legacyActionExample) }}
       </p>
     </div>
   </div>
