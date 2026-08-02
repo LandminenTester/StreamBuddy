@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.5.10](https://github.com/LandminenTester/StreamingBot/compare/v2.5.9...v2.5.10) (2026-08-02)
+
+
+### Features
+
+* **loyalty:** add viewer greetings ([8ac536f](https://github.com/LandminenTester/StreamingBot/commit/8ac536faa23fbddfe1cbe3c6a9eab69fe4c22b4f))
+* **loyalty:** improve leaderboard selection controls ([389e670](https://github.com/LandminenTester/StreamingBot/commit/389e670319cd0840e8072716b56283c69997a292))
+
 ## [2.5.9](https://github.com/LandminenTester/StreamingBot/compare/v2.5.8...v2.5.9) (2026-08-02)
 
 
