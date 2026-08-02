@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.6.2](https://github.com/LandminenTester/StreamingBot/compare/v2.6.1...v2.6.2) (2026-08-02)
+
+
+### Features
+
+* add settings backup and complete reset ([#49](https://github.com/LandminenTester/StreamingBot/issues/49)) ([a4109a8](https://github.com/LandminenTester/StreamingBot/commit/a4109a82f0b8a387ce8533f6995e47c2e86179c1))
+* **settings:** add backup and reset controls ([2ada1c0](https://github.com/LandminenTester/StreamingBot/commit/2ada1c0d43b58594025734820ab144ce1d6139bd))
+* **settings:** add safe configuration backup and reset ([e867643](https://github.com/LandminenTester/StreamingBot/commit/e867643fddb75edaf08b8c7fe1783e286a29b1d7))
+
 ## [2.6.1](https://github.com/LandminenTester/StreamingBot/compare/v2.6.0...v2.6.1) (2026-08-02)
 
 
