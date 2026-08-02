@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { MessageCircleMore, Trash2 } from 'lucide-vue-next'
 import AppButton from '@renderer/components/ui/AppButton.vue'
 import AppInput from '@renderer/components/ui/AppInput.vue'
@@ -8,14 +8,31 @@ import EmptyState from '@renderer/components/ui/EmptyState.vue'
 import PageSection from '@renderer/components/ui/PageSection.vue'
 import StringListInput from '@renderer/components/shared/StringListInput.vue'
 import { useLoyaltyStore } from '@renderer/stores/loyalty.store'
+import { useFollowersStore } from '@renderer/stores/followers.store'
 import type { LoyaltyGreetingSettings, LoyaltyPersonalGreeting } from '@shared/types/loyalty'
 
 const store = useLoyaltyStore()
+const followersStore = useFollowersStore()
 const savedMessage = ref<string | null>(null)
 const form = ref<LoyaltyGreetingSettings>({
   greetNewViewers: false,
   newViewerTexts: [''],
   personalGreetings: []
+})
+const followerNameOptions = computed(() => {
+  const seen = new Set<string>()
+  return followersStore.followers
+    .filter((follower) => {
+      const login = follower.userLogin.trim().toLowerCase()
+      if (!login || seen.has(login)) return false
+      seen.add(login)
+      return true
+    })
+    .sort((left, right) => left.userLogin.localeCompare(right.userLogin))
+})
+
+onMounted(() => {
+  void Promise.all([store.fetchGreetingSettings(), followersStore.fetchAll()])
 })
 
 function cloneSettings(settings: LoyaltyGreetingSettings): LoyaltyGreetingSettings {
@@ -118,6 +135,7 @@ async function save(): Promise<void> {
                 v-model="rule.userLogin"
                 :label="$t('loyalty.greetings.userLogin')"
                 :placeholder="$t('loyalty.greetings.userPlaceholder')"
+                list="greeting-follower-names"
               />
             </div>
             <div class="flex items-center gap-2 pt-6">
@@ -137,6 +155,9 @@ async function save(): Promise<void> {
             <p class="mb-2 text-xs font-medium uppercase text-fg-subtle">
               {{ $t('loyalty.greetings.personalTexts') }}
             </p>
+            <p class="mb-2 text-xs text-fg-muted">
+              {{ $t('loyalty.greetings.personalTextsHint') }}
+            </p>
             <StringListInput
               v-model="rule.texts"
               :placeholder="$t('loyalty.greetings.personalTextPlaceholder')"
@@ -144,6 +165,16 @@ async function save(): Promise<void> {
           </div>
         </li>
       </ul>
+
+      <datalist id="greeting-follower-names">
+        <option
+          v-for="follower in followerNameOptions"
+          :key="follower.userId"
+          :value="follower.userLogin"
+        >
+          {{ follower.displayName ?? follower.userLogin }}
+        </option>
+      </datalist>
 
       <div class="flex items-center justify-end gap-3 border-t border-line pt-4">
         <span v-if="savedMessage" class="text-xs text-fg-muted">

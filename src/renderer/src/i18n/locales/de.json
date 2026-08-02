@@ -29,6 +29,7 @@
     "polls": "Umfragen",
     "channelPoints": "Kanalpunkte",
     "loyalty": "Loyalty",
+    "greetings": "Begrüßung",
     "games": "Games",
     "audience": "Zuschauer",
     "settings": "Einstellungen",
@@ -349,7 +350,6 @@
       "blacklist": "Blacklist",
       "earnRules": "Earn-Rules",
       "offlineMessages": "Offline-Meldungen",
-      "greetings": "Greetings",
       "settings": "Einstellungen"
     },
     "settings": {
@@ -428,7 +428,7 @@
       "description": "Wird zufällig gesendet, wenn ein Loyalty-Game genutzt wird, während der Stream offline ist."
     },
     "greetings": {
-      "title": "Greetings",
+      "title": "Begrüßung",
       "description": "Begrüße neue Viewer oder feste Twitch-Namen automatisch im Chat.",
       "newViewers": "Neue Viewer begrüßen",
       "newViewersHint": "Sendet eine zufällige Nachricht, wenn ein Name erstmals in der Viewer-Liste auftaucht.",
@@ -441,8 +441,9 @@
       "userLogin": "Twitch-Name",
       "userPlaceholder": "twitch_name",
       "personalTexts": "Persönliche Texte",
+      "personalTextsHint": "Mehrere Varianten sind möglich. Beim Begrüßen wird zufällig ein Text ausgewählt.",
       "personalTextPlaceholder": "Hey {user}, schön dich zu sehen!",
-      "saved": "Greetings gespeichert."
+      "saved": "Begrüßung gespeichert."
     },
     "editAccount": "Konto bearbeiten"
   },

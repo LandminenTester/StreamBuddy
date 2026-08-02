@@ -85,14 +85,13 @@ export const router = createRouter({
             import('@renderer/views/loyalty/offlineMessages/OfflineMessagesView.vue')
         },
         {
-          path: 'greetings',
-          name: 'loyalty-greetings',
-          component: () => import('@renderer/views/loyalty/greetings/GreetingsView.vue')
-        },
-        {
           path: 'settings',
           name: 'loyalty-settings',
           component: () => import('@renderer/views/loyalty/LoyaltySettingsView.vue')
+        },
+        {
+          path: 'greetings',
+          redirect: { name: 'greetings' }
         }
       ]
     },
@@ -100,6 +99,11 @@ export const router = createRouter({
       path: '/games',
       name: 'games',
       component: () => import('@renderer/views/games/GamesView.vue')
+    },
+    {
+      path: '/greetings',
+      name: 'greetings',
+      component: () => import('@renderer/views/loyalty/greetings/GreetingsView.vue')
     },
     {
       path: '/games/:gameId',
