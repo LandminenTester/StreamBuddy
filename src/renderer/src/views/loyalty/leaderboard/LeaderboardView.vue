@@ -3,7 +3,9 @@ import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Trophy } from 'lucide-vue-next'
 import AppButton from '@renderer/components/ui/AppButton.vue'
+import AppCheckbox from '@renderer/components/ui/AppCheckbox.vue'
 import AppInput from '@renderer/components/ui/AppInput.vue'
+import ConfirmModal from '@renderer/components/ui/ConfirmModal.vue'
 import EmptyState from '@renderer/components/ui/EmptyState.vue'
 import PageSection from '@renderer/components/ui/PageSection.vue'
 import AccountEditModal from '@renderer/components/loyalty/AccountEditModal.vue'
@@ -21,6 +23,7 @@ const pointsAmount = ref(100)
 const searchQuery = ref('')
 const isEditModalOpen = ref(false)
 const isCsvImportModalOpen = ref(false)
+const pendingAllAction = ref<'give' | 'remove' | null>(null)
 const activeEditForm = ref<AccountEditFormState>({ userLogin: '', balance: 0 })
 const resultMessage = ref<string | null>(null)
 
@@ -30,6 +33,14 @@ const filtered = computed(() => {
   return store.leaderboard.filter((entry) => entry.userLogin.toLowerCase().includes(query))
 })
 
+const visibleSelectedCount = computed(
+  () => filtered.value.filter((entry) => selectedLogins.value.has(entry.userLogin)).length
+)
+
+const allVisibleSelected = computed(
+  () => filtered.value.length > 0 && visibleSelectedCount.value === filtered.value.length
+)
+
 function toggleSelection(userLogin: string, checked: boolean): void {
   if (checked) selectedLogins.value.add(userLogin)
   else selectedLogins.value.delete(userLogin)
@@ -37,10 +48,29 @@ function toggleSelection(userLogin: string, checked: boolean): void {
   selectedLogins.value = new Set(selectedLogins.value)
 }
 
+function selectVisible(): void {
+  selectedLogins.value = new Set([...selectedLogins.value, ...filtered.value.map((e) => e.userLogin)])
+}
+
+function clearSelection(): void {
+  selectedLogins.value = new Set()
+}
+
 async function applyToSelection(direction: 'give' | 'remove'): Promise<void> {
   if (selectedLogins.value.size === 0) return
   await applyPointsToSelection(store, [...selectedLogins.value], pointsAmount.value, direction)
   selectedLogins.value = new Set()
+}
+
+function requestApplyToAll(direction: 'give' | 'remove'): void {
+  pendingAllAction.value = direction
+}
+
+async function confirmApplyToAll(): Promise<void> {
+  if (!pendingAllAction.value) return
+  const direction = pendingAllAction.value
+  pendingAllAction.value = null
+  await applyPointsToAll(store, pointsAmount.value, direction)
 }
 
 function openEditModal(userLogin: string, balance: number): void {
@@ -111,28 +141,52 @@ function formatBalance(balance: number): string {
       </div>
     </div>
 
+    <div
+      v-if="filtered.length > 0"
+      class="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-md border border-line bg-surface-subtle px-3 py-2"
+    >
+      <div class="flex flex-wrap items-center gap-2 text-xs text-fg-muted">
+        <AppCheckbox
+          :checked="allVisibleSelected"
+          :label="$t('loyalty.leaderboard.selectAll')"
+          @change="(checked) => (checked ? selectVisible() : clearSelection())"
+        />
+        <span class="h-4 w-px bg-line" aria-hidden="true" />
+        <AppButton size="sm" variant="ghost" :disabled="selectedLogins.size === 0" @click="clearSelection">
+          {{ $t('loyalty.leaderboard.clearSelection') }}
+        </AppButton>
+        <span>
+          {{ $t('loyalty.leaderboard.selectedCount', { count: selectedLogins.size }) }}
+        </span>
+      </div>
+      <div class="flex flex-wrap items-center gap-2">
+        <AppButton
+          size="sm"
+          variant="primary"
+          :disabled="selectedLogins.size === 0"
+          @click="applyToSelection('give')"
+        >
+          {{ $t('loyalty.leaderboard.giveSelected') }}
+        </AppButton>
+        <AppButton
+          size="sm"
+          variant="danger"
+          :disabled="selectedLogins.size === 0"
+          @click="applyToSelection('remove')"
+        >
+          {{ $t('loyalty.leaderboard.removeSelected') }}
+        </AppButton>
+      </div>
+    </div>
+
     <div class="mt-3 flex flex-wrap items-center gap-2">
       <AppButton
         size="sm"
-        variant="primary"
-        :disabled="selectedLogins.size === 0"
-        @click="applyToSelection('give')"
+        @click="requestApplyToAll('give')"
       >
-        {{ $t('loyalty.leaderboard.giveSelected') }}
-      </AppButton>
-      <AppButton
-        size="sm"
-        variant="danger"
-        :disabled="selectedLogins.size === 0"
-        @click="applyToSelection('remove')"
-      >
-        {{ $t('loyalty.leaderboard.removeSelected') }}
-      </AppButton>
-      <span class="mx-1 h-4 w-px bg-line" aria-hidden="true" />
-      <AppButton size="sm" @click="applyPointsToAll(store, pointsAmount, 'give')">
         {{ $t('loyalty.leaderboard.giveAll') }}
       </AppButton>
-      <AppButton size="sm" @click="applyPointsToAll(store, pointsAmount, 'remove')">
+      <AppButton size="sm" variant="danger" @click="requestApplyToAll('remove')">
         {{ $t('loyalty.leaderboard.removeAll') }}
       </AppButton>
     </div>
@@ -158,18 +212,14 @@ function formatBalance(balance: number): string {
         :key="entry.userLogin"
         class="flex items-center justify-between gap-4 py-2 text-sm"
       >
-        <label class="flex min-w-0 items-center gap-3">
-          <input
-            type="checkbox"
-            class="h-4 w-4 shrink-0 accent-accent"
+        <div class="flex min-w-0 items-center gap-3">
+          <AppCheckbox
             :checked="selectedLogins.has(entry.userLogin)"
-            @change="
-              toggleSelection(entry.userLogin, ($event.target as HTMLInputElement).checked)
-            "
+            @change="(checked) => toggleSelection(entry.userLogin, checked)"
           />
           <span class="w-8 shrink-0 text-right tabular-nums text-fg-subtle">#{{ entry.rank }}</span>
           <span class="truncate text-fg">{{ entry.userLogin }}</span>
-        </label>
+        </div>
         <span class="flex shrink-0 items-center gap-2">
           <span class="font-medium tabular-nums text-fg">{{ formatBalance(entry.balance) }}</span>
           <AppButton
@@ -197,6 +247,24 @@ function formatBalance(balance: number): string {
       v-if="isCsvImportModalOpen"
       @close="isCsvImportModalOpen = false"
       @imported="handleCsvImported"
+    />
+
+    <ConfirmModal
+      v-if="pendingAllAction"
+      :title="$t('loyalty.leaderboard.confirmAllTitle')"
+      :message="
+        pendingAllAction === 'give'
+          ? $t('loyalty.leaderboard.confirmGiveAll', { amount: pointsAmount })
+          : $t('loyalty.leaderboard.confirmRemoveAll', { amount: pointsAmount })
+      "
+      :confirm-label="
+        pendingAllAction === 'give'
+          ? $t('loyalty.leaderboard.giveAll')
+          : $t('loyalty.leaderboard.removeAll')
+      "
+      :variant="pendingAllAction === 'remove' ? 'danger' : 'primary'"
+      @close="pendingAllAction = null"
+      @confirm="confirmApplyToAll"
     />
   </PageSection>
 </template>
