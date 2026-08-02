@@ -187,6 +187,8 @@
       "previewMissing": "Dieser Wert wurde nicht gefunden.",
       "oldValuePreview": "Alter Wert aus der verknüpften Aktion",
       "newValuePreview": "Neuer Wert aus der verknüpften Aktion",
+      "beforeActionValue": "Vor Aktion",
+      "afterActionValue": "Nach Aktion",
       "actionPreview": "Aktionsbeispiel: alter Wert {oldValue}, neuer Wert {newValue}"
     }
   },

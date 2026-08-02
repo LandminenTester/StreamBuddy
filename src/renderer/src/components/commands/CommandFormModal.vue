@@ -70,72 +70,82 @@ watch(linkedTrackerType, (type) => {
 <template>
   <BaseModal
     :title="form.id === null ? $t('commands.new') : $t('commands.edit')"
+    max-width="max-w-4xl"
     @close="emit('close')"
   >
-    <div class="space-y-5">
-      <AppInput
-        v-model="form.trigger"
-        :label="$t('commands.form.trigger')"
-        :hint="$t('commands.form.triggerHint')"
-        placeholder="!uptime"
-        required
-      />
+    <div class="grid gap-6 lg:grid-cols-[minmax(0,1.45fr)_minmax(18rem,0.8fr)]">
+      <div class="space-y-4">
+        <div class="grid gap-4 sm:grid-cols-[minmax(10rem,0.7fr)_minmax(0,1fr)]">
+          <AppInput
+            v-model="form.trigger"
+            :label="$t('commands.form.trigger')"
+            :hint="$t('commands.form.triggerHint')"
+            placeholder="!uptime"
+            required
+          />
 
-      <ResponseTextEditor
-        v-model="form.response"
-        :label="$t('commands.form.response')"
-        :trackers="trackersStore.trackers"
-        :linked-tracker-type="linkedTrackerType"
-        :linked-tracker="linkedTracker"
-        :linked-tracker-action="form.trackerAction"
-      />
+          <AppInput
+            v-model="form.aliasesInput"
+            :label="$t('commands.form.aliases')"
+            :hint="$t('commands.form.aliasesHint')"
+            placeholder="!time, !howlong"
+          />
+        </div>
 
-      <AppInput
-        v-model="form.aliasesInput"
-        :label="$t('commands.form.aliases')"
-        :hint="$t('commands.form.aliasesHint')"
-        placeholder="!time, !howlong"
-      />
-
-      <div class="grid gap-5 sm:grid-cols-2">
-        <AppSelect
-          v-model="form.permissionLevel"
-          :label="$t('commands.form.permission')"
-          :options="permissionOptions()"
-        />
-        <AppInput
-          v-model="form.cooldownSeconds"
-          type="number"
-          :min="0"
-          :label="$t('commands.form.cooldown')"
+        <ResponseTextEditor
+          v-model="form.response"
+          :label="$t('commands.form.response')"
+          :trackers="trackersStore.trackers"
+          :linked-tracker="linkedTracker"
+          :linked-tracker-action="form.trackerAction"
         />
       </div>
 
-      <AppSelect
-        v-model="form.deliveryMode"
-        :label="$t('commands.form.delivery')"
-        :options="deliveryModeOptions()"
-        :hint="form.deliveryMode === 'whisper' ? $t('commands.form.whisperWarning') : undefined"
-      />
-
-      <AppToggle v-model="form.enabled" :label="$t('commands.form.enabled')" />
-
-      <div class="border-t border-line pt-4">
-        <p class="mb-3 text-xs font-medium uppercase tracking-wide text-fg-muted">
-          {{ $t('commands.werte.formSection') }}
-        </p>
-        <div class="grid gap-4 sm:grid-cols-2">
+      <div class="space-y-4 lg:border-l lg:border-line lg:pl-6">
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
           <AppSelect
-            v-model="selectedTrackerId"
-            :label="$t('commands.werte.selectLabel')"
-            :options="trackerOptions"
+            v-model="form.deliveryMode"
+            :label="$t('commands.form.delivery')"
+            :options="deliveryModeOptions()"
+            :hint="form.deliveryMode === 'whisper' ? $t('commands.form.whisperWarning') : undefined"
           />
+
+          <AppInput
+            v-model="form.cooldownSeconds"
+            type="number"
+            :min="0"
+            :label="$t('commands.form.cooldown')"
+          />
+        </div>
+
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
           <AppSelect
-            v-if="linkedTrackerType === 'counter'"
-            v-model="selectedTrackerAction"
-            :label="$t('commands.werte.actionLabel')"
-            :options="trackerActionOptions"
+            v-model="form.permissionLevel"
+            :label="$t('commands.form.permission')"
+            :options="permissionOptions()"
           />
+          <div class="rounded border border-line px-3 py-2.5">
+            <AppToggle v-model="form.enabled" :label="$t('commands.form.enabled')" />
+          </div>
+        </div>
+
+        <div class="border-t border-line pt-4">
+          <p class="mb-3 text-xs font-medium uppercase tracking-wide text-fg-muted">
+            {{ $t('commands.werte.formSection') }}
+          </p>
+          <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
+            <AppSelect
+              v-model="selectedTrackerId"
+              :label="$t('commands.werte.selectLabel')"
+              :options="trackerOptions"
+            />
+            <AppSelect
+              v-if="linkedTrackerType === 'counter'"
+              v-model="selectedTrackerAction"
+              :label="$t('commands.werte.actionLabel')"
+              :options="trackerActionOptions"
+            />
+          </div>
         </div>
       </div>
     </div>
