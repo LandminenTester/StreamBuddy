@@ -15,7 +15,7 @@ import { useTrackersStore } from '@renderer/stores/trackers.store'
 import type { SelectOption } from '@renderer/components/ui/AppSelect.vue'
 import type { CommandTrackerAction, CommandTrackerActionType } from '@shared/types/command'
 
-const props = defineProps<{ initial: CommandFormState }>()
+const props = defineProps<{ initial: CommandFormState; error?: string | null; saving?: boolean }>()
 const emit = defineEmits<{ close: []; submit: [form: CommandFormState] }>()
 const { t } = useI18n()
 
@@ -207,8 +207,11 @@ function removeTrackerAction(index: number): void {
     </div>
 
     <template #footer>
+      <p v-if="error" class="mr-auto max-w-md text-left text-xs text-danger" role="alert">
+        {{ error }}
+      </p>
       <AppButton variant="ghost" @click="emit('close')">{{ $t('common.cancel') }}</AppButton>
-      <AppButton variant="primary" @click="emit('submit', { ...form })">
+      <AppButton variant="primary" :loading="saving" @click="emit('submit', { ...form })">
         {{ $t('common.save') }}
       </AppButton>
     </template>
