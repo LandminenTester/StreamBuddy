@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.5.1](https://github.com/LandminenTester/StreamingBot/compare/v2.5.0...v2.5.1) (2026-08-02)
+
+
+### Bug Fixes
+
+* fix migration db ([#37](https://github.com/LandminenTester/StreamingBot/issues/37)) ([b7eafa4](https://github.com/LandminenTester/StreamingBot/commit/b7eafa42ed972919f47f6ccbadef0430751cf906))
+
 ## [2.5.0](https://github.com/LandminenTester/StreamingBot/compare/v2.4.0...v2.5.0) (2026-08-02)
 
 
