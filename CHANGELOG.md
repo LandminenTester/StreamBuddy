@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.6.1](https://github.com/LandminenTester/StreamingBot/compare/v2.6.0...v2.6.1) (2026-08-02)
+
+
+### Features
+
+* update favicon icon ([#48](https://github.com/LandminenTester/StreamingBot/issues/48)) ([3dbf8e9](https://github.com/LandminenTester/StreamingBot/commit/3dbf8e99b4a35a9e9a98e8f6b59256db3992b963))
+
 ## [2.6.0](https://github.com/LandminenTester/StreamingBot/compare/v2.5.11...v2.6.0) (2026-08-02)
 
 ## [2.5.11](https://github.com/LandminenTester/StreamingBot/compare/v2.5.10...v2.5.11) (2026-08-02)
