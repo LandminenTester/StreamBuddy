@@ -380,7 +380,8 @@
         "emptyPreview": "Choose a CSV file to see the preview.",
         "mappedPreview": "Mapped preview",
         "duplicateMapping": "User and balance must use different columns.",
-        "import": "Import"
+        "import": "Import",
+        "importFailed": "Import could not be completed."
       },
       "searchPlaceholder": "Search users…",
       "points": "Points",

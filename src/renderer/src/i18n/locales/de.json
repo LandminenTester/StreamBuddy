@@ -380,7 +380,8 @@
         "emptyPreview": "Wähle eine CSV-Datei aus, um die Vorschau zu sehen.",
         "mappedPreview": "Gemappte Vorschau",
         "duplicateMapping": "Nutzer und Kontostand müssen unterschiedliche Spalten verwenden.",
-        "import": "Importieren"
+        "import": "Importieren",
+        "importFailed": "Import konnte nicht abgeschlossen werden."
       },
       "searchPlaceholder": "Nutzer suchen…",
       "points": "Punkte",
