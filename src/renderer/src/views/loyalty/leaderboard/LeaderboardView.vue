@@ -7,6 +7,7 @@ import AppInput from '@renderer/components/ui/AppInput.vue'
 import EmptyState from '@renderer/components/ui/EmptyState.vue'
 import PageSection from '@renderer/components/ui/PageSection.vue'
 import AccountEditModal from '@renderer/components/loyalty/AccountEditModal.vue'
+import CsvImportModal from '@renderer/components/loyalty/CsvImportModal.vue'
 import { useLoyaltyStore } from '@renderer/stores/loyalty.store'
 import { activeLocaleTag } from '@renderer/i18n'
 import type { AccountEditFormState } from '../types'
@@ -19,6 +20,7 @@ const selectedLogins = ref<Set<string>>(new Set())
 const pointsAmount = ref(100)
 const searchQuery = ref('')
 const isEditModalOpen = ref(false)
+const isCsvImportModalOpen = ref(false)
 const activeEditForm = ref<AccountEditFormState>({ userLogin: '', balance: 0 })
 const resultMessage = ref<string | null>(null)
 
@@ -51,10 +53,13 @@ async function handleEditSubmit(form: AccountEditFormState): Promise<void> {
   isEditModalOpen.value = false
 }
 
-async function importCsv(): Promise<void> {
+function openImportCsv(): void {
   resultMessage.value = null
-  const result = await store.importCsv()
-  if (!result) return
+  isCsvImportModalOpen.value = true
+}
+
+function handleCsvImported(result: { importedCount: number; errors: string[] }): void {
+  isCsvImportModalOpen.value = false
   resultMessage.value =
     result.errors.length === 0
       ? t('loyalty.leaderboard.imported', { count: result.importedCount })
@@ -85,7 +90,7 @@ function formatBalance(balance: number): string {
 <template>
   <PageSection :title="$t('loyalty.leaderboard.title')" :divided="false">
     <template #actions>
-      <AppButton size="sm" @click="importCsv">{{ $t('loyalty.leaderboard.importCsv') }}</AppButton>
+      <AppButton size="sm" @click="openImportCsv">{{ $t('loyalty.leaderboard.importCsv') }}</AppButton>
       <AppButton size="sm" @click="exportCsv">{{ $t('loyalty.leaderboard.exportCsv') }}</AppButton>
     </template>
 
@@ -186,6 +191,12 @@ function formatBalance(balance: number): string {
       :initial="activeEditForm"
       @close="isEditModalOpen = false"
       @submit="handleEditSubmit"
+    />
+
+    <CsvImportModal
+      v-if="isCsvImportModalOpen"
+      @close="isCsvImportModalOpen = false"
+      @imported="handleCsvImported"
     />
   </PageSection>
 </template>

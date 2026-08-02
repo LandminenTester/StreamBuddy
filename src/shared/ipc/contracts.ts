@@ -46,6 +46,7 @@ import type {
 } from '../types/followers'
 import type { StreamSummary, StreamStats, ViewerSession } from '../types/viewers'
 import type { CommandTracker, TrackerInput } from '../types/tracker'
+import type { CsvDelimiter, LoyaltyCsvMapping } from '../utils/loyaltyCsv'
 
 /**
  * Request/Response-Typen pro IPC-Channel. Single-Source-of-Truth für Main- und
@@ -175,8 +176,12 @@ export interface IpcContracts {
     request: { userLogin: string; balance: number }
     response: LoyaltyLeaderboardEntry[]
   }
-  [IpcChannels.loyalty.importCsv]: {
+  [IpcChannels.loyalty.selectImportCsv]: {
     request: void
+    response: { fileName: string; content: string } | null
+  }
+  [IpcChannels.loyalty.importCsv]: {
+    request: { content: string; delimiter: CsvDelimiter; mapping: LoyaltyCsvMapping }
     response: { importedCount: number; errors: string[] } | null
   }
   [IpcChannels.loyalty.exportCsv]: { request: void; response: { exportedCount: number } | null }
