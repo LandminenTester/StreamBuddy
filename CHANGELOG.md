@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.5.2](https://github.com/LandminenTester/StreamingBot/compare/v2.5.1...v2.5.2) (2026-08-02)
+
+
+### Bug Fixes
+
+* add migration to index.ts ([#38](https://github.com/LandminenTester/StreamingBot/issues/38)) ([8417bbd](https://github.com/LandminenTester/StreamingBot/commit/8417bbddad5d8782230c71c1c8096ea912bcb9de))
+
 ## [2.5.1](https://github.com/LandminenTester/StreamingBot/compare/v2.5.0...v2.5.1) (2026-08-02)
 
 
