@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { computed, onMounted, reactive } from 'vue'
 import AppButton from '@renderer/components/ui/AppButton.vue'
 import AppInput from '@renderer/components/ui/AppInput.vue'
 import AppSelect from '@renderer/components/ui/AppSelect.vue'
@@ -8,11 +8,44 @@ import AppToggle from '@renderer/components/ui/AppToggle.vue'
 import BaseModal from '@renderer/components/ui/BaseModal.vue'
 import type { CommandFormState } from '@renderer/views/commands/types'
 import { deliveryModeOptions, permissionOptions } from '@renderer/views/commands/utils'
+import { useTrackersStore } from '@renderer/stores/trackers.store'
+import type { SelectOption } from '@renderer/components/ui/AppSelect.vue'
 
 const props = defineProps<{ initial: CommandFormState }>()
 const emit = defineEmits<{ close: []; submit: [form: CommandFormState] }>()
 
 const form = reactive<CommandFormState>({ ...props.initial })
+const trackersStore = useTrackersStore()
+
+onMounted(() => {
+  if (trackersStore.trackers.length === 0) void trackersStore.fetchTrackers()
+})
+
+const trackerOptions = computed<SelectOption[]>(() => [
+  { value: '', label: '—' },
+  ...trackersStore.trackers.map((t) => ({ value: String(t.id), label: t.label }))
+])
+
+const selectedTrackerId = computed({
+  get: () => (form.trackerId === null ? '' : String(form.trackerId)),
+  set: (value: string) => {
+    form.trackerId = value ? Number(value) : null
+    if (!value) form.trackerAction = null
+    else if (!form.trackerAction) form.trackerAction = 'increment'
+  }
+})
+
+const trackerActionOptions = computed<SelectOption[]>(() => [
+  { value: 'increment', label: '+1 (Inkrementieren)' },
+  { value: 'decrement', label: '−1 (Dekrementieren)' }
+])
+
+const selectedTrackerAction = computed({
+  get: () => form.trackerAction ?? 'increment',
+  set: (value: string) => {
+    form.trackerAction = value === 'increment' || value === 'decrement' ? value : null
+  }
+})
 </script>
 
 <template>
@@ -65,6 +98,25 @@ const form = reactive<CommandFormState>({ ...props.initial })
       />
 
       <AppToggle v-model="form.enabled" :label="$t('commands.form.enabled')" />
+
+      <div class="border-t border-line pt-4">
+        <p class="mb-3 text-xs font-medium uppercase tracking-wide text-fg-muted">
+          {{ $t('commands.trackers.formSection') }}
+        </p>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <AppSelect
+            v-model="selectedTrackerId"
+            :label="$t('commands.trackers.selectLabel')"
+            :options="trackerOptions"
+          />
+          <AppSelect
+            v-if="form.trackerId !== null"
+            v-model="selectedTrackerAction"
+            :label="$t('commands.trackers.actionLabel')"
+            :options="trackerActionOptions"
+          />
+        </div>
+      </div>
     </div>
 
     <template #footer>

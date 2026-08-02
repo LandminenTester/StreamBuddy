@@ -45,6 +45,7 @@ import type {
   SyncStatus
 } from '../types/followers'
 import type { StreamSummary, StreamStats, ViewerSession } from '../types/viewers'
+import type { CommandTracker, TrackerInput } from '../types/tracker'
 
 /**
  * Request/Response-Typen pro IPC-Channel. Single-Source-of-Truth für Main- und
@@ -210,6 +211,19 @@ export interface IpcContracts {
   }
   [IpcChannels.loyalty.getOfflineMessages]: { request: void; response: string[] }
   [IpcChannels.loyalty.setOfflineMessages]: { request: { messages: string[] }; response: string[] }
+  [IpcChannels.loyalty.getEnabled]: { request: void; response: boolean }
+  [IpcChannels.loyalty.setEnabled]: { request: { enabled: boolean }; response: boolean }
+  [IpcChannels.loyalty.getPointName]: { request: void; response: string }
+  [IpcChannels.loyalty.setPointName]: { request: { name: string }; response: string }
+
+  [IpcChannels.trackers.list]: { request: void; response: CommandTracker[] }
+  [IpcChannels.trackers.create]: { request: TrackerInput; response: CommandTracker }
+  [IpcChannels.trackers.update]: {
+    request: { id: number; patch: Partial<TrackerInput> }
+    response: CommandTracker
+  }
+  [IpcChannels.trackers.delete]: { request: { id: number }; response: void }
+  [IpcChannels.trackers.adjust]: { request: { id: number; delta: number }; response: CommandTracker }
 
   [IpcChannels.stats.getMessagesPerHour]: {
     request: { sinceMs: number }

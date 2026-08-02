@@ -167,6 +167,14 @@
       "delivery": "Zustellart",
       "whisperWarning": "Twitch schränkt Whispers für viele Bot-Accounts ein — unbedingt testen.",
       "enabled": "Aktiv"
+    },
+    "trackers": {
+      "title": "Tracker",
+      "empty": "Noch keine Tracker angelegt.",
+      "placeholder": "Name des Trackers",
+      "formSection": "Tracker verknüpfen",
+      "selectLabel": "Tracker",
+      "actionLabel": "Aktion"
     }
   },
   "automessages": {
@@ -265,7 +273,17 @@
     "actionType": {
       "none": "Keine Aktion",
       "chat_message": "Chat-Nachricht senden",
-      "trigger_command": "Command auslösen"
+      "trigger_command": "Command auslösen",
+      "loyalty_exchange": "Loyalty-Punkte vergeben"
+    },
+    "loyaltyExchange": {
+      "mode": "Modus",
+      "modeRate": "Rate (CP → Punkte)",
+      "modeFixed": "Fixbetrag",
+      "rateLabel": "CP pro Punkt",
+      "fixedLabel": "Punkte",
+      "previewRate": "Bei {cost} CP und Rate 1:{value} → {pts} Punkte",
+      "previewFixed": "Immer {pts} Punkte"
     },
     "title": "Kanalpunkte",
     "description": "Custom Rewards und ihre Aktionen.",
@@ -305,11 +323,20 @@
     },
     "title": "Loyalty",
     "description": "Eigene Kanal-Währung, verdienbar durch Follows, Subs, Gifted Subs und View-Time — nur während der Stream live ist.",
+    "pointName": "Punkte",
     "tabs": {
       "leaderboard": "Rangliste",
       "blacklist": "Blacklist",
       "earnRules": "Earn-Rules",
-      "offlineMessages": "Offline-Meldungen"
+      "offlineMessages": "Offline-Meldungen",
+      "settings": "Einstellungen"
+    },
+    "settings": {
+      "generalTitle": "Allgemein",
+      "enabledLabel": "Loyalty-System",
+      "enabledHint": "Loyalty-Punkte vergeben und Games aktiv halten",
+      "pointNameLabel": "Bezeichnung der Punkte",
+      "pointNameHint": "Wird überall im Interface als Name für deine Kanal-Währung angezeigt."
     },
     "leaderboard": {
       "title": "Rangliste",
@@ -620,6 +647,8 @@
         "active": "Aktiv",
         "unfollowed": "Entfolgt"
       },
+      "durationYears": "{years} J",
+      "durationMonths": "{months} Mo",
       "durationDays": "{days} T",
       "durationHours": "{hours} Std",
       "durationMinutes": "{minutes} Min"

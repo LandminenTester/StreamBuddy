@@ -1,8 +1,10 @@
-export type RewardActionType = 'none' | 'chat_message' | 'trigger_command'
+export type RewardActionType = 'none' | 'chat_message' | 'trigger_command' | 'loyalty_exchange'
 
 export interface RewardActionPayload {
   message?: string
   commandId?: number
+  loyaltyExchangeMode?: 'rate' | 'fixed'
+  loyaltyExchangeValue?: number
 }
 
 export interface ChannelPointReward {

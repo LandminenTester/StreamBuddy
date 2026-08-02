@@ -25,6 +25,12 @@ import {
   resolveCommandTrigger
 } from '../loyalty/games/gameRegistry'
 import { applyManualAdjustment, setAccountBalance } from '../loyalty/loyaltyLedger'
+import {
+  getLoyaltyEnabled,
+  getLoyaltyPointName,
+  setLoyaltyEnabled,
+  setLoyaltyPointName
+} from '../loyalty/loyaltySettings'
 import { LOYALTY_OFFLINE_MESSAGE_KEY } from '../loyalty/offlineMessages'
 import { parseLoyaltyCsv, serializeLoyaltyCsv } from '../loyalty/csv'
 import { getChatStatus } from '../twitch/chat/tmiClient'
@@ -212,5 +218,19 @@ export function registerLoyaltyIpc(): void {
   handleTyped(IpcChannels.loyalty.setOfflineMessages, ({ messages }) => {
     setMessageSet(LOYALTY_OFFLINE_MESSAGE_KEY, messages)
     return getMessageSet(LOYALTY_OFFLINE_MESSAGE_KEY)
+  })
+
+  handleTyped(IpcChannels.loyalty.getEnabled, () => getLoyaltyEnabled())
+
+  handleTyped(IpcChannels.loyalty.setEnabled, ({ enabled }) => {
+    setLoyaltyEnabled(enabled)
+    return getLoyaltyEnabled()
+  })
+
+  handleTyped(IpcChannels.loyalty.getPointName, () => getLoyaltyPointName())
+
+  handleTyped(IpcChannels.loyalty.setPointName, ({ name }) => {
+    setLoyaltyPointName(name)
+    return getLoyaltyPointName()
   })
 }

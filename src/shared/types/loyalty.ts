@@ -1,5 +1,5 @@
 export type LoyaltyTransactionReason =
-  'follow' | 'sub' | 'gift_sub' | 'view_time' | 'game_win' | 'game_loss' | 'manual_adjust'
+  'follow' | 'sub' | 'gift_sub' | 'view_time' | 'game_win' | 'game_loss' | 'manual_adjust' | 'channel_point_exchange'
 
 export interface LoyaltyAccount {
   id: number

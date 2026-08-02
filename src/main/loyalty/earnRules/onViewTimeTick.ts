@@ -1,5 +1,6 @@
 import { listEarnRules } from '../../db/repositories/loyalty.repo'
 import { creditLoyalty } from '../loyaltyLedger'
+import { getLoyaltyEnabled } from '../loyaltySettings'
 import { getPresentUsers } from '../../twitch/chat/presenceTracker'
 import { isStreamLive } from '../../stats/viewerCountPoller'
 import { logger } from '../../logger'
@@ -7,7 +8,7 @@ import { logger } from '../../logger'
 let tickTimer: NodeJS.Timeout | null = null
 
 function runTick(points: number): void {
-  if (!isStreamLive()) return
+  if (!getLoyaltyEnabled() || !isStreamLive()) return
   const users = getPresentUsers()
   for (const userLogin of users) {
     creditLoyalty(userLogin, points, 'view_time')

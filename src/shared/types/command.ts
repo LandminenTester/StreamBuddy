@@ -19,6 +19,8 @@ export interface Command {
   useCount: number
   createdAt: number
   updatedAt: number
+  trackerId: number | null
+  trackerAction: 'increment' | 'decrement' | null
 }
 
 export type CommandInput = Omit<Command, 'id' | 'useCount' | 'createdAt' | 'updatedAt'>

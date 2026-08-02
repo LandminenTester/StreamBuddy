@@ -10,6 +10,7 @@ import { registerLoyaltyIpc } from './loyalty.ipc'
 import { registerStatsIpc } from './stats.ipc'
 import { registerFollowersIpc } from './followers.ipc'
 import { registerViewersIpc } from './viewers.ipc'
+import { registerTrackersIpc } from './trackers.ipc'
 
 /**
  * Zentrale Registrierungsstelle für alle IPC-Handler.
@@ -29,4 +30,5 @@ export function registerIpcHandlers(): void {
   registerStatsIpc()
   registerFollowersIpc()
   registerViewersIpc()
+  registerTrackersIpc()
 }

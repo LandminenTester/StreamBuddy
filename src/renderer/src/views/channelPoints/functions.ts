@@ -19,7 +19,9 @@ export async function submitRewardForm(
         ? { message: form.actionMessage.trim() }
         : form.actionType === 'trigger_command' && form.actionCommandId !== null
           ? { commandId: form.actionCommandId }
-          : null,
+          : form.actionType === 'loyalty_exchange'
+            ? { loyaltyExchangeMode: form.loyaltyExchangeMode, loyaltyExchangeValue: form.loyaltyExchangeValue }
+            : null,
     backgroundColor: form.backgroundColor
   }
 

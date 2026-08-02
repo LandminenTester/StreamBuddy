@@ -11,6 +11,8 @@ export interface RewardFormState {
   actionMessage: string
   actionCommandId: number | null
   backgroundColor: string
+  loyaltyExchangeMode: 'rate' | 'fixed'
+  loyaltyExchangeValue: number
 }
 
 export function emptyRewardForm(): RewardFormState {
@@ -24,6 +26,8 @@ export function emptyRewardForm(): RewardFormState {
     actionType: 'none',
     actionMessage: '',
     actionCommandId: null,
-    backgroundColor: '#9146FF'
+    backgroundColor: '#9146FF',
+    loyaltyExchangeMode: 'rate',
+    loyaltyExchangeValue: 10
   }
 }

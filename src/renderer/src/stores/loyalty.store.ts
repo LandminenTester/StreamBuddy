@@ -21,6 +21,8 @@ export const useLoyaltyStore = defineStore('loyalty', () => {
   const gameStats = ref<LoyaltyGameStats | null>(null)
   const rouletteColors = ref<RouletteRoundResult[]>([])
   const offlineMessages = ref<string[]>([])
+  const isEnabled = ref(true)
+  const pointName = ref('')
 
   async function fetchLeaderboard(): Promise<void> {
     leaderboard.value = await window.api.invoke('loyalty:getLeaderboard', undefined)
@@ -125,6 +127,19 @@ export const useLoyaltyStore = defineStore('loyalty', () => {
     offlineMessages.value = await window.api.invoke('loyalty:setOfflineMessages', { messages })
   }
 
+  async function fetchSettings(): Promise<void> {
+    isEnabled.value = await window.api.invoke('loyalty:getEnabled', undefined)
+    pointName.value = await window.api.invoke('loyalty:getPointName', undefined)
+  }
+
+  async function setEnabled(enabled: boolean): Promise<void> {
+    isEnabled.value = await window.api.invoke('loyalty:setEnabled', { enabled })
+  }
+
+  async function savePointName(name: string): Promise<void> {
+    pointName.value = await window.api.invoke('loyalty:setPointName', { name })
+  }
+
   return {
     leaderboard,
     earnRules,
@@ -135,6 +150,8 @@ export const useLoyaltyStore = defineStore('loyalty', () => {
     gameStats,
     rouletteColors,
     offlineMessages,
+    isEnabled,
+    pointName,
     fetchLeaderboard,
     fetchEarnRules,
     updateEarnRule,
@@ -154,6 +171,9 @@ export const useLoyaltyStore = defineStore('loyalty', () => {
     fetchGameStats,
     fetchRouletteColors,
     fetchOfflineMessages,
-    setOfflineMessages
+    setOfflineMessages,
+    fetchSettings,
+    setEnabled,
+    savePointName
   }
 })
