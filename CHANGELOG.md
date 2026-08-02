@@ -1,5 +1,7 @@
 # Changelog
 
+## [2.6.0](https://github.com/LandminenTester/StreamingBot/compare/v2.5.11...v2.6.0) (2026-08-02)
+
 ## [2.5.11](https://github.com/LandminenTester/StreamingBot/compare/v2.5.10...v2.5.11) (2026-08-02)
 
 
