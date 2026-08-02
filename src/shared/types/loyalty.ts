@@ -69,3 +69,16 @@ export interface LoyaltyLeaderboardEntry {
   balance: number
   rank: number
 }
+
+export interface LoyaltyPersonalGreeting {
+  id: string
+  userLogin: string
+  enabled: boolean
+  texts: string[]
+}
+
+export interface LoyaltyGreetingSettings {
+  greetNewViewers: boolean
+  newViewerTexts: string[]
+  personalGreetings: LoyaltyPersonalGreeting[]
+}

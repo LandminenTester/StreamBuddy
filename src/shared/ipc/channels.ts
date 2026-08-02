@@ -108,7 +108,9 @@ export const IpcChannels = {
     getEnabled: 'loyalty:getEnabled',
     setEnabled: 'loyalty:setEnabled',
     getPointName: 'loyalty:getPointName',
-    setPointName: 'loyalty:setPointName'
+    setPointName: 'loyalty:setPointName',
+    getGreetingSettings: 'loyalty:getGreetingSettings',
+    setGreetingSettings: 'loyalty:setGreetingSettings'
   },
   trackers: {
     list: 'trackers:list',

@@ -194,6 +194,10 @@ export function listBlacklistedAccounts(): LoyaltyAccount[] {
 }
 
 export function setAccountBlacklisted(userLogin: string, blacklisted: boolean): void {
+  if (blacklisted) {
+    getOrCreateAccount(userLogin)
+  }
+
   getDb()
     .prepare('UPDATE loyalty_accounts SET is_blacklisted = ? WHERE user_login = ?')
     .run(blacklisted ? 1 : 0, userLogin.toLowerCase())

@@ -33,6 +33,7 @@ import {
   setLoyaltyPointName
 } from '../loyalty/loyaltySettings'
 import { LOYALTY_OFFLINE_MESSAGE_KEY } from '../loyalty/offlineMessages'
+import { getGreetingSettings, setGreetingSettings } from '../loyalty/greetings'
 import { parseLoyaltyCsv, serializeLoyaltyCsv } from '../loyalty/csv'
 import { getChatStatus } from '../twitch/chat/tmiClient'
 import { getMainWindow } from '../window'
@@ -238,4 +239,10 @@ export function registerLoyaltyIpc(): void {
     setLoyaltyPointName(name)
     return getLoyaltyPointName()
   })
+
+  handleTyped(IpcChannels.loyalty.getGreetingSettings, () => getGreetingSettings())
+
+  handleTyped(IpcChannels.loyalty.setGreetingSettings, (settings) =>
+    setGreetingSettings(settings)
+  )
 }

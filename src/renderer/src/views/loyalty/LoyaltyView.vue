@@ -16,6 +16,7 @@ onMounted(() => {
   void store.fetchEarnRules()
   void store.fetchBlacklist()
   void store.fetchOfflineMessages()
+  void store.fetchGreetingSettings()
   void store.fetchSettings()
 })
 
@@ -24,6 +25,7 @@ const tabs = computed<TabDefinition[]>(() => [
   { key: 'blacklist', label: t('loyalty.tabs.blacklist') },
   { key: 'earn-rules', label: t('loyalty.tabs.earnRules') },
   { key: 'offline-messages', label: t('loyalty.tabs.offlineMessages') },
+  { key: 'greetings', label: t('loyalty.tabs.greetings') },
   { key: 'settings', label: t('loyalty.tabs.settings') }
 ])
 

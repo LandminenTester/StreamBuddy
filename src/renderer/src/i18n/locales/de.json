@@ -349,6 +349,7 @@
       "blacklist": "Blacklist",
       "earnRules": "Earn-Rules",
       "offlineMessages": "Offline-Meldungen",
+      "greetings": "Greetings",
       "settings": "Einstellungen"
     },
     "settings": {
@@ -385,10 +386,16 @@
       },
       "searchPlaceholder": "Nutzer suchen…",
       "points": "Punkte",
+      "selectAll": "Alle sichtbaren auswählen",
+      "clearSelection": "Auswahl entfernen",
+      "selectedCount": "{count} ausgewählt",
       "giveSelected": "Ausgewählten geben",
       "removeSelected": "Ausgewählten entziehen",
       "giveAll": "Allen geben",
       "removeAll": "Allen entziehen",
+      "confirmAllTitle": "Massenaktion bestätigen",
+      "confirmGiveAll": "Allen nicht geblacklisteten Konten werden {amount} Punkte gutgeschrieben.",
+      "confirmRemoveAll": "Allen nicht geblacklisteten Konten werden {amount} Punkte entzogen. Das kann Kontostände unter 0 setzen.",
       "rank": "Rang",
       "user": "Nutzer",
       "balance": "Kontostand",
@@ -401,6 +408,9 @@
       "title": "Blacklist",
       "description": "Geblacklistete Nutzer verdienen keine Punkte, erscheinen nicht in der Rangliste und können keine Loyalty-Games spielen.",
       "empty": "Keine Nutzer geblacklistet.",
+      "manualLabel": "Nutzer manuell hinzufügen",
+      "manualPlaceholder": "twitch_name",
+      "addManual": "Blacklisten",
       "remove": "Entfernen"
     },
     "earnRules": {
@@ -416,6 +426,23 @@
     "offlineMessages": {
       "title": "Offline-Meldungen",
       "description": "Wird zufällig gesendet, wenn ein Loyalty-Game genutzt wird, während der Stream offline ist."
+    },
+    "greetings": {
+      "title": "Greetings",
+      "description": "Begrüße neue Viewer oder feste Twitch-Namen automatisch im Chat.",
+      "newViewers": "Neue Viewer begrüßen",
+      "newViewersHint": "Sendet eine zufällige Nachricht, wenn ein Name erstmals in der Viewer-Liste auftaucht.",
+      "texts": "Texte für neue Viewer",
+      "textPlaceholder": "Willkommen im Chat, {user}!",
+      "personalTitle": "Personalisierte Begrüßungen",
+      "personalHint": "Diese Regeln haben Vorrang vor den allgemeinen neuen-Viewer-Texten.",
+      "addPersonal": "Person hinzufügen",
+      "personalEmpty": "Noch keine personalisierten Begrüßungen.",
+      "userLogin": "Twitch-Name",
+      "userPlaceholder": "twitch_name",
+      "personalTexts": "Persönliche Texte",
+      "personalTextPlaceholder": "Hey {user}, schön dich zu sehen!",
+      "saved": "Greetings gespeichert."
     },
     "editAccount": "Konto bearbeiten"
   },

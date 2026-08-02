@@ -34,6 +34,7 @@ import type {
   LoyaltyGameHistoryEntry,
   LoyaltyGameInfo,
   LoyaltyGameStats,
+  LoyaltyGreetingSettings,
   LoyaltyLeaderboardEntry
 } from '../types/loyalty'
 import type { RouletteRoundResult } from '../types/roulette'
@@ -220,6 +221,14 @@ export interface IpcContracts {
   [IpcChannels.loyalty.setEnabled]: { request: { enabled: boolean }; response: boolean }
   [IpcChannels.loyalty.getPointName]: { request: void; response: string }
   [IpcChannels.loyalty.setPointName]: { request: { name: string }; response: string }
+  [IpcChannels.loyalty.getGreetingSettings]: {
+    request: void
+    response: LoyaltyGreetingSettings
+  }
+  [IpcChannels.loyalty.setGreetingSettings]: {
+    request: LoyaltyGreetingSettings
+    response: LoyaltyGreetingSettings
+  }
 
   [IpcChannels.trackers.list]: { request: void; response: CommandTracker[] }
   [IpcChannels.trackers.create]: { request: TrackerInput; response: CommandTracker }
