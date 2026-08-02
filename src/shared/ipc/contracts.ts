@@ -224,6 +224,10 @@ export interface IpcContracts {
   }
   [IpcChannels.trackers.delete]: { request: { id: number }; response: void }
   [IpcChannels.trackers.adjust]: { request: { id: number; delta: number }; response: CommandTracker }
+  [IpcChannels.trackers.setTextValue]: {
+    request: { id: number; value: string }
+    response: CommandTracker
+  }
 
   [IpcChannels.stats.getMessagesPerHour]: {
     request: { sinceMs: number }

@@ -114,7 +114,8 @@ export const IpcChannels = {
     create: 'trackers:create',
     update: 'trackers:update',
     delete: 'trackers:delete',
-    adjust: 'trackers:adjust'
+    adjust: 'trackers:adjust',
+    setTextValue: 'trackers:setTextValue'
   },
   stats: {
     getMessagesPerHour: 'stats:getMessagesPerHour',

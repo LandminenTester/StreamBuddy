@@ -10,7 +10,7 @@ import PageHeader from '@renderer/components/ui/PageHeader.vue'
 import { useCommandsStore } from '@renderer/stores/commands.store'
 import { useTrackersStore } from '@renderer/stores/trackers.store'
 import CommandFormModal from '@renderer/components/commands/CommandFormModal.vue'
-import TrackerSidePanel from '@renderer/components/commands/TrackerSidePanel.vue'
+import WerteSidePanel from '@renderer/components/commands/WerteSidePanel.vue'
 import type { CommandFormState } from './types'
 import { emptyCommandForm } from './types'
 import { commandToFormState, permissionLabel } from './utils'
@@ -106,7 +106,7 @@ async function handleSubmit(form: CommandFormState): Promise<void> {
         </DataTable>
       </div>
 
-      <TrackerSidePanel />
+      <WerteSidePanel />
     </div>
 
     <CommandFormModal

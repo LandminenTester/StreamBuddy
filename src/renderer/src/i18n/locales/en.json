@@ -168,13 +168,19 @@
       "whisperWarning": "Twitch restricts whispers for many bot accounts — be sure to test.",
       "enabled": "Enabled"
     },
-    "trackers": {
-      "title": "Trackers",
-      "empty": "No trackers created yet.",
-      "placeholder": "Tracker name",
-      "formSection": "Link tracker",
-      "selectLabel": "Tracker",
-      "actionLabel": "Action"
+    "werte": {
+      "title": "Values",
+      "empty": "No values created yet.",
+      "emptyTextValue": "(no value)",
+      "placeholder": "Value name",
+      "formSection": "Link value",
+      "selectLabel": "Value",
+      "actionLabel": "Action",
+      "typeCounter": "Counter",
+      "typeText": "Text",
+      "insertPlaceholder": "Insert value",
+      "insertOldValue": "{alter_wert}",
+      "insertNewValue": "{neuer_wert}"
     }
   },
   "automessages": {

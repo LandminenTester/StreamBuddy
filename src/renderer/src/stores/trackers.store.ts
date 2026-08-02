@@ -36,6 +36,11 @@ export const useTrackersStore = defineStore('trackers', () => {
     trackers.value = trackers.value.map((t) => (t.id === id ? updated : t))
   }
 
+  async function setTextValue(id: number, value: string): Promise<void> {
+    const updated = await window.api.invoke('trackers:setTextValue', { id, value })
+    trackers.value = trackers.value.map((t) => (t.id === id ? updated : t))
+  }
+
   return {
     trackers,
     loading,
@@ -43,6 +48,7 @@ export const useTrackersStore = defineStore('trackers', () => {
     createTracker,
     updateTracker,
     deleteTracker,
-    adjustTracker
+    adjustTracker,
+    setTextValue
   }
 })
