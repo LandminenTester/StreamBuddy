@@ -22,6 +22,8 @@ const store = useCommandsStore()
 const trackersStore = useTrackersStore()
 const isModalOpen = ref(false)
 const activeForm = ref<CommandFormState>(emptyCommandForm())
+const isSaving = ref(false)
+const saveError = ref<string | null>(null)
 
 onMounted(() => {
   void store.fetchCommands()
@@ -39,17 +41,28 @@ const columns = computed<DataTableColumn[]>(() => [
 
 function openCreateModal(): void {
   activeForm.value = emptyCommandForm()
+  saveError.value = null
   isModalOpen.value = true
 }
 
 function openEditModal(command: Command): void {
   activeForm.value = commandToFormState(command)
+  saveError.value = null
   isModalOpen.value = true
 }
 
 async function handleSubmit(form: CommandFormState): Promise<void> {
-  await submitCommandForm(store, form)
-  isModalOpen.value = false
+  isSaving.value = true
+  saveError.value = null
+  try {
+    await submitCommandForm(store, form)
+    isModalOpen.value = false
+  } catch (error) {
+    saveError.value = error instanceof Error ? error.message : String(error)
+    console.error('Command konnte nicht gespeichert werden', error)
+  } finally {
+    isSaving.value = false
+  }
 }
 </script>
 
@@ -112,6 +125,8 @@ async function handleSubmit(form: CommandFormState): Promise<void> {
     <CommandFormModal
       v-if="isModalOpen"
       :initial="activeForm"
+      :error="saveError"
+      :saving="isSaving"
       @close="isModalOpen = false"
       @submit="handleSubmit"
     />
