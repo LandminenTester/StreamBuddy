@@ -4,8 +4,14 @@ import { incrementCommandUseCount, listCommands } from '../../db/repositories/co
 import { getOrCreateAccount, setAccountBlacklisted } from '../../db/repositories/loyalty.repo'
 import {
   adjustTracker,
-  getTrackerCurrentValue
+  getTrackerCurrentValue,
+  listTrackers
 } from '../../db/repositories/trackers.repo'
+import {
+  findTrackerByPlaceholderKey,
+  formatTrackerCurrentValue,
+  WERT_PLACEHOLDER_PATTERN
+} from '@shared/utils/wertPlaceholders'
 import { pickRandomMessage } from '../../db/repositories/botMessages.repo'
 import {
   getGameByTrigger,
@@ -38,8 +44,8 @@ function hasRequiredPermission(userLevel: PermissionLevel, required: PermissionL
 }
 
 /**
- * Ersetzt {wert:ID}-Platzhalter sowie {alter_wert}/{neuer_wert} in einem Response-Text.
- * Nicht gefundene Wert-IDs werden durch einen leeren String ersetzt.
+ * Ersetzt {wert:ID}/{wert:label_id}-Platzhalter sowie {alter_wert}/{neuer_wert}.
+ * Nicht gefundene Werte werden durch einen leeren String ersetzt.
  */
 function resolveResponse(
   response: string,
@@ -51,12 +57,10 @@ function resolveResponse(
   if (oldValue !== undefined) result = result.replaceAll('{alter_wert}', oldValue)
   if (newValue !== undefined) result = result.replaceAll('{neuer_wert}', newValue)
 
-  result = result.replace(/\{wert:(\d+)\}/g, (_, rawId: string) => {
-    try {
-      return getTrackerCurrentValue(Number(rawId))
-    } catch {
-      return ''
-    }
+  const trackers = listTrackers()
+  result = result.replace(WERT_PLACEHOLDER_PATTERN, (_, rawKey: string) => {
+    const tracker = findTrackerByPlaceholderKey(trackers, rawKey)
+    return tracker ? formatTrackerCurrentValue(tracker) : ''
   })
 
   return result

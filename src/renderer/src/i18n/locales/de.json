@@ -180,7 +180,14 @@
       "typeText": "Text",
       "insertPlaceholder": "Wert einfügen",
       "insertOldValue": "{alter_wert}",
-      "insertNewValue": "{neuer_wert}"
+      "insertNewValue": "{neuer_wert}",
+      "currentValue": "aktuell: {value}",
+      "previewLabel": "Vorschau",
+      "previewEmpty": "Noch kein Antworttext.",
+      "previewMissing": "Dieser Wert wurde nicht gefunden.",
+      "oldValuePreview": "Alter Wert aus der verknüpften Aktion",
+      "newValuePreview": "Neuer Wert aus der verknüpften Aktion",
+      "actionPreview": "Aktionsbeispiel: alter Wert {oldValue}, neuer Wert {newValue}"
     }
   },
   "automessages": {

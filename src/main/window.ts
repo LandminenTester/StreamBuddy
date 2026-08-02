@@ -12,10 +12,10 @@ export function createMainWindow(): BrowserWindow {
   }
 
   mainWindow = new BrowserWindow({
-    width: 1280,
-    height: 800,
-    minWidth: 1024,
-    minHeight: 700,
+    width: 1472,
+    height: 920,
+    minWidth: 1178,
+    minHeight: 805,
     show: false,
     autoHideMenuBar: true,
     webPreferences: {
