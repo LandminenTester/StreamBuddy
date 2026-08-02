@@ -8,6 +8,8 @@ const CONFIG_TABLES = [
   'commands',
   'automessages',
   'channel_point_rewards',
+  'loyalty_accounts',
+  'loyalty_transactions',
   'loyalty_earn_rules',
   'loyalty_games_config',
   'bot_message_sets',

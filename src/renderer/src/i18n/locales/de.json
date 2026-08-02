@@ -76,7 +76,7 @@
     },
     "data": {
       "title": "Daten und Sicherung",
-      "description": "Exportiert deine StreamBuddy-Konfiguration. Twitch-Accounts, Tokens, Laufzeitdaten und Loyalty-Konten bleiben immer außen vor.",
+      "description": "Exportiert deine StreamBuddy-Konfiguration inklusive Loyalty-Nutzern und Kontoständen. Twitch-Accounts, Tokens und Laufzeitdaten bleiben außen vor.",
       "export": "Einstellungen exportieren",
       "import": "Einstellungen importieren",
       "exported": "Einstellungen nach {fileName} exportiert.",
