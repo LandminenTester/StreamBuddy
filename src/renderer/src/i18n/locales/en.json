@@ -76,7 +76,7 @@
     },
     "data": {
       "title": "Data and backup",
-      "description": "Exports your StreamBuddy configuration. Twitch accounts, tokens, runtime data and loyalty accounts are always excluded.",
+      "description": "Exports your StreamBuddy configuration including loyalty users and balances. Twitch accounts, tokens and runtime data are always excluded.",
       "export": "Export settings",
       "import": "Import settings",
       "exported": "Settings exported to {fileName}.",
