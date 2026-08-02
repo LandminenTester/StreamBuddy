@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.5.6](https://github.com/LandminenTester/StreamingBot/compare/v2.5.5...v2.5.6) (2026-08-02)
+
+
+### Bug Fixes
+
+* **commands:** support multiple tracker actions ([d37d68d](https://github.com/LandminenTester/StreamingBot/commit/d37d68d31c72c58418c7ddf5dc77560575f8e256))
+
 ## [2.5.5](https://github.com/LandminenTester/StreamingBot/compare/v2.5.4...v2.5.5) (2026-08-02)
 
 
