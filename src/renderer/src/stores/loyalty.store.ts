@@ -9,6 +9,7 @@ import type {
   LoyaltyLeaderboardEntry
 } from '@shared/types/loyalty'
 import type { RouletteRoundResult } from '@shared/types/roulette'
+import type { CsvDelimiter, LoyaltyCsvMapping } from '@shared/utils/loyaltyCsv'
 import { translateError } from '@renderer/i18n/errors'
 
 export const useLoyaltyStore = defineStore('loyalty', () => {
@@ -66,9 +67,18 @@ export const useLoyaltyStore = defineStore('loyalty', () => {
     }
   }
 
-  async function importCsv(): Promise<{ importedCount: number; errors: string[] } | null> {
+  async function selectImportCsv(): Promise<{ fileName: string; content: string } | null> {
     error.value = null
-    const result = await window.api.invoke('loyalty:importCsv', undefined)
+    return window.api.invoke('loyalty:selectImportCsv', undefined)
+  }
+
+  async function importCsv(input: {
+    content: string
+    delimiter: CsvDelimiter
+    mapping: LoyaltyCsvMapping
+  }): Promise<{ importedCount: number; errors: string[] } | null> {
+    error.value = null
+    const result = await window.api.invoke('loyalty:importCsv', input)
     if (result) await fetchLeaderboard()
     return result
   }
@@ -161,6 +171,7 @@ export const useLoyaltyStore = defineStore('loyalty', () => {
     renameGame,
     manualAdjust,
     updateAccount,
+    selectImportCsv,
     importCsv,
     exportCsv,
     fetchBlacklist,

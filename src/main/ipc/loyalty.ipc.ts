@@ -1,5 +1,6 @@
 import { dialog } from 'electron'
 import { readFile, writeFile } from 'fs/promises'
+import { basename } from 'path'
 import type { LoyaltyGameInfo } from '@shared/types/loyalty'
 import { IpcChannels } from '@shared/ipc/channels'
 import { handleTyped } from './handleTyped'
@@ -138,7 +139,7 @@ export function registerLoyaltyIpc(): void {
     return getLeaderboard()
   })
 
-  handleTyped(IpcChannels.loyalty.importCsv, async () => {
+  handleTyped(IpcChannels.loyalty.selectImportCsv, async () => {
     const window = getMainWindow()
     const result = window
       ? await dialog.showOpenDialog(window, {
@@ -155,7 +156,11 @@ export function registerLoyaltyIpc(): void {
     if (result.canceled || result.filePaths.length === 0) return null
 
     const content = await readFile(result.filePaths[0], 'utf-8')
-    const { rows, errors } = parseLoyaltyCsv(content)
+    return { fileName: basename(result.filePaths[0]), content }
+  })
+
+  handleTyped(IpcChannels.loyalty.importCsv, async ({ content, delimiter, mapping }) => {
+    const { rows, errors } = parseLoyaltyCsv(content, delimiter, mapping)
 
     let importedCount = 0
     for (const row of rows) {

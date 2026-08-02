@@ -92,6 +92,7 @@ export const IpcChannels = {
     updateGameConfig: 'loyalty:updateGameConfig',
     manualAdjust: 'loyalty:manualAdjust',
     updateAccount: 'loyalty:updateAccount',
+    selectImportCsv: 'loyalty:selectImportCsv',
     importCsv: 'loyalty:importCsv',
     exportCsv: 'loyalty:exportCsv',
     listBlacklist: 'loyalty:listBlacklist',
