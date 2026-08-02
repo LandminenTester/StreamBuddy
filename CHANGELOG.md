@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.5.5](https://github.com/LandminenTester/StreamingBot/compare/v2.5.4...v2.5.5) (2026-08-02)
+
+
+### Bug Fixes
+
+* **commands:** compact command modal values ([5e0fbb5](https://github.com/LandminenTester/StreamingBot/commit/5e0fbb5491723f741e17b4a4b5e77abca0d0aa1e))
+
 ## [2.5.4](https://github.com/LandminenTester/StreamingBot/compare/v2.5.2...v2.5.4) (2026-08-02)
 
 
