@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.5.7](https://github.com/LandminenTester/StreamingBot/compare/v2.5.6...v2.5.7) (2026-08-02)
+
+
+### Features
+
+* **loyalty:** add csv import mapping preview ([006ba9a](https://github.com/LandminenTester/StreamingBot/commit/006ba9a120341b90ce54685615aaa825e3eb9f44))
+
 ## [2.5.6](https://github.com/LandminenTester/StreamingBot/compare/v2.5.5...v2.5.6) (2026-08-02)
 
 
