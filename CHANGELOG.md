@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.5.3](https://github.com/LandminenTester/StreamingBot/compare/v2.5.2...v2.5.3) (2026-08-02)
+
+
+### Bug Fixes
+
+* **app:** increase default window size ([60d8a09](https://github.com/LandminenTester/StreamingBot/commit/60d8a096bea105ee6cda982f4abe3871d96e7cfe))
+* **commands:** improve wert dropdown preview ([f4f47f5](https://github.com/LandminenTester/StreamingBot/commit/f4f47f5cb7716a362b859d3b25df49ac9a2069dd))
+* **commands:** keep readable wert label keys ([bc3a9e9](https://github.com/LandminenTester/StreamingBot/commit/bc3a9e9e7cb582c61e3efd2a09c04dd2b94378db))
+* **commands:** resolve label-based wert placeholders ([76b17e1](https://github.com/LandminenTester/StreamingBot/commit/76b17e1033ac14b69a894f0e9b890b3506a87931))
+
 ## [2.5.2](https://github.com/LandminenTester/StreamingBot/compare/v2.5.1...v2.5.2) (2026-08-02)
 
 
