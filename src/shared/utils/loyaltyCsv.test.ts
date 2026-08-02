@@ -21,4 +21,14 @@ describe('loyaltyCsv', () => {
       { userLogin: 'viewertwo', balance: 17 }
     ])
   })
+
+  it('accepts exported sheets with trailing empty columns', () => {
+    const result = parseLoyaltyCsv('userLogin,balance\ncharlieeechan,60200,\nitssemmel,55649,')
+
+    expect(result.errors).toEqual([])
+    expect(result.rows).toEqual([
+      { userLogin: 'charlieeechan', balance: 60200 },
+      { userLogin: 'itssemmel', balance: 55649 }
+    ])
+  })
 })

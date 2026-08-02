@@ -78,9 +78,14 @@ export const useLoyaltyStore = defineStore('loyalty', () => {
     mapping: LoyaltyCsvMapping
   }): Promise<{ importedCount: number; errors: string[] } | null> {
     error.value = null
-    const result = await window.api.invoke('loyalty:importCsv', input)
-    if (result) await fetchLeaderboard()
-    return result
+    try {
+      const result = await window.api.invoke('loyalty:importCsv', input)
+      if (result) await fetchLeaderboard()
+      return result
+    } catch (err) {
+      error.value = translateError(err)
+      return null
+    }
   }
 
   async function exportCsv(): Promise<{ exportedCount: number } | null> {

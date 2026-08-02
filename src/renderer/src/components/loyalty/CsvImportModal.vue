@@ -25,6 +25,7 @@ const content = ref('')
 const delimiter = ref<CsvDelimiter>(',')
 const mapping = ref<LoyaltyCsvMapping>({ userLoginColumn: 0, balanceColumn: 1 })
 const isImporting = ref(false)
+const importError = ref<string | null>(null)
 
 const delimiterOptions = computed<SelectOption[]>(() => [
   { value: ',', label: t('loyalty.leaderboard.csvImport.delimiterComma') },
@@ -60,6 +61,7 @@ watch(
 )
 
 async function selectFile(): Promise<void> {
+  importError.value = null
   const result = await store.selectImportCsv()
   if (!result) return
   fileName.value = result.fileName
@@ -72,6 +74,7 @@ function setDelimiter(value: string): void {
 
 async function importCsv(): Promise<void> {
   if (!canImport.value) return
+  importError.value = null
   isImporting.value = true
   try {
     const result = await store.importCsv({
@@ -79,7 +82,13 @@ async function importCsv(): Promise<void> {
       delimiter: delimiter.value,
       mapping: mapping.value
     })
-    if (result) emit('imported', result)
+    if (result) {
+      emit('imported', result)
+      return
+    }
+
+    importError.value =
+      store.error || t('loyalty.leaderboard.csvImport.importFailed')
   } finally {
     isImporting.value = false
   }
@@ -191,11 +200,23 @@ async function importCsv(): Promise<void> {
       >
         {{ preview.errors.join('; ') }}
       </div>
+
+      <div
+        v-if="importError"
+        class="rounded border border-danger/30 bg-danger/10 px-3 py-2 text-xs text-danger"
+      >
+        {{ importError }}
+      </div>
     </div>
 
     <template #footer>
       <AppButton variant="ghost" @click="emit('close')">{{ $t('common.cancel') }}</AppButton>
-      <AppButton variant="primary" :disabled="!canImport || isImporting" @click="importCsv">
+      <AppButton
+        variant="primary"
+        :disabled="!canImport"
+        :loading="isImporting"
+        @click="importCsv"
+      >
         {{ $t('loyalty.leaderboard.csvImport.import') }}
       </AppButton>
     </template>
