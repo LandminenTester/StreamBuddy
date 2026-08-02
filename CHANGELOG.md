@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.4.0](https://github.com/LandminenTester/StreamingBot/compare/v2.3.0...v2.4.0) (2026-08-02)
+
+
+### Features
+
+* 2.4.0 — Loyalty-Einstellungen, Commands-Tracker, Channel-Rewards-Exchange, Follower-Fix ([#34](https://github.com/LandminenTester/StreamingBot/issues/34)) ([e4e9d73](https://github.com/LandminenTester/StreamingBot/commit/e4e9d738e797cb985389c4ded5428ed6c2f1328d))
+* workflow update ([54aa023](https://github.com/LandminenTester/StreamingBot/commit/54aa023cb1da05aa681b7a13cdc8dbb0deb240cf))
+* add author edit ([6bad647](https://github.com/LandminenTester/StreamingBot/commit/6bad647fa3e881651147d2e6648caefb907c34d4))
+
+### Bug Fixes
+
+* **ci:** persist-credentials=false — RELEASE_PAT bypass funktioniert jetzt ([#35](https://github.com/LandminenTester/StreamingBot/issues/35)) ([6d29ac9](https://github.com/LandminenTester/StreamingBot/commit/6d29ac9c5c58787024285123bdb37d810f2c4942))
+
 ## [2.3.0](https://github.com/LandminenTester/StreamingBot/compare/v2.2.0...v2.3.0) (2026-08-01)
 
 
