@@ -187,6 +187,8 @@
       "previewMissing": "This value was not found.",
       "oldValuePreview": "Old value from the linked action",
       "newValuePreview": "New value from the linked action",
+      "beforeActionValue": "Before action",
+      "afterActionValue": "After action",
       "actionPreview": "Action example: old value {oldValue}, new value {newValue}"
     }
   },

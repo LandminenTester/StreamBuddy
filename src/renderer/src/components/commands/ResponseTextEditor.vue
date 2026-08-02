@@ -3,7 +3,7 @@ import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ChevronDown } from 'lucide-vue-next'
 import { controlClasses } from '@renderer/components/ui/controlClasses'
-import type { CommandTracker, WertType, TrackerAction } from '@shared/types/tracker'
+import type { CommandTracker, TrackerAction } from '@shared/types/tracker'
 import {
   findTrackerByPlaceholderKey,
   formatTrackerCurrentValue,
@@ -13,7 +13,6 @@ import {
 const props = defineProps<{
   modelValue: string
   trackers: CommandTracker[]
-  linkedTrackerType?: WertType | null
   linkedTracker?: CommandTracker | null
   linkedTrackerAction?: TrackerAction | null
   label?: string
@@ -163,7 +162,7 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleClickOutsi
       <div ref="dropdownRef" class="relative">
         <button
           type="button"
-          class="flex items-center gap-1 rounded border border-line px-2 py-1 text-xs text-fg-muted transition-colors hover:border-accent hover:text-fg"
+          class="flex items-center gap-1.5 rounded border border-line px-2.5 py-1 text-xs font-medium text-fg-muted transition-colors hover:border-accent hover:text-fg"
           @click="dropdownOpen = !dropdownOpen"
         >
           {{ t('commands.werte.insertPlaceholder') }}
@@ -172,11 +171,41 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleClickOutsi
 
         <div
           v-if="dropdownOpen"
-          class="absolute left-0 top-full z-10 mt-1 min-w-[160px] rounded-md border border-line bg-surface shadow-md"
+          class="absolute left-0 top-full z-10 mt-1 max-h-72 min-w-72 overflow-y-auto rounded-md border border-line bg-surface shadow-md"
         >
           <div v-if="trackers.length === 0" class="px-3 py-2 text-xs text-fg-muted">
             {{ t('commands.werte.empty') }}
           </div>
+          <template v-if="canInsertActionValues">
+            <div class="border-b border-line py-1">
+              <button
+                type="button"
+                class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs text-fg hover:bg-surface-raised"
+                @click="insertPlaceholder('{alter_wert}')"
+              >
+                <span class="min-w-0 flex-1">
+                  <span class="block truncate">{{ t('commands.werte.beforeActionValue') }}</span>
+                  <span class="block truncate text-[11px] text-fg-muted">
+                    {{ t('commands.werte.oldValuePreview') }}
+                  </span>
+                </span>
+                <span class="shrink-0 font-mono text-fg-muted">{{ '{alter_wert}' }}</span>
+              </button>
+              <button
+                type="button"
+                class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs text-fg hover:bg-surface-raised"
+                @click="insertPlaceholder('{neuer_wert}')"
+              >
+                <span class="min-w-0 flex-1">
+                  <span class="block truncate">{{ t('commands.werte.afterActionValue') }}</span>
+                  <span class="block truncate text-[11px] text-fg-muted">
+                    {{ t('commands.werte.newValuePreview') }}
+                  </span>
+                </span>
+                <span class="shrink-0 font-mono text-fg-muted">{{ '{neuer_wert}' }}</span>
+              </button>
+            </div>
+          </template>
           <button
             v-for="tracker in trackers"
             :key="tracker.id"
@@ -199,23 +228,6 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleClickOutsi
         </div>
       </div>
 
-      <!-- Alter/Neuer Wert — nur bei verknüpftem Zähler -->
-      <template v-if="canInsertActionValues">
-        <button
-          type="button"
-          class="rounded border border-line px-2 py-1 font-mono text-xs text-fg-muted transition-colors hover:border-accent hover:text-fg"
-          @click="insertPlaceholder('{alter_wert}')"
-        >
-          {{ t('commands.werte.insertOldValue') }}
-        </button>
-        <button
-          type="button"
-          class="rounded border border-line px-2 py-1 font-mono text-xs text-fg-muted transition-colors hover:border-accent hover:text-fg"
-          @click="insertPlaceholder('{neuer_wert}')"
-        >
-          {{ t('commands.werte.insertNewValue') }}
-        </button>
-      </template>
     </div>
 
     <div class="rounded border border-line bg-surface-raised/60 px-3 py-2 text-xs text-fg">
