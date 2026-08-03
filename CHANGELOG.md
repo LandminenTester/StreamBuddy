@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.10.8](https://github.com/LandminenTester/StreamingBot/compare/v2.10.7...v2.10.8) (2026-08-03)
+
+
+### Bug Fixes
+
+* repair eventsub redemption flow ([fafed7b](https://github.com/LandminenTester/StreamingBot/commit/fafed7bc362d903096b7e4618a6e6e1a16ae6570))
+
 ## [2.10.7](https://github.com/LandminenTester/StreamingBot/compare/v2.10.6...v2.10.7) (2026-08-03)
 
 
