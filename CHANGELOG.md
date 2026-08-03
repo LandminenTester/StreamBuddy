@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.10.0](https://github.com/LandminenTester/StreamingBot/compare/v2.9.1...v2.10.0) (2026-08-03)
+
+
+### Features
+
+* **games:** add rock paper scissors duel ([205f90c](https://github.com/LandminenTester/StreamingBot/commit/205f90cb7f38757235e2c57a1cdf615df167da9c))
+
 ## [2.9.1](https://github.com/LandminenTester/StreamingBot/compare/v2.9.0...v2.9.1) (2026-08-03)
 
 
