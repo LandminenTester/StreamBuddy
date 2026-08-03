@@ -384,6 +384,7 @@
     },
     "leaderboard": {
       "title": "Rangliste",
+      "refresh": "Aktualisieren",
       "importCsv": "CSV importieren",
       "exportCsv": "CSV exportieren",
       "imported": "{count} Konten importiert.",
@@ -409,6 +410,19 @@
       },
       "searchPlaceholder": "Nutzer suchen…",
       "manualUserPlaceholder": "Nutzer fuer Punkteaktion",
+      "actionLabel": "Punkte-Aktion",
+      "userLabel": "Nutzer",
+      "executeAction": "Ausführen",
+      "selectionHint": "{count} Nutzer ausgewählt",
+      "allHint": "Wendet die Aktion auf alle nicht geblacklisteten Konten an.",
+      "actions": {
+        "giveSelected": "Ausgewählten Punkte geben",
+        "removeSelected": "Ausgewählten Punkte entziehen",
+        "giveUser": "Einem Nutzer Punkte geben",
+        "removeUser": "Einem Nutzer Punkte entziehen",
+        "giveAll": "Allen Punkte geben",
+        "removeAll": "Allen Punkte entziehen"
+      },
       "points": "Punkte",
       "selectAll": "Alle sichtbaren auswählen",
       "clearSelection": "Auswahl entfernen",

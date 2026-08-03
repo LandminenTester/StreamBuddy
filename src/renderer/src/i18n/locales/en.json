@@ -384,6 +384,7 @@
     },
     "leaderboard": {
       "title": "Leaderboard",
+      "refresh": "Refresh",
       "importCsv": "Import CSV",
       "exportCsv": "Export CSV",
       "imported": "{count} accounts imported.",
@@ -409,6 +410,19 @@
       },
       "searchPlaceholder": "Search users…",
       "manualUserPlaceholder": "User for points action",
+      "actionLabel": "Points action",
+      "userLabel": "User",
+      "executeAction": "Run",
+      "selectionHint": "{count} users selected",
+      "allHint": "Applies the action to every non-blacklisted account.",
+      "actions": {
+        "giveSelected": "Give points to selected",
+        "removeSelected": "Remove points from selected",
+        "giveUser": "Give points to one user",
+        "removeUser": "Remove points from one user",
+        "giveAll": "Give points to everyone",
+        "removeAll": "Remove points from everyone"
+      },
       "points": "Points",
       "selectAll": "Select all visible",
       "clearSelection": "Clear selection",

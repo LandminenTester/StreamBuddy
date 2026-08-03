@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Trophy } from 'lucide-vue-next'
+import { RefreshCw, Trophy } from 'lucide-vue-next'
 import AppButton from '@renderer/components/ui/AppButton.vue'
 import AppCheckbox from '@renderer/components/ui/AppCheckbox.vue'
 import AppInput from '@renderer/components/ui/AppInput.vue'
+import AppSelect, { type SelectOption } from '@renderer/components/ui/AppSelect.vue'
 import ConfirmModal from '@renderer/components/ui/ConfirmModal.vue'
 import EmptyState from '@renderer/components/ui/EmptyState.vue'
 import PageSection from '@renderer/components/ui/PageSection.vue'
@@ -18,13 +19,18 @@ import { applyPointsToAll, applyPointsToSelection, submitAccountEdit } from '../
 const { t } = useI18n()
 const store = useLoyaltyStore()
 
+type PointsAction =
+  'give_selected' | 'remove_selected' | 'give_user' | 'remove_user' | 'give_all' | 'remove_all'
+
 const selectedLogins = ref<Set<string>>(new Set())
 const pointsAmount = ref(100)
 const searchQuery = ref('')
 const manualUserLogin = ref('')
+const pointsAction = ref<PointsAction>('give_selected')
+const isRefreshing = ref(false)
 const isEditModalOpen = ref(false)
 const isCsvImportModalOpen = ref(false)
-const pendingAllAction = ref<'give' | 'remove' | null>(null)
+const pendingAllAction = ref<Extract<PointsAction, 'give_all' | 'remove_all'> | null>(null)
 const activeEditForm = ref<AccountEditFormState>({ userLogin: '', balance: 0 })
 const resultMessage = ref<string | null>(null)
 let refreshTimer: ReturnType<typeof setInterval> | null = null
@@ -52,6 +58,33 @@ const visibleSelectedCount = computed(
 const allVisibleSelected = computed(
   () => filtered.value.length > 0 && visibleSelectedCount.value === filtered.value.length
 )
+
+const actionOptions = computed<SelectOption[]>(() => [
+  { value: 'give_selected', label: t('loyalty.leaderboard.actions.giveSelected') },
+  { value: 'remove_selected', label: t('loyalty.leaderboard.actions.removeSelected') },
+  { value: 'give_user', label: t('loyalty.leaderboard.actions.giveUser') },
+  { value: 'remove_user', label: t('loyalty.leaderboard.actions.removeUser') },
+  { value: 'give_all', label: t('loyalty.leaderboard.actions.giveAll') },
+  { value: 'remove_all', label: t('loyalty.leaderboard.actions.removeAll') }
+])
+
+const actionNeedsSelection = computed(() =>
+  ['give_selected', 'remove_selected'].includes(pointsAction.value)
+)
+const actionNeedsManualUser = computed(() =>
+  ['give_user', 'remove_user'].includes(pointsAction.value)
+)
+
+const selectedActionLabel = computed(
+  () => actionOptions.value.find((option) => option.value === pointsAction.value)?.label ?? ''
+)
+
+const executeDisabled = computed(() => {
+  if (!Number.isFinite(Number(pointsAmount.value)) || Number(pointsAmount.value) <= 0) return true
+  if (actionNeedsSelection.value) return selectedLogins.value.size === 0
+  if (actionNeedsManualUser.value) return manualUserLogin.value.trim().length === 0
+  return false
+})
 
 function toggleSelection(userLogin: string, checked: boolean): void {
   if (checked) selectedLogins.value.add(userLogin)
@@ -84,13 +117,41 @@ async function applyToManualUser(direction: 'give' | 'remove'): Promise<void> {
   manualUserLogin.value = ''
 }
 
-function requestApplyToAll(direction: 'give' | 'remove'): void {
-  pendingAllAction.value = direction
+async function refreshLeaderboard(): Promise<void> {
+  isRefreshing.value = true
+  try {
+    await store.fetchLeaderboard()
+  } finally {
+    isRefreshing.value = false
+  }
+}
+
+async function executePointsAction(): Promise<void> {
+  if (executeDisabled.value) return
+
+  if (pointsAction.value === 'give_selected') {
+    await applyToSelection('give')
+    return
+  }
+  if (pointsAction.value === 'remove_selected') {
+    await applyToSelection('remove')
+    return
+  }
+  if (pointsAction.value === 'give_user') {
+    await applyToManualUser('give')
+    return
+  }
+  if (pointsAction.value === 'remove_user') {
+    await applyToManualUser('remove')
+    return
+  }
+
+  pendingAllAction.value = pointsAction.value
 }
 
 async function confirmApplyToAll(): Promise<void> {
   if (!pendingAllAction.value) return
-  const direction = pendingAllAction.value
+  const direction = pendingAllAction.value === 'give_all' ? 'give' : 'remove'
   pendingAllAction.value = null
   await applyPointsToAll(store, pointsAmount.value, direction)
 }
@@ -142,6 +203,10 @@ function formatBalance(balance: number): string {
 <template>
   <PageSection :title="$t('loyalty.leaderboard.title')" :divided="false">
     <template #actions>
+      <AppButton size="sm" :loading="isRefreshing" @click="refreshLeaderboard">
+        <template #icon><RefreshCw class="h-3.5 w-3.5" /></template>
+        {{ $t('loyalty.leaderboard.refresh') }}
+      </AppButton>
       <AppButton size="sm" @click="openImportCsv">{{
         $t('loyalty.leaderboard.importCsv')
       }}</AppButton>
@@ -151,26 +216,45 @@ function formatBalance(balance: number): string {
     <p v-if="resultMessage" class="text-xs text-fg-muted">{{ resultMessage }}</p>
     <p v-if="store.error" class="text-xs text-danger">{{ store.error }}</p>
 
-    <div class="mt-2 flex flex-wrap items-end gap-3">
-      <div class="min-w-48 flex-1">
-        <AppInput
-          v-model="searchQuery"
-          :placeholder="$t('loyalty.leaderboard.searchPlaceholder')"
+    <div class="mt-2 max-w-sm">
+      <AppInput v-model="searchQuery" :placeholder="$t('loyalty.leaderboard.searchPlaceholder')" />
+    </div>
+
+    <div class="mt-4 rounded-md border border-line bg-surface-subtle p-3">
+      <div class="grid gap-3 md:grid-cols-[minmax(0,1.5fr)_8rem_minmax(0,1.2fr)_auto]">
+        <AppSelect
+          v-model="pointsAction"
+          :label="$t('loyalty.leaderboard.actionLabel')"
+          :options="actionOptions"
         />
-      </div>
-      <div class="w-28">
         <AppInput
           v-model="pointsAmount"
           type="number"
           :min="1"
           :label="$t('loyalty.leaderboard.points')"
         />
-      </div>
-      <div class="min-w-48 flex-1">
         <AppInput
+          v-if="actionNeedsManualUser"
           v-model="manualUserLogin"
+          :label="$t('loyalty.leaderboard.userLabel')"
           :placeholder="$t('loyalty.leaderboard.manualUserPlaceholder')"
         />
+        <div v-else class="self-end text-xs leading-5 text-fg-muted">
+          <template v-if="actionNeedsSelection">
+            {{ $t('loyalty.leaderboard.selectionHint', { count: selectedLogins.size }) }}
+          </template>
+          <template v-else>
+            {{ $t('loyalty.leaderboard.allHint') }}
+          </template>
+        </div>
+        <AppButton
+          class="self-end"
+          :variant="pointsAction.includes('remove') ? 'danger' : 'primary'"
+          :disabled="executeDisabled"
+          @click="executePointsAction"
+        >
+          {{ $t('loyalty.leaderboard.executeAction') }}
+        </AppButton>
       </div>
     </div>
 
@@ -197,49 +281,6 @@ function formatBalance(balance: number): string {
           {{ $t('loyalty.leaderboard.selectedCount', { count: selectedLogins.size }) }}
         </span>
       </div>
-      <div class="flex flex-wrap items-center gap-2">
-        <AppButton
-          size="sm"
-          variant="primary"
-          :disabled="selectedLogins.size === 0"
-          @click="applyToSelection('give')"
-        >
-          {{ $t('loyalty.leaderboard.giveSelected') }}
-        </AppButton>
-        <AppButton
-          size="sm"
-          variant="danger"
-          :disabled="selectedLogins.size === 0"
-          @click="applyToSelection('remove')"
-        >
-          {{ $t('loyalty.leaderboard.removeSelected') }}
-        </AppButton>
-      </div>
-    </div>
-
-    <div class="mt-3 flex flex-wrap items-center gap-2">
-      <AppButton size="sm" @click="requestApplyToAll('give')">
-        {{ $t('loyalty.leaderboard.giveAll') }}
-      </AppButton>
-      <AppButton size="sm" variant="danger" @click="requestApplyToAll('remove')">
-        {{ $t('loyalty.leaderboard.removeAll') }}
-      </AppButton>
-      <AppButton
-        size="sm"
-        variant="primary"
-        :disabled="!manualUserLogin.trim()"
-        @click="applyToManualUser('give')"
-      >
-        {{ $t('loyalty.leaderboard.giveManual') }}
-      </AppButton>
-      <AppButton
-        size="sm"
-        variant="danger"
-        :disabled="!manualUserLogin.trim()"
-        @click="applyToManualUser('remove')"
-      >
-        {{ $t('loyalty.leaderboard.removeManual') }}
-      </AppButton>
     </div>
 
     <EmptyState
@@ -304,16 +345,12 @@ function formatBalance(balance: number): string {
       v-if="pendingAllAction"
       :title="$t('loyalty.leaderboard.confirmAllTitle')"
       :message="
-        pendingAllAction === 'give'
+        pendingAllAction === 'give_all'
           ? $t('loyalty.leaderboard.confirmGiveAll', { amount: pointsAmount })
           : $t('loyalty.leaderboard.confirmRemoveAll', { amount: pointsAmount })
       "
-      :confirm-label="
-        pendingAllAction === 'give'
-          ? $t('loyalty.leaderboard.giveAll')
-          : $t('loyalty.leaderboard.removeAll')
-      "
-      :variant="pendingAllAction === 'remove' ? 'danger' : 'primary'"
+      :confirm-label="selectedActionLabel"
+      :variant="pendingAllAction === 'remove_all' ? 'danger' : 'primary'"
       @close="pendingAllAction = null"
       @confirm="confirmApplyToAll"
     />
