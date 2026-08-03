@@ -18,6 +18,10 @@ Die Features sollen modular geplant werden und bestehende Komponenten berücksic
 
 # 1. Erweiterung Chat-System zu einem vollständigen Twitch Chat Client
 
+Status: Teilweise umgesetzt. Native Twitch-Emotes, Badge-Anzeige und
+Benutzeraktionen im Dashboard-Chat sind umgesetzt; BTTV/7TV/FFZ und
+Multi-Channel bleiben offen.
+
 ## Ziel
 
 Der interne Chat soll langfristig alle wichtigen Funktionen des nativen Twitch Chats unterstützen und erweitern.

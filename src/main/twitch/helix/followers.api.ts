@@ -35,3 +35,15 @@ export async function fetchAllFollowers(broadcasterId: string): Promise<HelixFol
 
   return results
 }
+
+export async function fetchRecentFollowers(
+  broadcasterId: string,
+  limit = 10
+): Promise<HelixFollower[]> {
+  const params = new URLSearchParams({
+    broadcaster_id: broadcasterId,
+    first: String(Math.min(Math.max(limit, 1), 100))
+  })
+  const response = await helixFetchJson<FollowersResponse>(`/channels/followers?${params}`)
+  return response.data
+}

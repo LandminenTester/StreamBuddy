@@ -114,6 +114,14 @@ export interface IpcContracts {
   [IpcChannels.chat.setAutoConnect]: { request: { enabled: boolean }; response: boolean }
   [IpcChannels.chat.connect]: { request: void; response: ChatConnectionStatus }
   [IpcChannels.chat.onMessage]: { request: void; response: ChatFeedMessage }
+  [IpcChannels.chat.moderate]: {
+    request: {
+      action: 'timeout' | 'ban' | 'unban'
+      targetLogin: string
+      durationSeconds?: number
+    }
+    response: void
+  }
 
   [IpcChannels.automessages.list]: { request: void; response: Automessage[] }
   [IpcChannels.automessages.create]: { request: AutomessageInput; response: Automessage }

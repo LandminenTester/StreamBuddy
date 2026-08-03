@@ -5,6 +5,7 @@ import {
   connectChatClient,
   getChatStatus,
   isAutoConnectEnabled,
+  moderateChatUser,
   setAutoConnectEnabled
 } from '../twitch/chat/tmiClient'
 import { syncEventSubConnection } from '../twitch/eventsub/eventSubClient'
@@ -31,5 +32,9 @@ export function registerChatIpc(): void {
   handleTyped(IpcChannels.chat.connect, async () => {
     await connectChatClient({ manual: true })
     return getChatStatus()
+  })
+
+  handleTyped(IpcChannels.chat.moderate, async ({ action, targetLogin, durationSeconds }) => {
+    await moderateChatUser(action, targetLogin, durationSeconds)
   })
 }

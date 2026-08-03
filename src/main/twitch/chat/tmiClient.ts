@@ -21,6 +21,8 @@ import { startAdSchedulePoller, stopAdSchedulePoller } from '../ads/adSchedulePo
 import { connectModChatClient, disconnectModChatClient } from './modTmiClient'
 import { setBroadcasterClientRef } from './chatClientAccessor'
 import { clearGreetingSession, startGreetingChecker } from '../../loyalty/greetings'
+import { prepareChatBadges, resolveChatBadges } from './chatBadges'
+import { formatChatSegments } from './chatMessageFormatter'
 import { getMainWindow } from '../../window'
 import { IpcChannels } from '@shared/ipc/channels'
 import { logger } from '../../logger'
@@ -108,6 +110,7 @@ export async function connectChatClient(options: { manual?: boolean } = {}): Pro
       startRouletteScheduler(targetChannel)
       startAdSchedulePoller()
       startGreetingChecker()
+      void prepareChatBadges(targetChannel)
       void connectModChatClient(targetChannel)
     }
   })
@@ -135,6 +138,8 @@ export async function connectChatClient(options: { manual?: boolean } = {}): Pro
       displayName: tags['display-name'] ?? tags.username ?? '',
       color: tags.color ?? null,
       message,
+      segments: formatChatSegments(message, tags.emotes as Record<string, string[]> | undefined),
+      badges: resolveChatBadges(tags.badges as Record<string, string> | undefined),
       timestamp: Date.now()
     })
     void handleChatMessage(channel, tags, message)
@@ -145,6 +150,27 @@ export async function connectChatClient(options: { manual?: boolean } = {}): Pro
   } catch (error) {
     setStatus({ connected: false, lastError: (error as Error).message })
     logger.error('tmi.js-Verbindung fehlgeschlagen', error)
+  }
+}
+
+export async function moderateChatUser(
+  action: 'timeout' | 'ban' | 'unban',
+  targetLogin: string,
+  durationSeconds?: number
+): Promise<void> {
+  if (!client || !status.channel) {
+    throw new Error('Chat ist nicht verbunden')
+  }
+
+  const target = targetLogin.trim().replace(/^@/, '')
+  if (!target) throw new Error('Kein Nutzer angegeben')
+
+  if (action === 'timeout') {
+    await client.timeout(status.channel, target, durationSeconds ?? 600)
+  } else if (action === 'ban') {
+    await client.ban(status.channel, target)
+  } else {
+    await client.unban(status.channel, target)
   }
 }
 

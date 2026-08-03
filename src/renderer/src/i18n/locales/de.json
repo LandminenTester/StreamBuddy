@@ -704,7 +704,13 @@
       "title": "Twitch-Chat",
       "empty": "Noch keine Nachrichten empfangen.",
       "emptyHint": "Sobald der Bot mit dem Kanal verbunden ist, laufen die Nachrichten hier ein.",
-      "newMessages": "Neue Nachrichten anzeigen"
+      "newMessages": "Neue Nachrichten anzeigen",
+      "actions": {
+        "timeout10": "Timeout 10 Minuten",
+        "ban": "Bannen",
+        "unban": "Ban aufheben",
+        "profile": "Profil oeffnen"
+      }
     },
     "viewers": {
       "title": "Zuschauer im Chat",

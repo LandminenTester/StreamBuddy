@@ -22,6 +22,7 @@ import {
   handleResubActivityEvent,
   handleSubActivityEvent
 } from './handlers/onActivityEvent'
+import { backfillRecentActivity } from '../../activity/activityBackfill'
 import {
   scheduleReconnect,
   resetReconnectBackoff,
@@ -96,6 +97,7 @@ async function onSessionWelcome(session: {
     }
   }
   if (activityFeedEnabled) {
+    void backfillRecentActivity(broadcasterId)
     await subscribeToActivityFeedEvents(
       sessionId,
       broadcasterId,

@@ -704,7 +704,13 @@
       "title": "Twitch chat",
       "empty": "No messages received yet.",
       "emptyHint": "Once the bot is connected to the channel, messages appear here.",
-      "newMessages": "Show new messages"
+      "newMessages": "Show new messages",
+      "actions": {
+        "timeout10": "Timeout 10 minutes",
+        "ban": "Ban",
+        "unban": "Unban",
+        "profile": "Open profile"
+      }
     },
     "viewers": {
       "title": "Viewers in chat",

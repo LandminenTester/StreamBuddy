@@ -53,7 +53,8 @@ export const IpcChannels = {
     getAutoConnect: 'chat:getAutoConnect',
     setAutoConnect: 'chat:setAutoConnect',
     connect: 'chat:connect',
-    onMessage: 'chat:onMessage'
+    onMessage: 'chat:onMessage',
+    moderate: 'chat:moderate'
   },
   automessages: {
     list: 'automessages:list',
