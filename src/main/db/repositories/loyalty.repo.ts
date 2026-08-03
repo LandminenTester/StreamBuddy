@@ -33,16 +33,24 @@ function accountToDomain(row: AccountRow): LoyaltyAccount {
   }
 }
 
+/** Holt ein vorhandenes Loyalty-Konto, ohne durch eine reine Abfrage eines anzulegen. */
+export function getAccount(userLogin: string): LoyaltyAccount | null {
+  const login = userLogin.trim().replace(/^@/, '').toLowerCase()
+  if (!login) return null
+
+  const row = getDb()
+    .prepare<[string], AccountRow>('SELECT * FROM loyalty_accounts WHERE user_login = ?')
+    .get(login)
+  return row ? accountToDomain(row) : null
+}
+
 /** Holt oder erstellt das Loyalty-Konto eines Chatters (case-insensitiver Login). */
 export function getOrCreateAccount(userLogin: string): LoyaltyAccount {
   const login = userLogin.toLowerCase()
   const db = getDb()
 
-  const existing = db
-    .prepare<[string], AccountRow>('SELECT * FROM loyalty_accounts WHERE user_login = ?')
-    .get(login)
-
-  if (existing) return accountToDomain(existing)
+  const existing = getAccount(login)
+  if (existing) return existing
 
   const result = db
     .prepare('INSERT INTO loyalty_accounts (user_login, balance) VALUES (?, 0)')

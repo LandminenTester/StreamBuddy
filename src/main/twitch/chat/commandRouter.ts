@@ -4,6 +4,7 @@ import { incrementCommandUseCount, listCommands } from '../../db/repositories/co
 import {
   getLeaderboard,
   getLeaderboardEntry,
+  getAccount,
   getOrCreateAccount,
   setAccountBlacklisted
 } from '../../db/repositories/loyalty.repo'
@@ -54,12 +55,22 @@ function hasRequiredPermission(userLevel: PermissionLevel, required: PermissionL
 }
 
 function chatText(
-  key: 'points' | 'rank' | 'rankEmpty' | 'adminUsage' | 'adminDone' | 'adminInvalid'
+  key:
+    | 'points'
+    | 'pointsOther'
+    | 'pointsUnknown'
+    | 'rank'
+    | 'rankEmpty'
+    | 'adminUsage'
+    | 'adminDone'
+    | 'adminInvalid'
 ): string {
   const locale = getLocale()
   const texts = {
     de: {
       points: '@{user} du hast {points} Punkte.',
+      pointsOther: '@{requester} @{target} hat {points} Punkte.',
+      pointsUnknown: '@{requester} fuer @{target} gibt es kein Loyalty-Konto.',
       rank: 'Top 10: {top}. @{user} dein Rang: #{rank} mit {points} Punkten.',
       rankEmpty: 'Es gibt noch keine Loyalty-Konten.',
       adminUsage: 'Nutzung: !punkteadmin <nutzer> <betrag>',
@@ -68,6 +79,8 @@ function chatText(
     },
     en: {
       points: '@{user} you have {points} points.',
+      pointsOther: '@{requester} @{target} has {points} points.',
+      pointsUnknown: '@{requester} there is no loyalty account for @{target}.',
       rank: 'Top 10: {top}. @{user} your rank: #{rank} with {points} points.',
       rankEmpty: 'There are no loyalty accounts yet.',
       adminUsage: 'Usage: !pointsadmin <user> <amount>',
@@ -157,13 +170,38 @@ export async function handleChatMessage(
 
   if (loyaltyCommand === 'points') {
     if (!getLoyaltyEnabled()) return
-    const login = getTagLogin(tags)
-    if (!login) return
-    const account = getOrCreateAccount(login)
-    if (account.isBlacklisted) return
+    const requester = getTagLogin(tags)
+    if (!requester) return
+    const requesterAccount = getOrCreateAccount(requester)
+    if (requesterAccount.isBlacklisted) return
+
+    const requestedLogin = parts[1]?.replace(/^@/, '').toLowerCase()
+    if (requestedLogin && requestedLogin !== requester) {
+      const requestedAccount = getAccount(requestedLogin)
+      if (!requestedAccount || requestedAccount.isBlacklisted) {
+        await sender.say(
+          channel,
+          fill(chatText('pointsUnknown'), { requester, target: requestedLogin })
+        )
+        return
+      }
+      await sender.say(
+        channel,
+        fill(chatText('pointsOther'), {
+          requester,
+          target: requestedAccount.userLogin,
+          points: requestedAccount.balance
+        })
+      )
+      return
+    }
+
     await sender.say(
       channel,
-      fill(chatText('points'), { user: account.userLogin, points: account.balance })
+      fill(chatText('points'), {
+        user: requesterAccount.userLogin,
+        points: requesterAccount.balance
+      })
     )
     return
   }
