@@ -56,9 +56,9 @@ export async function submitPollTemplateForm(
 export async function sendPollTemplate(store: PollsStore, template: PollTemplate): Promise<void> {
   await store.createPoll({
     title: template.title,
-    choices: template.choices,
-    durationSeconds: template.durationSeconds,
-    channelPointsVotingEnabled: template.channelPointsVotingEnabled,
-    channelPointsPerVote: template.channelPointsPerVote
+    choices: [...template.choices],
+    durationSeconds: Number(template.durationSeconds),
+    channelPointsVotingEnabled: Boolean(template.channelPointsVotingEnabled),
+    channelPointsPerVote: Number(template.channelPointsPerVote)
   })
 }

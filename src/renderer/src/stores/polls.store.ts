@@ -20,6 +20,7 @@ export const usePollsStore = defineStore('polls', () => {
       polls.value.unshift(created)
     } catch (err) {
       error.value = translateError(err)
+      throw err
     } finally {
       isCreating.value = false
     }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { Plus, Vote } from 'lucide-vue-next'
 import AppBadge from '@renderer/components/ui/AppBadge.vue'
 import AppButton from '@renderer/components/ui/AppButton.vue'
@@ -36,16 +36,9 @@ const activeTemplateForm = ref<PollTemplateFormState>(emptyPollTemplateForm())
 const endingPollId = ref<number | null>(null)
 const selectedWinnerIndex = ref<number | null>(null)
 
-let unsubscribe: (() => void) | null = null
-
 onMounted(async () => {
   await store.fetchPolls()
   await templatesStore.fetchTemplates()
-  unsubscribe = store.subscribeToUpdates()
-})
-
-onUnmounted(() => {
-  unsubscribe?.()
 })
 
 const activePoll = computed(() => store.polls.find((p) => p.status === 'active'))
@@ -62,10 +55,20 @@ function openCreateModal(): void {
 
 async function handleCreate(): Promise<void> {
   if (!hasEnoughChoices.value) return
-  await submitPollForm(store, form.value)
-  if (!store.error) {
+  try {
+    await submitPollForm(store, form.value)
     form.value = emptyPollForm()
     isCreateModalOpen.value = false
+  } catch {
+    // Store haelt die sichtbare Fehlermeldung und das Modal bleibt offen.
+  }
+}
+
+async function handleSendTemplate(template: PollTemplate): Promise<void> {
+  try {
+    await sendPollTemplate(store, template)
+  } catch {
+    // Fehler wird im Template-Bereich angezeigt.
   }
 }
 
@@ -138,7 +141,12 @@ async function handleTemplateSubmit(templateForm: PollTemplateFormState): Promis
         <AppButton size="sm" variant="danger" @click="startEnding(activePoll.id)">
           {{ $t('polls.active.end') }}
         </AppButton>
-        <AppButton size="sm" variant="ghost" :title="$t('polls.resetHint')" @click="handleReset(activePoll.id)">
+        <AppButton
+          size="sm"
+          variant="ghost"
+          :title="$t('polls.resetHint')"
+          @click="handleReset(activePoll.id)"
+        >
           {{ $t('polls.active.reset') }}
         </AppButton>
       </template>
@@ -162,6 +170,8 @@ async function handleTemplateSubmit(templateForm: PollTemplateFormState): Promis
         </AppButton>
       </template>
 
+      <p v-if="store.error" class="mb-3 text-sm text-danger">{{ store.error }}</p>
+
       <EmptyState
         v-if="templatesStore.templates.length === 0"
         :title="$t('polls.templates.empty')"
@@ -178,7 +188,7 @@ async function handleTemplateSubmit(templateForm: PollTemplateFormState): Promis
             <p class="truncate text-xs text-fg-muted">{{ template.choices.join(' · ') }}</p>
           </div>
           <div class="flex shrink-0 items-center gap-1">
-            <AppButton size="sm" variant="primary" @click="sendPollTemplate(store, template)">
+            <AppButton size="sm" variant="primary" @click="handleSendTemplate(template)">
               {{ $t('polls.templates.send') }}
             </AppButton>
             <AppButton size="sm" variant="ghost" @click="openEditTemplateModal(template)">

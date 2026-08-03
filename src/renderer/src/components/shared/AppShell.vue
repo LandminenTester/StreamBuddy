@@ -17,6 +17,7 @@ import {
 } from 'lucide-vue-next'
 import { useAppInfoStore } from '@renderer/stores/appInfo.store'
 import { useChatStore } from '@renderer/stores/chat.store'
+import { usePollsStore } from '@renderer/stores/polls.store'
 import AppBadge from '@renderer/components/ui/AppBadge.vue'
 import AboutModal from './AboutModal.vue'
 import ThemeToggle from './ThemeToggle.vue'
@@ -71,10 +72,12 @@ const NAV_GROUPS: NavGroup[] = [
 const { t } = useI18n()
 const appInfoStore = useAppInfoStore()
 const chatStore = useChatStore()
+const pollsStore = usePollsStore()
 const isAboutOpen = ref(false)
 
 let unsubscribeUpdateStatus: (() => void) | null = null
 let unsubscribeChatStatus: (() => void) | null = null
+let unsubscribePollUpdates: (() => void) | null = null
 
 onMounted(async () => {
   await Promise.all([
@@ -85,11 +88,13 @@ onMounted(async () => {
   ])
   unsubscribeUpdateStatus = appInfoStore.subscribeToUpdateStatus()
   unsubscribeChatStatus = chatStore.subscribeToStatusChanges()
+  unsubscribePollUpdates = pollsStore.subscribeToUpdates()
 })
 
 onUnmounted(() => {
   unsubscribeUpdateStatus?.()
   unsubscribeChatStatus?.()
+  unsubscribePollUpdates?.()
 })
 
 const connectionLabel = computed(() =>
@@ -108,13 +113,9 @@ const hasUpdateNotice = computed(() => {
   <div class="flex h-screen w-screen overflow-hidden bg-surface text-fg">
     <aside class="flex w-60 shrink-0 flex-col border-r border-line">
       <div class="px-5 pb-4 pt-5 mx-auto">
-        <img class="w-32 pb-5" src="../../assets/img/logo.png">
+        <img class="w-32 pb-5" src="../../assets/img/logo.png" />
         <!-- <p class="text-base font-semibold tracking-tight text-fg">{{ $t('app.name') }}</p> -->
-        <AppBadge
-          class="mt-2"
-          :variant="chatStore.status.connected ? 'success' : 'neutral'"
-          dot
-        >
+        <AppBadge class="mt-2" :variant="chatStore.status.connected ? 'success' : 'neutral'" dot>
           {{ connectionLabel }}
         </AppBadge>
       </div>

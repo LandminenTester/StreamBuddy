@@ -17,8 +17,29 @@ interface PollEndEvent extends PollProgressEvent {
   status: string
 }
 
+function isPollChoice(value: unknown): value is { title: string; votes: number } {
+  if (!value || typeof value !== 'object') return false
+  const choice = value as Record<string, unknown>
+  return typeof choice.title === 'string' && typeof choice.votes === 'number'
+}
+
+function parseProgressEvent(event: Record<string, unknown>): PollProgressEvent | null {
+  if (typeof event.id !== 'string' || !Array.isArray(event.choices)) return null
+  if (!event.choices.every(isPollChoice)) return null
+  return { id: event.id, choices: event.choices }
+}
+
+function parseEndEvent(event: Record<string, unknown>): PollEndEvent | null {
+  const progress = parseProgressEvent(event)
+  if (!progress || typeof event.status !== 'string') return null
+  return { ...progress, status: event.status }
+}
+
 function toChoices(rawChoices: { title: string; votes: number }[]): PollChoice[] {
-  return rawChoices.map((choice) => ({ title: choice.title, votes: choice.votes }))
+  return rawChoices.map((choice) => ({
+    title: choice.title,
+    votes: Math.max(0, Math.floor(choice.votes))
+  }))
 }
 
 function broadcastPollUpdate(twitchPollId: string): void {
@@ -29,7 +50,11 @@ function broadcastPollUpdate(twitchPollId: string): void {
 }
 
 export function handlePollProgressEvent(event: Record<string, unknown>): void {
-  const payload = event as unknown as PollProgressEvent
+  const payload = parseProgressEvent(event)
+  if (!payload) {
+    logger.warn('Ungueltiges Poll-Progress-Event ignoriert')
+    return
+  }
   updatePollProgress(payload.id, toChoices(payload.choices))
   broadcastPollUpdate(payload.id)
 }
@@ -54,7 +79,11 @@ function highestVoteChoiceIndex(choices: PollChoice[]): number | null {
 }
 
 export function handlePollEndEvent(event: Record<string, unknown>): void {
-  const payload = event as unknown as PollEndEvent
+  const payload = parseEndEvent(event)
+  if (!payload) {
+    logger.warn('Ungueltiges Poll-End-Event ignoriert')
+    return
+  }
   const status = END_STATUS_MAP[payload.status.toLowerCase()] ?? 'terminated'
 
   const existingPoll = getPollByTwitchId(payload.id)
