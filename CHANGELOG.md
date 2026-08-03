@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.10.15](https://github.com/LandminenTester/StreamingBot/compare/v2.10.14...v2.10.15) (2026-08-03)
+
+
+### Features
+
+* improve loyalty leaderboard controls ([c1a7ea1](https://github.com/LandminenTester/StreamingBot/commit/c1a7ea1d364fb5c142ae59cd382fed44a28b980e))
+
 ## [2.10.14](https://github.com/LandminenTester/StreamingBot/compare/v2.10.13...v2.10.14) (2026-08-03)
 
 
