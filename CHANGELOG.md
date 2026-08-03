@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.10.19](https://github.com/LandminenTester/StreamingBot/compare/v2.10.18...v2.10.19) (2026-08-03)
+
+
+### Features
+
+* allow checking another users loyalty points ([9ae28c4](https://github.com/LandminenTester/StreamingBot/commit/9ae28c4c299cd1bece33446a9225658d599cb0f9))
+
 ## [2.10.18](https://github.com/LandminenTester/StreamingBot/compare/v2.10.17...v2.10.18) (2026-08-03)
 
 
