@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.8.2](https://github.com/LandminenTester/StreamingBot/compare/v2.8.1...v2.8.2) (2026-08-03)
+
+
+### Bug Fixes
+
+* **polls:** keep live updates and template starts stable ([efc0d0d](https://github.com/LandminenTester/StreamingBot/commit/efc0d0d4f5e2f8eed1eacb4ecfd014d96eb16423))
+
 ## [2.8.1](https://github.com/LandminenTester/StreamingBot/compare/v2.8.0...v2.8.1) (2026-08-03)
 
 
