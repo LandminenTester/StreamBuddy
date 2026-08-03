@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.8.3](https://github.com/LandminenTester/StreamingBot/compare/v2.8.1...v2.8.3) (2026-08-03)
+
+
+### Bug Fixes
+
+* **ads:** ignore invalid ad schedule timestamps ([34c8672](https://github.com/LandminenTester/StreamingBot/commit/34c86724c5442c47b3ee76818501a6e9bb4d5a63))
+* **chat:** keep feed subscribed across pages ([8a79f00](https://github.com/LandminenTester/StreamingBot/commit/8a79f00ad9b1f26bf02d739d485afb855be278a8))
+* **polls:** keep live updates and template starts stable ([efc0d0d](https://github.com/LandminenTester/StreamingBot/commit/efc0d0d4f5e2f8eed1eacb4ecfd014d96eb16423))
+
 ## [2.8.2](https://github.com/LandminenTester/StreamingBot/compare/v2.8.1...v2.8.2) (2026-08-03)
 
 
