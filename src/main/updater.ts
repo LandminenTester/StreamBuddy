@@ -16,6 +16,14 @@ function setStatus(status: UpdateStatus): void {
   getMainWindow()?.webContents.send(IpcChannels.app.onUpdateStatus, status)
 }
 
+function getUpdateErrorMessage(error: Error): string {
+  if (error.message.includes('latest.yml') && error.message.includes('404')) {
+    return 'Das neueste Release ist schon angelegt, aber der Installer ist noch nicht fertig. Bitte in ein paar Minuten erneut pruefen.'
+  }
+
+  return error.message
+}
+
 export function getUpdateStatus(): UpdateStatus {
   return currentStatus
 }
@@ -55,7 +63,7 @@ export function initUpdater(): void {
 
   autoUpdater.on('error', (error) => {
     logger.error('Update-Check fehlgeschlagen', error)
-    setStatus({ state: 'error', message: error.message })
+    setStatus({ state: 'error', message: getUpdateErrorMessage(error) })
   })
 }
 
@@ -77,6 +85,7 @@ export async function checkForUpdate(): Promise<void> {
     await autoUpdater.checkForUpdates()
   } catch (error) {
     logger.error('checkForUpdates() fehlgeschlagen', error)
+    setStatus({ state: 'error', message: getUpdateErrorMessage(error as Error) })
   }
 }
 
