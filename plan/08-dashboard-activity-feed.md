@@ -1,6 +1,6 @@
 # Dashboard Activity Feed
 
-Status: Umgesetzt in Version 2.11.0.
+Status: Umgesetzt in Version 2.10.4.
 
 ## Ziel
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.10.4](https://github.com/LandminenTester/StreamingBot/compare/v2.10.3...v2.10.4) (2026-08-03)
+
+
+### Features
+
+* **dashboard:** add activity feed ([fbfa4a2](https://github.com/LandminenTester/StreamingBot/commit/fbfa4a259470a6308f6eb321847a674c884ec957))
+
 ## [2.10.3](https://github.com/LandminenTester/StreamingBot/compare/v2.10.2...v2.10.3) (2026-08-03)
 
 
