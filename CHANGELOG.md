@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.10.13](https://github.com/LandminenTester/StreamingBot/compare/v2.10.12...v2.10.13) (2026-08-03)
+
+
+### Features
+
+* improve loyalty reward handling ([0f7982a](https://github.com/LandminenTester/StreamingBot/commit/0f7982a832305399af9a7298e40cab6d10672f1d))
+
 ## [2.10.12](https://github.com/LandminenTester/StreamingBot/compare/v2.10.11...v2.10.12) (2026-08-03)
 
 
