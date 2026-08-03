@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.10.11](https://github.com/LandminenTester/StreamingBot/compare/v2.10.10...v2.10.11) (2026-08-03)
+
+
+### Bug Fixes
+
+* repair reward payouts and modal closing ([5ceb34d](https://github.com/LandminenTester/StreamingBot/commit/5ceb34d98a74c31db66efd5eaa4b30a4999dd395))
+
 ## [2.10.10](https://github.com/LandminenTester/StreamingBot/compare/v2.10.9...v2.10.10) (2026-08-03)
 
 
