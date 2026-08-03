@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.10.5](https://github.com/LandminenTester/StreamingBot/compare/v2.10.4...v2.10.5) (2026-08-03)
+
+
+### Bug Fixes
+
+* archive externally ended twitch polls ([863480f](https://github.com/LandminenTester/StreamingBot/commit/863480f3025263b1d50efb2d2d14d72359dd16ed))
+
 ## [2.10.4](https://github.com/LandminenTester/StreamingBot/compare/v2.10.3...v2.10.4) (2026-08-03)
 
 
