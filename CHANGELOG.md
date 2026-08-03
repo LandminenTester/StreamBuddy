@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.10.3](https://github.com/LandminenTester/StreamingBot/compare/v2.10.2...v2.10.3) (2026-08-03)
+
+
+### Bug Fixes
+
+* **polls:** refresh active poll votes live ([4d60718](https://github.com/LandminenTester/StreamingBot/commit/4d60718ad8ff99fc405f33821643671d2c87bed2))
+
 ## [2.10.2](https://github.com/LandminenTester/StreamingBot/compare/v2.10.1...v2.10.2) (2026-08-03)
 
 
