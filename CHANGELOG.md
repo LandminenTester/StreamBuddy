@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.10.6](https://github.com/LandminenTester/StreamingBot/compare/v2.10.5...v2.10.6) (2026-08-03)
+
+
+### Features
+
+* upgrade chat client ([a4cbb53](https://github.com/LandminenTester/StreamingBot/commit/a4cbb53a8720dc0f0a42d4e66ceddb72965b0f2f))
+
 ## [2.10.5](https://github.com/LandminenTester/StreamingBot/compare/v2.10.4...v2.10.5) (2026-08-03)
 
 
