@@ -1,4 +1,4 @@
-import type { LoyaltyGame, LoyaltyGameCommand } from './LoyaltyGame'
+import type { CancelledGameRequest, LoyaltyGame, LoyaltyGameCommand } from './LoyaltyGame'
 import { gambleGame } from './gambleGame'
 import { duelGame } from './duelGame'
 import { rouletteGame } from './rouletteGame'
@@ -9,6 +9,10 @@ const GAMES: readonly LoyaltyGame[] = [gambleGame, duelGame, rouletteGame, sspGa
 
 export function getAllGames(): readonly LoyaltyGame[] {
   return GAMES
+}
+
+export function cancelPendingGameRequests(userLogin: string): CancelledGameRequest[] {
+  return GAMES.flatMap((game) => game.cancelPendingRequests?.(userLogin) ?? [])
 }
 
 /** Effektiv wirksamer Trigger: Override aus der DB, sonst der im Code hinterlegte Default. */

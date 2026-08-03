@@ -28,6 +28,12 @@ export interface LoyaltyGame {
   id: string
   commands: LoyaltyGameCommand[]
   defaultConfig: Record<string, unknown>
+  cancelPendingRequests?: (userLogin: string) => CancelledGameRequest[]
   /** Default-Ansagetext-Varianten pro Text-Slot (z.B. 'roundStart'), überschreibbar via texts-Spalte. */
   defaultTexts?: Record<string, string[]>
+}
+
+export interface CancelledGameRequest {
+  gameId: string
+  opponent: string
 }

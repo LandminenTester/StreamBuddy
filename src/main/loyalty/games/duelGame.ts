@@ -1,4 +1,4 @@
-import type { LoyaltyGame, LoyaltyGameContext } from './LoyaltyGame'
+import type { CancelledGameRequest, LoyaltyGame, LoyaltyGameContext } from './LoyaltyGame'
 import { getOrCreateAccount, insertDuelMatch } from '../../db/repositories/loyalty.repo'
 import { creditLoyalty, debitLoyalty } from '../loyaltyLedger'
 import { parseBetAmount } from './betParser'
@@ -19,6 +19,19 @@ interface PendingDuel {
 /** Offene Duell-Anfragen, keyed by Login des herausgeforderten Gegners. */
 const pendingDuels = new Map<string, PendingDuel>()
 
+function cancelPendingDuels(userLogin: string): CancelledGameRequest[] {
+  const challenger = userLogin.trim().toLowerCase()
+  const now = Date.now()
+  const cancelled: CancelledGameRequest[] = []
+
+  for (const [opponent, pending] of pendingDuels) {
+    if (pending.challenger.toLowerCase() !== challenger) continue
+    pendingDuels.delete(opponent)
+    if (pending.expiresAt >= now) cancelled.push({ gameId: 'duel', opponent })
+  }
+  return cancelled
+}
+
 async function handleChallenge(ctx: LoyaltyGameContext): Promise<void> {
   const config = ctx.config as unknown as DuelConfig
   await challengeDuel(ctx, config)
@@ -27,11 +40,12 @@ async function handleChallenge(ctx: LoyaltyGameContext): Promise<void> {
 export const duelGame: LoyaltyGame = {
   id: 'duel',
   defaultConfig: { acceptWindowSeconds: 60, minBet: 10, maxBet: 1000 } satisfies DuelConfig,
+  cancelPendingRequests: cancelPendingDuels,
   defaultTexts: {
     usage: ['@{user} Nutzung: !duel @user <Einsatz|all|xx%>'],
     selfChallenge: ['@{user} Du kannst nicht gegen dich selbst antreten.'],
     challenge: [
-      '@{opponent} wurde von @{challenger} zu einem Duell um {amount} Punkte herausgefordert! Mit "{acceptTrigger}" annehmen ({seconds}s Zeit).'
+      '@{opponent} wurde von @{challenger} zu einem Duell um {amount} Punkte herausgefordert! Mit "{acceptTrigger}" annehmen ({seconds}s Zeit). @{challenger} kann mit !cancel abbrechen.'
     ],
     noPending: ['@{user} Keine offene Duell-Anfrage.'],
     insufficientFunds: [
@@ -81,7 +95,7 @@ async function challengeDuel(ctx: LoyaltyGameContext, config: DuelConfig): Promi
   await ctx.reply(
     ctx.text(
       'challenge',
-      '@{opponent} wurde von @{challenger} zu einem Duell um {amount} Punkte herausgefordert! Mit "{acceptTrigger}" annehmen ({seconds}s Zeit).',
+      '@{opponent} wurde von @{challenger} zu einem Duell um {amount} Punkte herausgefordert! Mit "{acceptTrigger}" annehmen ({seconds}s Zeit). @{challenger} kann mit !cancel abbrechen.',
       {
         opponent: opponentLogin,
         challenger: ctx.userLogin,

@@ -35,7 +35,7 @@ export const BOT_TEXTS: Record<AppLocale, BotTextSet> = {
         usage: ['@{user} Nutzung: !duel @user <Einsatz|all|xx%>'],
         selfChallenge: ['@{user} Du kannst nicht gegen dich selbst antreten.'],
         challenge: [
-          '@{opponent} wurde von @{challenger} zu einem Duell um {amount} Punkte herausgefordert! Mit "{acceptTrigger}" annehmen ({seconds}s Zeit).'
+          '@{opponent} wurde von @{challenger} zu einem Duell um {amount} Punkte herausgefordert! Mit "{acceptTrigger}" annehmen ({seconds}s Zeit). @{challenger} kann mit !cancel abbrechen.'
         ],
         noPending: ['@{user} Keine offene Duell-Anfrage.'],
         insufficientFunds: [
@@ -69,7 +69,7 @@ export const BOT_TEXTS: Record<AppLocale, BotTextSet> = {
         selfChallenge: ['@{user} Du kannst nicht gegen dich selbst spielen.'],
         alreadyPlaying: ['@{user} Einer von euch spielt bereits Schere Stein Papier.'],
         challenge: [
-          '@{opponent} wurde von @{challenger} zu Schere Stein Papier um {amount} Punkte herausgefordert. Mit !ssp accept annehmen.'
+          '@{opponent} wurde von @{challenger} zu Schere Stein Papier um {amount} Punkte herausgefordert. Mit !ssp accept annehmen. @{challenger} kann mit !cancel abbrechen.'
         ],
         noPending: ['@{user} Keine offene SSP-Herausforderung.'],
         insufficientFunds: ['@{user} SSP abgebrochen -- nicht genug Punkte bei einem Teilnehmer.'],
@@ -114,7 +114,7 @@ export const BOT_TEXTS: Record<AppLocale, BotTextSet> = {
         usage: ['@{user} Usage: !duel @user <bet|all|xx%>'],
         selfChallenge: ['@{user} You cannot duel yourself.'],
         challenge: [
-          '@{opponent} was challenged by @{challenger} to a duel for {amount} points! Accept with "{acceptTrigger}" ({seconds}s).'
+          '@{opponent} was challenged by @{challenger} to a duel for {amount} points! Accept with "{acceptTrigger}" ({seconds}s). @{challenger} can cancel with !cancel.'
         ],
         noPending: ['@{user} No pending duel request.'],
         insufficientFunds: [
@@ -148,7 +148,7 @@ export const BOT_TEXTS: Record<AppLocale, BotTextSet> = {
         selfChallenge: ['@{user} You cannot play against yourself.'],
         alreadyPlaying: ['@{user} One of you is already playing Rock Paper Scissors.'],
         challenge: [
-          '@{opponent} was challenged by @{challenger} to Rock Paper Scissors for {amount} points. Accept with !ssp accept.'
+          '@{opponent} was challenged by @{challenger} to Rock Paper Scissors for {amount} points. Accept with !ssp accept. @{challenger} can cancel with !cancel.'
         ],
         noPending: ['@{user} No pending RPS challenge.'],
         insufficientFunds: ['@{user} RPS canceled -- one participant does not have enough points.'],

@@ -1,9 +1,10 @@
-export type BuiltInLoyaltyCommand = 'points' | 'rank' | 'pointsAdmin'
+export type BuiltInLoyaltyCommand = 'points' | 'rank' | 'pointsAdmin' | 'cancelGames'
 
 const TRIGGERS: Record<BuiltInLoyaltyCommand, readonly string[]> = {
   points: ['!punkte', '!points'],
   rank: ['!rang', '!rank'],
-  pointsAdmin: ['!punkteadmin', '!pointsadmin']
+  pointsAdmin: ['!punkteadmin', '!pointsadmin'],
+  cancelGames: ['!cancel', '!abbrechen']
 }
 
 export function resolveBuiltInLoyaltyCommand(trigger: string): BuiltInLoyaltyCommand | null {

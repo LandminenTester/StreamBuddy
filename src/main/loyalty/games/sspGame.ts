@@ -1,4 +1,4 @@
-import type { LoyaltyGame, LoyaltyGameContext } from './LoyaltyGame'
+import type { CancelledGameRequest, LoyaltyGame, LoyaltyGameContext } from './LoyaltyGame'
 import { getOrCreateAccount } from '../../db/repositories/loyalty.repo'
 import { creditLoyalty, debitLoyalty } from '../loyaltyLedger'
 import { parseBetAmount } from './betParser'
@@ -29,6 +29,19 @@ interface ActiveSspMatch extends PendingSspMatch {
 const MOVES: Move[] = ['schere', 'stein', 'papier']
 const pendingMatches = new Map<string, PendingSspMatch>()
 const activeMatches = new Map<string, ActiveSspMatch>()
+
+function cancelPendingSspMatches(userLogin: string): CancelledGameRequest[] {
+  const challenger = cleanLogin(userLogin)
+  const now = Date.now()
+  const cancelled: CancelledGameRequest[] = []
+
+  for (const [opponent, pending] of pendingMatches) {
+    if (pending.challenger !== challenger) continue
+    pendingMatches.delete(opponent)
+    if (pending.expiresAt >= now) cancelled.push({ gameId: 'ssp', opponent })
+  }
+  return cancelled
+}
 
 function cleanLogin(login: string): string {
   return login.replace(/^@/, '').trim().toLowerCase()
@@ -111,7 +124,7 @@ async function challenge(ctx: LoyaltyGameContext, config: SspConfig): Promise<vo
   await ctx.reply(
     ctx.text(
       'challenge',
-      '@{opponent} wurde von @{challenger} zu Schere Stein Papier um {amount} Punkte herausgefordert. Mit !ssp accept annehmen.',
+      '@{opponent} wurde von @{challenger} zu Schere Stein Papier um {amount} Punkte herausgefordert. Mit !ssp accept annehmen. @{challenger} kann mit !cancel abbrechen.',
       { opponent, challenger, amount }
     )
   )
@@ -304,12 +317,13 @@ export const sspGame: LoyaltyGame = {
     minBet: 10,
     maxBet: 1000
   } satisfies SspConfig,
+  cancelPendingRequests: cancelPendingSspMatches,
   defaultTexts: {
     usage: ['@{user} Nutzung: !ssp @user <Punkte|all|xx%>'],
     selfChallenge: ['@{user} Du kannst nicht gegen dich selbst spielen.'],
     alreadyPlaying: ['@{user} Einer von euch spielt bereits Schere Stein Papier.'],
     challenge: [
-      '@{opponent} wurde von @{challenger} zu Schere Stein Papier um {amount} Punkte herausgefordert. Mit !ssp accept annehmen.'
+      '@{opponent} wurde von @{challenger} zu Schere Stein Papier um {amount} Punkte herausgefordert. Mit !ssp accept annehmen. @{challenger} kann mit !cancel abbrechen.'
     ],
     noPending: ['@{user} Keine offene SSP-Herausforderung.'],
     insufficientFunds: ['@{user} SSP abgebrochen -- nicht genug Punkte bei einem Teilnehmer.'],

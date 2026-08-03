@@ -20,6 +20,7 @@ import {
 } from '@shared/utils/wertPlaceholders'
 import { pickRandomMessage } from '../../db/repositories/botMessages.repo'
 import {
+  cancelPendingGameRequests,
   getGameByTrigger,
   getGameRuntimeConfig,
   getGameRuntimeTexts,
@@ -64,6 +65,8 @@ function chatText(
     | 'adminUsage'
     | 'adminDone'
     | 'adminInvalid'
+    | 'cancelDone'
+    | 'cancelNone'
 ): string {
   const locale = getLocale()
   const texts = {
@@ -75,7 +78,9 @@ function chatText(
       rankEmpty: 'Es gibt noch keine Loyalty-Konten.',
       adminUsage: 'Nutzung: !punkteadmin <nutzer> <betrag>',
       adminDone: '@{target} wurde um {amount} Punkte angepasst. Neuer Stand: {points}.',
-      adminInvalid: 'Betrag muss eine Zahl ungleich 0 sein.'
+      adminInvalid: 'Betrag muss eine Zahl ungleich 0 sein.',
+      cancelDone: '@{user} Spielanfragen abgebrochen: {requests}.',
+      cancelNone: '@{user} du hast keine offene Spielanfrage.'
     },
     en: {
       points: '@{user} you have {points} points.',
@@ -85,7 +90,9 @@ function chatText(
       rankEmpty: 'There are no loyalty accounts yet.',
       adminUsage: 'Usage: !pointsadmin <user> <amount>',
       adminDone: '@{target} was adjusted by {amount} points. New balance: {points}.',
-      adminInvalid: 'Amount must be a non-zero number.'
+      adminInvalid: 'Amount must be a non-zero number.',
+      cancelDone: '@{user} game requests canceled: {requests}.',
+      cancelNone: '@{user} you have no pending game request.'
     }
   } as const
   return texts[locale][key]
@@ -255,6 +262,22 @@ export async function handleChatMessage(
         points: updated.balance
       })
     )
+    return
+  }
+
+  if (loyaltyCommand === 'cancelGames') {
+    if (!getLoyaltyEnabled()) return
+    const login = getTagLogin(tags)
+    if (!login || getOrCreateAccount(login).isBlacklisted) return
+    const cancelled = cancelPendingGameRequests(login)
+    if (cancelled.length === 0) {
+      await sender.say(channel, fill(chatText('cancelNone'), { user: login }))
+      return
+    }
+    const requests = cancelled
+      .map((request) => `${request.gameId} @${request.opponent}`)
+      .join(', ')
+    await sender.say(channel, fill(chatText('cancelDone'), { user: login, requests }))
     return
   }
 
