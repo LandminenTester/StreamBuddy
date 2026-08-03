@@ -1,3 +1,4 @@
+import WebSocket from 'ws'
 import { getUserIdByLogin } from '../helix/users.api'
 import { listTwitchRewards } from '../helix/channelPoints.api'
 import { getSetting } from '../../db/repositories/appSettings.repo'
@@ -228,14 +229,16 @@ function handleMessage(raw: string): void {
 
 function connect(url: string): void {
   ws = new WebSocket(url)
-  ws.addEventListener('message', (event) => handleMessage(event.data as string))
-  ws.addEventListener('close', () => {
+  ws.on('message', (data) => {
+    handleMessage(data.toString())
+  })
+  ws.on('close', () => {
     clearKeepaliveWatchdog()
     if (!intentionalClose) {
       scheduleReconnect(reconnect)
     }
   })
-  ws.addEventListener('error', (error) => {
+  ws.on('error', (error) => {
     logger.error('EventSub-WebSocket-Fehler', error)
   })
 }
