@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.10.2](https://github.com/LandminenTester/StreamingBot/compare/v2.10.1...v2.10.2) (2026-08-03)
+
+
+### Bug Fixes
+
+* **channel-points:** resolve reward redemptions reliably ([812d616](https://github.com/LandminenTester/StreamingBot/commit/812d616362103bc810486a5ffa34d103b47de176))
+
 ## [2.10.1](https://github.com/LandminenTester/StreamingBot/compare/v2.10.0...v2.10.1) (2026-08-03)
 
 
