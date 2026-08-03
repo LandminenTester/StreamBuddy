@@ -31,6 +31,7 @@ import { isStreamLive } from '../../stats/viewerCountPoller'
 import { getActiveChatClient } from './chatClientAccessor'
 import { getLocale } from '../../locale'
 import { logger } from '../../logger'
+import { sendWhisper } from '../helix/whispers.api'
 
 const PERMISSION_ORDER: PermissionLevel[] = ['everyone', 'subscriber', 'moderator', 'broadcaster']
 
@@ -242,10 +243,7 @@ export async function handleChatMessage(
         getActiveChatClient()
           ?.say(channel, text)
           .then(() => undefined) ?? Promise.resolve(),
-      whisper: (targetLogin, text) =>
-        getActiveChatClient()
-          ?.whisper(targetLogin, text)
-          .then(() => undefined) ?? Promise.resolve(),
+      whisper: sendWhisper,
       config: getGameRuntimeConfig(game.id),
       text: (slot, fallback, values = {}) =>
         fill(pickTextVariant(gameTexts, slot) || fallback, values)
@@ -309,7 +307,7 @@ async function sendCommandResponse(
 
   switch (command.deliveryMode) {
     case 'whisper':
-      await sender.whisper(userLogin, resolvedResponse)
+      await sendWhisper(userLogin, resolvedResponse)
       return
     case 'mention':
       await sender.say(channel, `@${userLogin} ${resolvedResponse}`)

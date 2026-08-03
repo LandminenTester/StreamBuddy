@@ -510,6 +510,7 @@
       "alreadyPlaying": "Bereits im Spiel",
       "privateOptions": "Private Optionen",
       "accepted": "Angenommen",
+      "privateDeliveryFailed": "Private Zustellung fehlgeschlagen",
       "noActive": "Kein aktives Spiel",
       "alreadyChosen": "Auswahl bereits gespeichert",
       "choiceSaved": "Auswahl gespeichert",

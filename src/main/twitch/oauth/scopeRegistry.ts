@@ -6,7 +6,13 @@ import { listFeatureScopes, upsertFeatureScope } from '../../db/repositories/aut
  * Basis-Chat-Funktionalität ab und ist immer aktiv (kein Toggle in der UI).
  */
 export const FEATURE_SCOPE_MAP: Record<FeatureKey, string[]> = {
-  core_chat: ['chat:read', 'chat:edit', 'user:read:chat', 'user:write:chat'],
+  core_chat: [
+    'chat:read',
+    'chat:edit',
+    'user:read:chat',
+    'user:write:chat',
+    'user:manage:whispers'
+  ],
   channel_points: ['channel:read:redemptions', 'channel:manage:redemptions'],
   polls: ['channel:read:polls', 'channel:manage:polls'],
   loyalty_follow_sub: ['moderator:read:followers', 'channel:read:subscriptions'],

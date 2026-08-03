@@ -2,6 +2,7 @@ import type { LoyaltyGame, LoyaltyGameContext } from './LoyaltyGame'
 import { getOrCreateAccount } from '../../db/repositories/loyalty.repo'
 import { creditLoyalty, debitLoyalty } from '../loyaltyLedger'
 import { parseBetAmount } from './betParser'
+import { logger } from '../../logger'
 
 type Move = 'schere' | 'stein' | 'papier'
 
@@ -155,22 +156,37 @@ async function accept(ctx: LoyaltyGameContext): Promise<void> {
   }
   activeMatches.set(matchKey(pending.challenger, opponent), match)
 
-  await ctx.whisper(
-    pending.challenger,
-    ctx.text(
-      'privateOptions',
-      'SSP gegen @{opponent}: Antworte mit !ssp 1, !ssp 2 oder !ssp 3. Deine Zuordnung: {mapping}.',
-      { opponent, mapping: formatMapping(match.mappings[pending.challenger]) }
+  try {
+    await Promise.all([
+      ctx.whisper(
+        pending.challenger,
+        ctx.text(
+          'privateOptions',
+          'SSP gegen @{opponent}: Antworte mit !ssp 1, !ssp 2 oder !ssp 3. Deine Zuordnung: {mapping}.',
+          { opponent, mapping: formatMapping(match.mappings[pending.challenger]) }
+        )
+      ),
+      ctx.whisper(
+        opponent,
+        ctx.text(
+          'privateOptions',
+          'SSP gegen @{opponent}: Antworte mit !ssp 1, !ssp 2 oder !ssp 3. Deine Zuordnung: {mapping}.',
+          { opponent: pending.challenger, mapping: formatMapping(match.mappings[opponent]) }
+        )
+      )
+    ])
+  } catch (error) {
+    logger.error('SSP abgebrochen: Private Optionen konnten nicht zugestellt werden', error)
+    activeMatches.delete(matchKey(pending.challenger, opponent))
+    await ctx.reply(
+      ctx.text(
+        'privateDeliveryFailed',
+        '@{challenger} @{opponent} SSP abgebrochen -- private Optionen konnten nicht zugestellt werden.',
+        { challenger: pending.challenger, opponent }
+      )
     )
-  )
-  await ctx.whisper(
-    opponent,
-    ctx.text(
-      'privateOptions',
-      'SSP gegen @{opponent}: Antworte mit !ssp 1, !ssp 2 oder !ssp 3. Deine Zuordnung: {mapping}.',
-      { opponent: pending.challenger, mapping: formatMapping(match.mappings[opponent]) }
-    )
-  )
+    return
+  }
   await ctx.reply(
     ctx.text(
       'accepted',
@@ -302,6 +318,9 @@ export const sspGame: LoyaltyGame = {
     ],
     accepted: [
       'SSP zwischen @{challenger} und @{opponent} wurde angenommen. Beide haben ihre Optionen privat erhalten.'
+    ],
+    privateDeliveryFailed: [
+      '@{challenger} @{opponent} SSP abgebrochen -- private Optionen konnten nicht zugestellt werden.'
     ],
     noActive: ['Du hast gerade kein aktives SSP-Spiel.'],
     alreadyChosen: ['Deine SSP-Auswahl wurde bereits gespeichert.'],

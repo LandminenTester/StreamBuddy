@@ -79,6 +79,9 @@ export const BOT_TEXTS: Record<AppLocale, BotTextSet> = {
         accepted: [
           'SSP zwischen @{challenger} und @{opponent} wurde angenommen. Beide haben ihre Optionen privat erhalten.'
         ],
+        privateDeliveryFailed: [
+          '@{challenger} @{opponent} SSP abgebrochen -- private Optionen konnten nicht zugestellt werden.'
+        ],
         noActive: ['Du hast gerade kein aktives SSP-Spiel.'],
         alreadyChosen: ['Deine SSP-Auswahl wurde bereits gespeichert.'],
         choiceSaved: ['Auswahl gespeichert: {choice}. Warte auf den anderen Spieler.'],
@@ -154,6 +157,9 @@ export const BOT_TEXTS: Record<AppLocale, BotTextSet> = {
         ],
         accepted: [
           'RPS between @{challenger} and @{opponent} was accepted. Both players received their options privately.'
+        ],
+        privateDeliveryFailed: [
+          '@{challenger} @{opponent} RPS canceled -- private options could not be delivered.'
         ],
         noActive: ['You do not have an active RPS game.'],
         alreadyChosen: ['Your RPS choice was already saved.'],

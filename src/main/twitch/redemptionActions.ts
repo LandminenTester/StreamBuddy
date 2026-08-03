@@ -12,6 +12,7 @@ import { creditLoyalty } from '../loyalty/loyaltyLedger'
 import { getSetting } from '../db/repositories/appSettings.repo'
 import { getActiveChatClient } from './chat/chatClientAccessor'
 import { logger } from '../logger'
+import { sendWhisper } from './helix/whispers.api'
 
 function resolveCommandResponse(
   response: string,
@@ -49,7 +50,7 @@ async function sendRewardCommandResponse(
   }
 
   if (command.deliveryMode === 'whisper') {
-    await sender.whisper(userLogin, resolvedResponse)
+    await sendWhisper(userLogin, resolvedResponse)
     return
   }
 
