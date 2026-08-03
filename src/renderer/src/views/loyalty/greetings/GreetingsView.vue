@@ -7,6 +7,7 @@ import AppToggle from '@renderer/components/ui/AppToggle.vue'
 import EmptyState from '@renderer/components/ui/EmptyState.vue'
 import PageSection from '@renderer/components/ui/PageSection.vue'
 import StringListInput from '@renderer/components/shared/StringListInput.vue'
+import BlacklistEditor from '../blacklist/BlacklistEditor.vue'
 import { useLoyaltyStore } from '@renderer/stores/loyalty.store'
 import { useFollowersStore } from '@renderer/stores/followers.store'
 import type { LoyaltyGreetingSettings, LoyaltyPersonalGreeting } from '@shared/types/loyalty'
@@ -184,4 +185,6 @@ async function save(): Promise<void> {
       </div>
     </div>
   </PageSection>
+
+  <BlacklistEditor divided />
 </template>

@@ -20,6 +20,26 @@ export const i18n = createI18n({
   locale: FALLBACK_LOCALE,
   fallbackLocale: FALLBACK_LOCALE,
   messages: { de, en },
+  datetimeFormats: {
+    de: {
+      short: {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      }
+    },
+    en: {
+      short: {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      }
+    }
+  },
   // Fehlende Keys sind im Betrieb unkritisch (Fallback greift); das Pruefskript
   // scripts/i18n-check.mjs faengt sie vor dem Commit ab.
   missingWarn: import.meta.env.DEV,

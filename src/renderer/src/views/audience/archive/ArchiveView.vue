@@ -6,6 +6,7 @@ import EmptyState from '@renderer/components/ui/EmptyState.vue'
 import PageSection from '@renderer/components/ui/PageSection.vue'
 import AppBadge from '@renderer/components/ui/AppBadge.vue'
 import { useViewersStore } from '@renderer/stores/viewers.store'
+import type { ViewerSession } from '@shared/types/viewers'
 
 const { t, d } = useI18n()
 const store = useViewersStore()
@@ -23,7 +24,20 @@ async function toggleStream(streamId: string): Promise<void> {
 
 function formatDate(ts: number | null): string {
   if (!ts || !Number.isFinite(ts) || ts <= 0) return t('common.none')
-  return d(new Date(ts * 1000), 'short')
+  const milliseconds = ts > 10_000_000_000 ? ts : ts * 1000
+  return d(new Date(milliseconds), 'short')
+}
+
+function joinedSince(session: ViewerSession): string {
+  if (Number.isFinite(session.joinedAt) && session.joinedAt > 0) {
+    return formatDate(session.joinedAt)
+  }
+  if (session.durationSeconds === null || session.durationSeconds < 0) {
+    return t('common.none')
+  }
+
+  const sessionEnd = session.leftAt ?? Math.floor(Date.now() / 1000)
+  return formatDate(sessionEnd - session.durationSeconds)
 }
 
 function formatDuration(seconds: number | null): string {
@@ -144,7 +158,7 @@ const currentStats = computed(() => store.selectedStreamStats)
                   class="text-fg-muted"
                 >
                   <td class="py-1.5 pr-3 font-medium text-fg">{{ session.userLogin }}</td>
-                  <td class="py-1.5 pr-3">{{ formatDate(session.joinedAt) }}</td>
+                  <td class="py-1.5 pr-3">{{ joinedSince(session) }}</td>
                   <td class="py-1.5 pr-3">{{ formatGames(session.games) }}</td>
                   <td class="py-1.5">{{ formatViewDuration(session.durationSeconds) }}</td>
                 </tr>
