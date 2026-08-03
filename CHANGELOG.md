@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.10.18](https://github.com/LandminenTester/StreamingBot/compare/v2.10.17...v2.10.18) (2026-08-03)
+
+
+### Bug Fixes
+
+* correct loyalty chat command triggers ([b681866](https://github.com/LandminenTester/StreamingBot/commit/b681866d77781c20dcfa065a4b30cd9a49c26f33))
+
 ## [2.10.17](https://github.com/LandminenTester/StreamingBot/compare/v2.10.16...v2.10.17) (2026-08-03)
 
 
