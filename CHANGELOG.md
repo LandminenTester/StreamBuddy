@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.10.20](https://github.com/LandminenTester/StreamingBot/compare/v2.10.19...v2.10.20) (2026-08-03)
+
+
+### Features
+
+* add game request cancel command ([24c2fc3](https://github.com/LandminenTester/StreamingBot/commit/24c2fc3f8022b1470a3b55ad4a82f7bbf82f483b))
+
 ## [2.10.19](https://github.com/LandminenTester/StreamingBot/compare/v2.10.18...v2.10.19) (2026-08-03)
 
 
