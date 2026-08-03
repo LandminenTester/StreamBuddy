@@ -17,7 +17,7 @@ import GameCommandsModal from '@renderer/components/games/GameCommandsModal.vue'
 import GameTextsModal from '@renderer/components/games/GameTextsModal.vue'
 import { useLoyaltyStore } from '@renderer/stores/loyalty.store'
 import { activeLocaleTag } from '@renderer/i18n'
-import type { LoyaltyGameHistoryEntry } from '@shared/types/loyalty'
+import type { LoyaltyDuelMatch, LoyaltyGameHistoryEntry } from '@shared/types/loyalty'
 import {
   gameDisplayName,
   gameLabel,
@@ -99,6 +99,13 @@ const historyColumns = computed<DataTableColumn[]>(() => [
   { key: 'time', label: t('games.history.time') },
   { key: 'user', label: t('games.history.user') },
   { key: 'result', label: t('games.history.result') },
+  { key: 'amount', label: t('games.history.amount'), align: 'right' }
+])
+
+const duelColumns = computed<DataTableColumn[]>(() => [
+  { key: 'time', label: t('games.history.time') },
+  { key: 'match', label: t('games.history.match') },
+  { key: 'winner', label: t('games.history.winner') },
   { key: 'amount', label: t('games.history.amount'), align: 'right' }
 ])
 
@@ -200,11 +207,37 @@ async function saveTexts(texts: Record<string, string[]>): Promise<void> {
       </p>
     </PageSection>
 
-    <PageSection :title="$t('games.sections.stats')">
+    <PageSection v-if="game.gameId !== 'duel'" :title="$t('games.sections.stats')">
       <StatRow :items="stats" />
     </PageSection>
 
-    <PageSection :title="$t('games.sections.history')">
+    <PageSection v-if="game.gameId === 'duel'" :title="$t('games.sections.history')">
+      <DataTable
+        :columns="duelColumns"
+        :rows="store.duelMatches"
+        :row-key="(row: LoyaltyDuelMatch) => row.id"
+        max-height="max-h-96"
+      >
+        <template #empty>
+          <EmptyState :title="$t('games.history.empty')" />
+        </template>
+        <template #time="{ row }">
+          <span class="text-xs text-fg-muted">{{ formatDate(row.createdAt) }}</span>
+        </template>
+        <template #match="{ row }">
+          {{ $t('games.history.versus', { a: row.challengerLogin, b: row.opponentLogin }) }}
+        </template>
+        <template #winner="{ row }">
+          <span class="font-medium text-success">{{ row.winnerLogin }}</span>
+          <span class="text-fg-muted"> / {{ row.loserLogin }}</span>
+        </template>
+        <template #amount="{ row }">
+          <span class="font-medium tabular-nums text-fg">{{ row.amount }}</span>
+        </template>
+      </DataTable>
+    </PageSection>
+
+    <PageSection v-else :title="$t('games.sections.history')">
       <DataTable
         :columns="historyColumns"
         :rows="store.gameHistory"

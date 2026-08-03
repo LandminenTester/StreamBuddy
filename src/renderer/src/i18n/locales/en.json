@@ -514,6 +514,9 @@
     "history": {
       "time": "Time",
       "user": "User",
+      "match": "Match",
+      "winner": "Winner / loser",
+      "versus": "{a} vs {b}",
       "result": "Result",
       "amount": "Amount",
       "won": "Won",

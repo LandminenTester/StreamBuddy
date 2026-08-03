@@ -1,5 +1,12 @@
 export type LoyaltyTransactionReason =
-  'follow' | 'sub' | 'gift_sub' | 'view_time' | 'game_win' | 'game_loss' | 'manual_adjust' | 'channel_point_exchange'
+  | 'follow'
+  | 'sub'
+  | 'gift_sub'
+  | 'view_time'
+  | 'game_win'
+  | 'game_loss'
+  | 'manual_adjust'
+  | 'channel_point_exchange'
 
 export interface LoyaltyAccount {
   id: number
@@ -62,6 +69,16 @@ export interface LoyaltyGameStats {
   totalWon: number
   totalLost: number
   actualWinRatePercent: number
+}
+
+export interface LoyaltyDuelMatch {
+  id: number
+  challengerLogin: string
+  opponentLogin: string
+  winnerLogin: string
+  loserLogin: string
+  amount: number
+  createdAt: number
 }
 
 export interface LoyaltyLeaderboardEntry {

@@ -10,6 +10,7 @@ import {
   getOrCreateAccount,
   listAllAccounts,
   listBlacklistedAccounts,
+  listDuelMatches,
   listEarnRules,
   listGameConfigs,
   listTransactionsByGame,
@@ -246,6 +247,8 @@ export function registerLoyaltyIpc(): void {
   handleTyped(IpcChannels.loyalty.listGameHistory, ({ gameId, limit }) =>
     listTransactionsByGame(gameId, limit ?? 50)
   )
+
+  handleTyped(IpcChannels.loyalty.listDuelMatches, ({ limit }) => listDuelMatches(limit ?? 50))
 
   handleTyped(IpcChannels.loyalty.getGameStats, ({ gameId }) => getGameStats(gameId))
 

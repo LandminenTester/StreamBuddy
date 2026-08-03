@@ -104,6 +104,7 @@ export const IpcChannels = {
     updateGameTriggers: 'loyalty:updateGameTriggers',
     updateGameTexts: 'loyalty:updateGameTexts',
     listGameHistory: 'loyalty:listGameHistory',
+    listDuelMatches: 'loyalty:listDuelMatches',
     getGameStats: 'loyalty:getGameStats',
     listRouletteColors: 'loyalty:listRouletteColors',
     getOfflineMessages: 'loyalty:getOfflineMessages',

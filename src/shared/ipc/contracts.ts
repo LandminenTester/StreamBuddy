@@ -31,6 +31,7 @@ import type { Poll, PollCreateInput, PollTemplate, PollTemplateInput } from '../
 import type {
   LoyaltyAccount,
   LoyaltyEarnRule,
+  LoyaltyDuelMatch,
   LoyaltyGameHistoryEntry,
   LoyaltyGameInfo,
   LoyaltyGameStats,
@@ -211,6 +212,10 @@ export interface IpcContracts {
     request: { gameId: string; limit?: number }
     response: LoyaltyGameHistoryEntry[]
   }
+  [IpcChannels.loyalty.listDuelMatches]: {
+    request: { limit?: number }
+    response: LoyaltyDuelMatch[]
+  }
   [IpcChannels.loyalty.getGameStats]: {
     request: { gameId: string }
     response: LoyaltyGameStats
@@ -241,7 +246,10 @@ export interface IpcContracts {
     response: CommandTracker
   }
   [IpcChannels.trackers.delete]: { request: { id: number }; response: void }
-  [IpcChannels.trackers.adjust]: { request: { id: number; delta: number }; response: CommandTracker }
+  [IpcChannels.trackers.adjust]: {
+    request: { id: number; delta: number }
+    response: CommandTracker
+  }
   [IpcChannels.trackers.setTextValue]: {
     request: { id: number; value: string }
     response: CommandTracker
@@ -267,8 +275,14 @@ export interface IpcContracts {
   [IpcChannels.followers.onSyncComplete]: { request: void; response: SyncResult }
 
   [IpcChannels.viewers.getPresent]: { request: void; response: string[] }
-  [IpcChannels.viewers.getStreams]: { request: { limit?: number; offset?: number }; response: StreamSummary[] }
-  [IpcChannels.viewers.getStreamViewers]: { request: { streamId: string }; response: ViewerSession[] }
+  [IpcChannels.viewers.getStreams]: {
+    request: { limit?: number; offset?: number }
+    response: StreamSummary[]
+  }
+  [IpcChannels.viewers.getStreamViewers]: {
+    request: { streamId: string }
+    response: ViewerSession[]
+  }
   [IpcChannels.viewers.getStreamStats]: { request: { streamId: string }; response: StreamStats }
   [IpcChannels.viewers.onPresenceUpdate]: { request: void; response: string[] }
 }

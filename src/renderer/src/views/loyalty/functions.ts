@@ -84,7 +84,7 @@ export async function updateGameTextSlot(
 export async function selectGame(store: LoyaltyStore, gameId: string): Promise<void> {
   await Promise.all([
     store.fetchGameHistory(gameId),
-    store.fetchGameStats(gameId),
+    gameId === 'duel' ? store.fetchDuelMatches() : store.fetchGameStats(gameId),
     gameId === 'roulette' ? store.fetchRouletteColors() : Promise.resolve()
   ])
 }

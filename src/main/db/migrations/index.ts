@@ -16,6 +16,7 @@ import migration014 from './014_command_trackers.sql?raw'
 import migration015 from './015_werte_type.sql?raw'
 import migration016 from './016_command_tracker_actions.sql?raw'
 import migration017 from './017_channel_points_loyalty_exchange.sql?raw'
+import migration018 from './018_duel_matches.sql?raw'
 import { logger } from '../../logger'
 
 /** Migrationen in Reihenfolge, Index+1 entspricht der Ziel-`user_version`. */
@@ -36,7 +37,8 @@ const MIGRATIONS: readonly string[] = [
   migration014,
   migration015,
   migration016,
-  migration017
+  migration017,
+  migration018
 ]
 
 /**

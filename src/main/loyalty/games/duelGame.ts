@@ -1,6 +1,6 @@
 import type { LoyaltyGame, LoyaltyGameContext } from './LoyaltyGame'
-import { getOrCreateAccount } from '../../db/repositories/loyalty.repo'
-import { creditLoyalty } from '../loyaltyLedger'
+import { getOrCreateAccount, insertDuelMatch } from '../../db/repositories/loyalty.repo'
+import { creditLoyalty, debitLoyalty } from '../loyaltyLedger'
 import { parseBetAmount } from './betParser'
 import { resolveCommandTrigger } from './gameRegistry'
 
@@ -92,7 +92,14 @@ async function acceptDuel(ctx: LoyaltyGameContext): Promise<void> {
   const loser = challengerWins ? ctx.userLogin : pending.challenger
 
   creditLoyalty(winner, pending.amount, 'game_win', 'duel')
-  creditLoyalty(loser, -pending.amount, 'game_loss', 'duel')
+  debitLoyalty(loser, pending.amount, 'game_loss', 'duel')
+  insertDuelMatch({
+    challengerLogin: pending.challenger.toLowerCase(),
+    opponentLogin,
+    winnerLogin: winner.toLowerCase(),
+    loserLogin: loser.toLowerCase(),
+    amount: pending.amount
+  })
 
   await ctx.reply(`Duell entschieden: @${winner} gewinnt ${pending.amount} Punkte von @${loser}!`)
 }

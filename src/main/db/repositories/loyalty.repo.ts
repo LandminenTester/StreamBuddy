@@ -5,6 +5,7 @@ import type {
   LoyaltyGameConfig,
   LoyaltyGameHistoryEntry,
   LoyaltyGameStats,
+  LoyaltyDuelMatch,
   LoyaltyLeaderboardEntry,
   LoyaltyTransaction,
   LoyaltyTransactionReason
@@ -157,6 +158,60 @@ export function getGameStats(gameId: string): LoyaltyGameStats {
     totalLost: loss?.total ?? 0,
     actualWinRatePercent: totalRounds > 0 ? Math.round((winCount / totalRounds) * 1000) / 10 : 0
   }
+}
+
+interface DuelMatchRow {
+  id: number
+  challenger_login: string
+  opponent_login: string
+  winner_login: string
+  loser_login: string
+  amount: number
+  created_at: number
+}
+
+function duelMatchToDomain(row: DuelMatchRow): LoyaltyDuelMatch {
+  return {
+    id: row.id,
+    challengerLogin: row.challenger_login,
+    opponentLogin: row.opponent_login,
+    winnerLogin: row.winner_login,
+    loserLogin: row.loser_login,
+    amount: row.amount,
+    createdAt: row.created_at
+  }
+}
+
+export function insertDuelMatch(input: {
+  challengerLogin: string
+  opponentLogin: string
+  winnerLogin: string
+  loserLogin: string
+  amount: number
+}): LoyaltyDuelMatch {
+  const now = Date.now()
+  const result = getDb()
+    .prepare(
+      `INSERT INTO loyalty_duel_matches
+        (challenger_login, opponent_login, winner_login, loser_login, amount, created_at)
+       VALUES (@challengerLogin, @opponentLogin, @winnerLogin, @loserLogin, @amount, @now)`
+    )
+    .run({ ...input, now })
+
+  return {
+    id: Number(result.lastInsertRowid),
+    ...input,
+    createdAt: now
+  }
+}
+
+export function listDuelMatches(limit = 50): LoyaltyDuelMatch[] {
+  return getDb()
+    .prepare<[number], DuelMatchRow>(
+      'SELECT * FROM loyalty_duel_matches ORDER BY created_at DESC LIMIT ?'
+    )
+    .all(limit)
+    .map(duelMatchToDomain)
 }
 
 export function getLeaderboard(limit = 25): LoyaltyLeaderboardEntry[] {

@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import type {
   LoyaltyAccount,
+  LoyaltyDuelMatch,
   LoyaltyEarnRule,
   LoyaltyGameHistoryEntry,
   LoyaltyGameInfo,
@@ -21,6 +22,7 @@ export const useLoyaltyStore = defineStore('loyalty', () => {
   const error = ref<string | null>(null)
   const gameHistory = ref<LoyaltyGameHistoryEntry[]>([])
   const gameStats = ref<LoyaltyGameStats | null>(null)
+  const duelMatches = ref<LoyaltyDuelMatch[]>([])
   const rouletteColors = ref<RouletteRoundResult[]>([])
   const offlineMessages = ref<string[]>([])
   const greetingSettings = ref<LoyaltyGreetingSettings>({
@@ -150,6 +152,10 @@ export const useLoyaltyStore = defineStore('loyalty', () => {
     gameHistory.value = await window.api.invoke('loyalty:listGameHistory', { gameId, limit })
   }
 
+  async function fetchDuelMatches(limit?: number): Promise<void> {
+    duelMatches.value = await window.api.invoke('loyalty:listDuelMatches', { limit })
+  }
+
   async function fetchGameStats(gameId: string): Promise<void> {
     gameStats.value = await window.api.invoke('loyalty:getGameStats', { gameId })
   }
@@ -204,6 +210,7 @@ export const useLoyaltyStore = defineStore('loyalty', () => {
     error,
     gameHistory,
     gameStats,
+    duelMatches,
     rouletteColors,
     offlineMessages,
     greetingSettings,
@@ -226,6 +233,7 @@ export const useLoyaltyStore = defineStore('loyalty', () => {
     updateGameTriggers,
     updateGameTexts,
     fetchGameHistory,
+    fetchDuelMatches,
     fetchGameStats,
     fetchRouletteColors,
     fetchOfflineMessages,
