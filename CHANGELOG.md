@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.10.14](https://github.com/LandminenTester/StreamingBot/compare/v2.10.13...v2.10.14) (2026-08-03)
+
+
+### Bug Fixes
+
+* keep redemption list visible ([90ce28e](https://github.com/LandminenTester/StreamingBot/commit/90ce28e391fdeb80739f815f865fb27025caf429))
+
 ## [2.10.13](https://github.com/LandminenTester/StreamingBot/compare/v2.10.12...v2.10.13) (2026-08-03)
 
 
