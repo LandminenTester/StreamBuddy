@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.10.10](https://github.com/LandminenTester/StreamingBot/compare/v2.10.9...v2.10.10) (2026-08-03)
+
+
+### Bug Fixes
+
+* hide pending release artifact errors ([2fc539c](https://github.com/LandminenTester/StreamingBot/commit/2fc539c9dae9df79ecac84aff2575159bd2af64c))
+
 ## [2.10.9](https://github.com/LandminenTester/StreamingBot/compare/v2.10.8...v2.10.9) (2026-08-03)
 
 
