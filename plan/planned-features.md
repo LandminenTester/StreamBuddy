@@ -333,7 +333,7 @@ ueber `scripts/release.mjs` bestimmt.
 | 5 | [Stream Archive](05-stream-archive.md) | Geplant | Patch 3 |
 | 6 | [Ad Schedule](06-ad-schedule.md) | Geplant | Patch 1 |
 | 7 | [Automessages and Greetings](07-automessages-and-greetings.md) | Geplant | Minor |
-| 8 | [Dashboard Activity Feed](08-dashboard-activity-feed.md) | Geplant | Minor |
+| 8 | [Dashboard Activity Feed](08-dashboard-activity-feed.md) | Umgesetzt | Minor |
 
 ## Abhaengigkeiten
 

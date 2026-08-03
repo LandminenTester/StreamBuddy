@@ -72,6 +72,11 @@ export const IpcChannels = {
     listRedemptions: 'channelPoints:listRedemptions',
     onRedemption: 'channelPoints:onRedemption'
   },
+  activity: {
+    list: 'activity:list',
+    clear: 'activity:clear',
+    onEvent: 'activity:onEvent'
+  },
   polls: {
     list: 'polls:list',
     create: 'polls:create',

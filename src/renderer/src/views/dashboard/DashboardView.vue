@@ -9,6 +9,7 @@ import StatRow, { type StatItem } from '@renderer/components/ui/StatRow.vue'
 import LineChart from '@renderer/components/shared/LineChart.vue'
 import BarChart from '@renderer/components/shared/BarChart.vue'
 import ChatFeedPanel from '@renderer/components/dashboard/ChatFeedPanel.vue'
+import ActivityFeedPanel from '@renderer/components/dashboard/ActivityFeedPanel.vue'
 import { initDashboard } from './functions'
 import { messageBucketsToChartData, viewerSamplesToChartData } from './utils'
 
@@ -109,6 +110,8 @@ const stats = computed<StatItem[]>(() => [
           </span>
         </div>
       </section>
+
+      <ActivityFeedPanel />
 
       <section class="border-t border-line pt-6">
         <h2 class="text-base font-semibold text-fg">{{ $t('dashboard.charts.viewers') }}</h2>

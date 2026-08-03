@@ -144,6 +144,10 @@
     "ad_schedule": {
       "title": "Werbungsnachricht",
       "description": "Kündigt bevorstehende Werbeunterbrechungen im Chat an. Achtung: Twitch verlangt hierfür zwingend ein Token des Broadcaster-Accounts selbst -- mit einem Moderator-Bot-Account funktioniert dieser Abruf nicht, da die Token-User-ID exakt dem Kanal entsprechen muss."
+    },
+    "activity_feed": {
+      "title": "Aktivitaetenfeed",
+      "description": "Zeigt Follows, Subs, Bits, Raids und Kanalpunkte-Einloesungen live auf dem Dashboard."
     }
   },
   "commands": {
@@ -706,6 +710,23 @@
       "title": "Zuschauer im Chat",
       "empty": "Aktuell niemand im Chat.",
       "emptyOffline": "Bot ist nicht verbunden."
+    },
+    "activity": {
+      "title": "Aktivitaetenfeed",
+      "description": "Follows, Subs, Bits, Raids und Reward-Einloesungen.",
+      "clear": "Leeren",
+      "empty": "Noch keine Aktivitaeten.",
+      "emptyHint": "Sobald Twitch Events sendet, erscheinen sie hier.",
+      "filters": {
+        "all": "Alle",
+        "follow": "Follows",
+        "sub": "Subs",
+        "resub": "Resubs",
+        "gift_sub": "Gift Subs",
+        "bits": "Bits",
+        "raid": "Raids",
+        "channel_points": "Rewards"
+      }
     }
   },
   "audience": {

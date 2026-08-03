@@ -9,12 +9,14 @@ import { runRedemptionAction } from '../../redemptionActions'
 import { getMainWindow } from '../../../window'
 import { IpcChannels } from '@shared/ipc/channels'
 import { logger } from '../../../logger'
+import { recordActivityEvent } from '../../../activity/activityService'
 
 interface RedemptionAddEvent {
   id: string
   user_login: string
+  user_name?: string
   user_input: string
-  reward: { id: string; title?: string }
+  reward: { id: string; title?: string; cost?: number }
   redeemed_at: string
 }
 
@@ -25,6 +27,22 @@ export async function handleRedemptionAddEvent(
 ): Promise<void> {
   const redemption = event as unknown as RedemptionAddEvent
   let localReward = getRewardByTwitchId(redemption.reward.id)
+  const rewardTitle = redemption.reward.title ?? localReward?.title ?? 'Custom Reward'
+
+  recordActivityEvent({
+    eventType: 'channel_points',
+    twitchEventId: redemption.id,
+    actorLogin: redemption.user_login,
+    actorDisplayName: redemption.user_name ?? redemption.user_login,
+    summary: `${redemption.user_login} loest ${rewardTitle} ein`,
+    payload: {
+      rewardId: redemption.reward.id,
+      rewardTitle,
+      cost: redemption.reward.cost ?? localReward?.cost ?? null,
+      userInput: redemption.user_input || null
+    },
+    occurredAt: Date.parse(redemption.redeemed_at)
+  })
 
   if (!localReward && redemption.reward.title) {
     localReward = getUniqueRewardByTitle(redemption.reward.title)

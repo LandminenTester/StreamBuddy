@@ -1,5 +1,7 @@
 # Dashboard Activity Feed
 
+Status: Umgesetzt in Version 2.11.0.
+
 ## Ziel
 
 Das Dashboard bekommt einen zentralen Aktivitaetenfeed fuer Twitch-Ereignisse,

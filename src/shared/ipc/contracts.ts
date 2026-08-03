@@ -16,6 +16,7 @@ import type {
   FeatureScopeDefinition
 } from '../types/auth'
 import type { ChatConnectionStatus, ChatFeedMessage } from '../types/chat'
+import type { ActivityEvent, ActivityListRequest } from '../types/activity'
 import type {
   AdMessageSettings,
   AdScheduleStatus,
@@ -143,6 +144,10 @@ export interface IpcContracts {
   [IpcChannels.channelPoints.delete]: { request: { id: number }; response: void }
   [IpcChannels.channelPoints.listRedemptions]: { request: void; response: RedemptionLogEntry[] }
   [IpcChannels.channelPoints.onRedemption]: { request: void; response: RedemptionLogEntry }
+
+  [IpcChannels.activity.list]: { request: ActivityListRequest | void; response: ActivityEvent[] }
+  [IpcChannels.activity.clear]: { request: void; response: void }
+  [IpcChannels.activity.onEvent]: { request: void; response: ActivityEvent }
 
   [IpcChannels.polls.list]: { request: void; response: Poll[] }
   [IpcChannels.polls.create]: { request: PollCreateInput; response: Poll }

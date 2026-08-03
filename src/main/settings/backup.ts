@@ -21,6 +21,7 @@ const TABLES_TO_RESET = [
   'stream_game_segments',
   'streams',
   'follower_history',
+  'activity_events',
   'follower_sync_log',
   'followers',
   'redemption_log',

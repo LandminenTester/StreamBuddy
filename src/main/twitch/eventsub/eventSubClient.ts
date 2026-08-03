@@ -6,13 +6,22 @@ import {
   subscribeToChannelPointRedemptions,
   subscribeToPollEvents,
   subscribeToFollowEvents,
-  subscribeToSubscriptionEvents
+  subscribeToSubscriptionEvents,
+  subscribeToActivityFeedEvents
 } from './subscriptions'
 import { handleRedemptionAddEvent } from './handlers/onRedemption'
 import { handlePollEndEvent, handlePollProgressEvent } from './handlers/onPollUpdate'
 import { handleFollowEarnEvent } from '../../loyalty/earnRules/onFollow'
 import { handleSubEarnEvent } from '../../loyalty/earnRules/onSub'
 import { handleGiftSubEarnEvent } from '../../loyalty/earnRules/onGiftSub'
+import {
+  handleCheerActivityEvent,
+  handleFollowActivityEvent,
+  handleGiftSubActivityEvent,
+  handleRaidActivityEvent,
+  handleResubActivityEvent,
+  handleSubActivityEvent
+} from './handlers/onActivityEvent'
 import {
   scheduleReconnect,
   resetReconnectBackoff,
@@ -70,18 +79,29 @@ async function onSessionWelcome(session: {
 
   if (!broadcasterId) return
 
-  if (isChannelPointsFeatureEnabled()) {
+  const activityFeedEnabled = isActivityFeedFeatureEnabled()
+  const loyaltyFollowSubEnabled = isLoyaltyFollowSubFeatureEnabled()
+  const moderatorId = readTokens()?.twitchUserId
+
+  if (isChannelPointsFeatureEnabled() || activityFeedEnabled) {
     await subscribeToChannelPointRedemptions(sessionId, broadcasterId)
   }
   if (isPollsFeatureEnabled()) {
     await subscribeToPollEvents(sessionId, broadcasterId)
   }
-  if (isLoyaltyFollowSubFeatureEnabled()) {
-    const moderatorId = readTokens()?.twitchUserId
+  if (loyaltyFollowSubEnabled) {
     if (moderatorId) {
       await subscribeToFollowEvents(sessionId, broadcasterId, moderatorId)
       await subscribeToSubscriptionEvents(sessionId, broadcasterId)
     }
+  }
+  if (activityFeedEnabled) {
+    await subscribeToActivityFeedEvents(
+      sessionId,
+      broadcasterId,
+      moderatorId ?? null,
+      !loyaltyFollowSubEnabled
+    )
   }
   logger.info('EventSub verbunden und Subscriptions registriert')
 }
@@ -123,11 +143,20 @@ function handleMessage(raw: string): void {
     } else if (eventType === 'channel.poll.end') {
       handlePollEndEvent(eventData)
     } else if (eventType === 'channel.follow') {
+      if (isActivityFeedFeatureEnabled()) handleFollowActivityEvent(eventData)
       handleFollowEarnEvent(eventData)
     } else if (eventType === 'channel.subscribe') {
+      if (isActivityFeedFeatureEnabled()) handleSubActivityEvent(eventData)
       handleSubEarnEvent(eventData)
     } else if (eventType === 'channel.subscription.gift') {
+      if (isActivityFeedFeatureEnabled()) handleGiftSubActivityEvent(eventData)
       handleGiftSubEarnEvent(eventData)
+    } else if (eventType === 'channel.subscription.message') {
+      if (isActivityFeedFeatureEnabled()) handleResubActivityEvent(eventData)
+    } else if (eventType === 'channel.cheer') {
+      if (isActivityFeedFeatureEnabled()) handleCheerActivityEvent(eventData)
+    } else if (eventType === 'channel.raid') {
+      if (isActivityFeedFeatureEnabled()) handleRaidActivityEvent(eventData)
     }
   }
 }
@@ -192,6 +221,10 @@ function isLoyaltyFollowSubFeatureEnabled(): boolean {
   return listFeatureScopes().some((f) => f.featureKey === 'loyalty_follow_sub' && f.enabled)
 }
 
+function isActivityFeedFeatureEnabled(): boolean {
+  return listFeatureScopes().some((f) => f.featureKey === 'activity_feed' && f.enabled)
+}
+
 /**
  * Startet oder stoppt EventSub je nach aktuellem Zustand (Bot verbunden, Zielkanal gesetzt,
  * mind. ein EventSub-abhängiges Feature aktiviert). Zentrale Aufrufstelle für alle Trigger
@@ -203,7 +236,8 @@ export async function syncEventSubConnection(): Promise<void> {
     getSetting('target_channel') !== null &&
     (isChannelPointsFeatureEnabled() ||
       isPollsFeatureEnabled() ||
-      isLoyaltyFollowSubFeatureEnabled())
+      isLoyaltyFollowSubFeatureEnabled() ||
+      isActivityFeedFeatureEnabled())
 
   if (shouldRun) {
     stopEventSub()

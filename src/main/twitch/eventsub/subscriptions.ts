@@ -8,6 +8,9 @@ export type EventSubType =
   | 'channel.follow'
   | 'channel.subscribe'
   | 'channel.subscription.gift'
+  | 'channel.subscription.message'
+  | 'channel.cheer'
+  | 'channel.raid'
 
 interface SubscriptionSpec {
   type: EventSubType
@@ -86,5 +89,34 @@ export async function subscribeToSubscriptionEvents(
     type: 'channel.subscription.gift',
     version: '1',
     condition: { broadcaster_user_id: broadcasterId }
+  })
+}
+
+export async function subscribeToActivityFeedEvents(
+  sessionId: string,
+  broadcasterId: string,
+  moderatorId: string | null,
+  includeFollowAndSubEvents: boolean
+): Promise<void> {
+  if (includeFollowAndSubEvents && moderatorId) {
+    await subscribeToFollowEvents(sessionId, broadcasterId, moderatorId)
+  }
+  if (includeFollowAndSubEvents) {
+    await subscribeToSubscriptionEvents(sessionId, broadcasterId)
+  }
+  await createSubscription(sessionId, {
+    type: 'channel.subscription.message',
+    version: '1',
+    condition: { broadcaster_user_id: broadcasterId }
+  })
+  await createSubscription(sessionId, {
+    type: 'channel.cheer',
+    version: '1',
+    condition: { broadcaster_user_id: broadcasterId }
+  })
+  await createSubscription(sessionId, {
+    type: 'channel.raid',
+    version: '1',
+    condition: { to_broadcaster_user_id: broadcasterId }
   })
 }

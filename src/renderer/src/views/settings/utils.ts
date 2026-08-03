@@ -7,7 +7,8 @@ export const FEATURE_KEYS: FeatureKey[] = [
   'channel_points',
   'polls',
   'loyalty_follow_sub',
-  'ad_schedule'
+  'ad_schedule',
+  'activity_feed'
 ]
 
 /**

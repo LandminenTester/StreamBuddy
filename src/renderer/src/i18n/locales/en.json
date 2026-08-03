@@ -144,6 +144,10 @@
     "ad_schedule": {
       "title": "Ad break message",
       "description": "Announces upcoming ad breaks in chat. Note: Twitch requires a token from the broadcaster account itself -- a moderator bot account cannot fetch this, because the token user ID must match the channel exactly."
+    },
+    "activity_feed": {
+      "title": "Activity feed",
+      "description": "Shows follows, subs, bits, raids and channel point redemptions live on the dashboard."
     }
   },
   "commands": {
@@ -706,6 +710,23 @@
       "title": "Viewers in chat",
       "empty": "Nobody in chat right now.",
       "emptyOffline": "Bot is not connected."
+    },
+    "activity": {
+      "title": "Activity feed",
+      "description": "Follows, subs, bits, raids and reward redemptions.",
+      "clear": "Clear",
+      "empty": "No activity yet.",
+      "emptyHint": "Twitch events appear here as soon as they arrive.",
+      "filters": {
+        "all": "All",
+        "follow": "Follows",
+        "sub": "Subs",
+        "resub": "Resubs",
+        "gift_sub": "Gift subs",
+        "bits": "Bits",
+        "raid": "Raids",
+        "channel_points": "Rewards"
+      }
     }
   },
   "audience": {

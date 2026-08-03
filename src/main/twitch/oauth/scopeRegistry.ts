@@ -10,14 +10,21 @@ export const FEATURE_SCOPE_MAP: Record<FeatureKey, string[]> = {
   channel_points: ['channel:read:redemptions', 'channel:manage:redemptions'],
   polls: ['channel:read:polls', 'channel:manage:polls'],
   loyalty_follow_sub: ['moderator:read:followers', 'channel:read:subscriptions'],
-  ad_schedule: ['channel:read:ads']
+  ad_schedule: ['channel:read:ads'],
+  activity_feed: [
+    'moderator:read:followers',
+    'channel:read:subscriptions',
+    'bits:read',
+    'channel:read:redemptions'
+  ]
 }
 
 const OPTIONAL_FEATURES: FeatureKey[] = [
   'channel_points',
   'polls',
   'loyalty_follow_sub',
-  'ad_schedule'
+  'ad_schedule',
+  'activity_feed'
 ]
 
 /** Synchronisiert die Feature->Scope-Zuordnung in `feature_scopes`, ohne bestehende enabled-Flags zu überschreiben. */
