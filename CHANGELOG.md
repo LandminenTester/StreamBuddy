@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.8.0](https://github.com/LandminenTester/StreamingBot/compare/v2.7.0...v2.8.0) (2026-08-03)
+
+
+### Features
+
+* **games:** add roulette cooldown and gamble throttling ([f16693a](https://github.com/LandminenTester/StreamingBot/commit/f16693ac9aa88892d8b2e6c68d63819da5651234))
+
 ## [2.7.0](https://github.com/LandminenTester/StreamingBot/compare/v2.6.5...v2.7.0) (2026-08-03)
 
 
