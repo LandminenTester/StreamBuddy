@@ -42,6 +42,18 @@ const FIELD_META: Record<string, GameFieldMeta> = {
     unitKey: 'games.units.seconds',
     min: 10
   },
+  roundCooldownSeconds: {
+    labelKey: 'games.fields.roundCooldownSeconds',
+    hintKey: 'games.fields.roundCooldownSecondsHint',
+    unitKey: 'games.units.seconds',
+    min: 0
+  },
+  cooldownSeconds: {
+    labelKey: 'games.fields.cooldownSeconds',
+    hintKey: 'games.fields.cooldownSecondsHint',
+    unitKey: 'games.units.seconds',
+    min: 0
+  },
   spinDelayMinSeconds: {
     labelKey: 'games.fields.spinDelayMinSeconds',
     hintKey: 'games.fields.spinDelayHint',

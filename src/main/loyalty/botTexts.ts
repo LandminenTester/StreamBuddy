@@ -18,56 +18,64 @@ interface BotTextSet {
 export const BOT_TEXTS: Record<AppLocale, BotTextSet> = {
   de: {
     offlineMessages: [
-      '🔒 Die Bude hat geschlossen! Erst wenn der Chef wieder da ist, geht es weiter.',
-      '😴 Kein Stream, keine Punkte -- das Loyalty-Casino macht gerade Pause.',
-      '🚪 Feierabend hier. Komm wieder, wenn der Stream läuft!',
-      '🛑 Die Kasse ist zu. Ohne Chef läuft hier nichts.',
-      '💤 Ruhe im Laden -- die Spiele öffnen erst wieder, wenn es live geht.'
+      'Die Bude hat geschlossen! Erst wenn der Chef wieder da ist, geht es weiter.',
+      'Kein Stream, keine Punkte -- das Loyalty-Casino macht gerade Pause.',
+      'Feierabend hier. Komm wieder, wenn der Stream laeuft!',
+      'Die Kasse ist zu. Ohne Chef laeuft hier nichts.',
+      'Ruhe im Laden -- die Spiele oeffnen erst wieder, wenn es live geht.'
     ],
     gameTexts: {
       roulette: {
         roundStart: [
-          '🎡 Neue Roulette-Runde! {seconds}s Zeit zum Setzen: !red / !black / !green / !number <0-36> <Einsatz|all|xx%> -- nur eine Wette pro Runde!',
-          '🎲 Setzt eure Punkte! {seconds}s bis die Kugel rollt -- !red, !black, !green oder !number, nur eine Wette erlaubt.',
-          '🎰 Runde eröffnet! {seconds}s Wettfenster: !red / !black / !green / !number <Zahl> <Einsatz>. Grün und Zahlen zahlen am meisten, aber am seltensten!'
+          'Neue Roulette-Runde! {seconds}s Zeit zum Setzen: !red / !black / !green / !number <0-36> <Einsatz|all|xx%>.',
+          'Setzt eure Punkte! {seconds}s bis die Kugel rollt -- !red, !black, !green oder !number.',
+          'Runde eroeffnet! {seconds}s Wettfenster: !red / !black / !green / !number <Zahl> <Einsatz>.'
         ],
         spinning: [
-          '🎡 Die Kugel rollt und dreht sich...',
-          '🌀 Alles auf Rot, Schwarz, Grün oder eine Zahl? Die Kugel läuft...',
-          '🎲 Und sie dreht sich... gleich ist es soweit!'
+          'Die Kugel rollt und dreht sich...',
+          'Alles auf Rot, Schwarz, Gruen oder eine Zahl? Die Kugel laeuft...',
+          'Und sie dreht sich... gleich ist es soweit!'
         ],
         result: [
-          '🎉 {colorEmoji} {number} ({color}) gewinnt! {winners}/{total} Wetten haben gewonnen.',
-          '🏆 Die Kugel landet auf {colorEmoji} {number} ({color})! {winners}/{total} Gewinner.',
-          '🎊 Es ist {colorEmoji} {number} ({color})! {winners} von {total} Wetten waren richtig.'
+          '{colorEmoji} {number} ({color}) gewinnt! {winners}/{total} Wetten haben gewonnen. {winnerDetails}',
+          'Die Kugel landet auf {colorEmoji} {number} ({color})! {winners}/{total} Gewinner. {winnerDetails}',
+          'Es ist {colorEmoji} {number} ({color})! {winners} von {total} Wetten waren richtig. {winnerDetails}'
+        ],
+        noBets: [
+          'Keine Wetten gesetzt -- die Kugel landet auf {colorEmoji} {number} ({color}).',
+          'Leere Runde: {colorEmoji} {number} ({color}). Naechste Runde startet gleich.'
         ]
       }
     }
   },
   en: {
     offlineMessages: [
-      "🔒 The place is closed! Nothing happens until the boss is back.",
-      '😴 No stream, no points -- the loyalty casino is on a break.',
-      '🚪 Closing time. Come back when the stream is live!',
-      '🛑 The till is shut. Nothing runs here without the boss.',
-      '💤 All quiet -- the games reopen once we go live.'
+      'The place is closed! Nothing happens until the boss is back.',
+      'No stream, no points -- the loyalty casino is on a break.',
+      'Closing time. Come back when the stream is live!',
+      'The till is shut. Nothing runs here without the boss.',
+      'All quiet -- the games reopen once we go live.'
     ],
     gameTexts: {
       roulette: {
         roundStart: [
-          '🎡 New roulette round! {seconds}s to place your bets: !red / !black / !green / !number <0-36> <bet|all|xx%> -- one bet per round!',
-          '🎲 Put your points down! {seconds}s until the ball rolls -- !red, !black, !green or !number, one bet only.',
-          '🎰 Round is open! {seconds}s betting window: !red / !black / !green / !number <number> <bet>. Green and numbers pay the most, but land the least!'
+          'New roulette round! {seconds}s to place your bets: !red / !black / !green / !number <0-36> <bet|all|xx%>.',
+          'Put your points down! {seconds}s until the ball rolls -- !red, !black, !green or !number.',
+          'Round is open! {seconds}s betting window: !red / !black / !green / !number <number> <bet>.'
         ],
         spinning: [
-          '🎡 The ball is rolling...',
-          '🌀 Red, black, green or a number? The ball is running...',
-          '🎲 And it spins... almost there!'
+          'The ball is rolling...',
+          'Red, black, green or a number? The ball is running...',
+          'And it spins... almost there!'
         ],
         result: [
-          '🎉 {colorEmoji} {number} ({color}) wins! {winners}/{total} bets came through.',
-          '🏆 The ball lands on {colorEmoji} {number} ({color})! {winners}/{total} winners.',
-          '🎊 It is {colorEmoji} {number} ({color})! {winners} of {total} bets were right.'
+          '{colorEmoji} {number} ({color}) wins! {winners}/{total} bets came through. {winnerDetails}',
+          'The ball lands on {colorEmoji} {number} ({color})! {winners}/{total} winners. {winnerDetails}',
+          'It is {colorEmoji} {number} ({color})! {winners} of {total} bets were right. {winnerDetails}'
+        ],
+        noBets: [
+          'No bets placed -- the ball lands on {colorEmoji} {number} ({color}).',
+          'Empty round: {colorEmoji} {number} ({color}). Next round starts soon.'
         ]
       }
     }

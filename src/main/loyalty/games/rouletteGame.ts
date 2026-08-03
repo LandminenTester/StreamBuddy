@@ -8,6 +8,7 @@ import { BOT_TEXTS } from '../botTexts'
 
 interface RouletteConfig {
   bettingWindowSeconds: number
+  roundCooldownSeconds: number
   spinDelayMinSeconds: number
   spinDelayMaxSeconds: number
   minBet: number
@@ -36,7 +37,7 @@ async function placeColorBet(ctx: LoyaltyGameContext, color: RouletteColor): Pro
   }
 
   await ctx.reply(
-    `@${ctx.userLogin} Wette auf ${color.toUpperCase()} mit ${amount} Punkten platziert!`
+    `@${ctx.userLogin} Wette auf ${color.toUpperCase()} mit ${amount} Punkten platziert! Gesamt: ${result.totalAmount}.`
   )
 }
 
@@ -60,7 +61,9 @@ async function handleNumberBet(ctx: LoyaltyGameContext): Promise<void> {
     return
   }
 
-  await ctx.reply(`@${ctx.userLogin} Wette auf ${number} mit ${amount} Punkten platziert!`)
+  await ctx.reply(
+    `@${ctx.userLogin} Wette auf ${number} mit ${amount} Punkten platziert! Gesamt: ${result.totalAmount}.`
+  )
 }
 
 async function handleStats(ctx: LoyaltyGameContext): Promise<void> {
@@ -88,6 +91,7 @@ export const rouletteGame: LoyaltyGame = {
   commands,
   defaultConfig: {
     bettingWindowSeconds: 60,
+    roundCooldownSeconds: 60,
     spinDelayMinSeconds: 10,
     spinDelayMaxSeconds: 15,
     minBet: 10,
