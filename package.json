@@ -1,6 +1,6 @@
 {
   "name": "streaming-bot",
-  "version": "2.10.16",
+  "version": "2.10.17",
   "description": "StreamBuddy — Twitch Bot Desktop App (Electron + Vue 3)",
   "main": "./out/main/index.js",
   "author": "Landminen Tester",

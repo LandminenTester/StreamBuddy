@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.10.17](https://github.com/LandminenTester/StreamingBot/compare/v2.10.16...v2.10.17) (2026-08-03)
+
+
+### Bug Fixes
+
+* deliver private chat messages through Twitch API ([dc8f2eb](https://github.com/LandminenTester/StreamingBot/commit/dc8f2eb116c48d2d25595a468eb7646c1026e9f4))
+
 ## [2.10.16](https://github.com/LandminenTester/StreamingBot/compare/v2.10.15...v2.10.16) (2026-08-03)
 
 
