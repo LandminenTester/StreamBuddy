@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.10.16](https://github.com/LandminenTester/StreamingBot/compare/v2.10.15...v2.10.16) (2026-08-03)
+
+
+### Features
+
+* show greeting blacklist and restore dates ([7f3053e](https://github.com/LandminenTester/StreamingBot/commit/7f3053ec0ef83301f4cdc59d5a8fc3e21e54a6ba))
+
 ## [2.10.15](https://github.com/LandminenTester/StreamingBot/compare/v2.10.14...v2.10.15) (2026-08-03)
 
 
