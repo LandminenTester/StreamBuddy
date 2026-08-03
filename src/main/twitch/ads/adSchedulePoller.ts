@@ -1,4 +1,4 @@
-import { getAdSchedule } from '../helix/adSchedule.api'
+import { getAdSchedule, normalizeAdSchedule } from '../helix/adSchedule.api'
 import { getUserIdByLogin } from '../helix/users.api'
 import { getSetting } from '../../db/repositories/appSettings.repo'
 import { getAdMessageSettings, getLastSentFor, setLastSentFor } from './adMessageSettings'
@@ -36,20 +36,25 @@ async function pollOnce(): Promise<void> {
       return
     }
 
-    const schedule = await getAdSchedule(broadcasterId)
-    if (!schedule?.next_ad_at) {
+    const schedule = normalizeAdSchedule(await getAdSchedule(broadcasterId))
+    if (!schedule) {
+      logger.info('Ad-Schedule: Kein Zeitplan von Twitch erhalten')
+      scheduleNext()
+      return
+    }
+    if (!schedule.nextAdAt) {
       scheduleNext()
       return
     }
 
-    const secondsUntilAd = (new Date(schedule.next_ad_at).getTime() - Date.now()) / 1000
-    const alreadySentForThisAd = getLastSentFor() === schedule.next_ad_at
+    const secondsUntilAd = (new Date(schedule.nextAdAt).getTime() - Date.now()) / 1000
+    const alreadySentForThisAd = getLastSentFor() === schedule.nextAdAt
 
     if (secondsUntilAd > 0 && secondsUntilAd <= settings.leadSeconds && !alreadySentForThisAd) {
       const message = pickRandom(settings.texts)
       if (message) {
         await sendChatMessage(message)
-        setLastSentFor(schedule.next_ad_at)
+        setLastSentFor(schedule.nextAdAt)
       }
     }
   } catch (error) {

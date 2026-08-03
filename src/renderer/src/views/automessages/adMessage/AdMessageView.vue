@@ -55,7 +55,9 @@ const scheduleItems = computed<DefinitionItem[]>(() => [
 
 function formatTimestamp(iso: string | null): string | undefined {
   if (!iso) return undefined
-  return new Date(iso).toLocaleString(activeLocaleTag())
+  const timestamp = Date.parse(iso)
+  if (!Number.isFinite(timestamp) || timestamp <= 0) return undefined
+  return new Date(timestamp).toLocaleString(activeLocaleTag())
 }
 
 function openModal(): void {
@@ -122,7 +124,9 @@ async function save(): Promise<void> {
       </div>
 
       <template #footer>
-        <AppButton variant="ghost" @click="isModalOpen = false">{{ $t('common.cancel') }}</AppButton>
+        <AppButton variant="ghost" @click="isModalOpen = false">{{
+          $t('common.cancel')
+        }}</AppButton>
         <AppButton variant="primary" @click="save">{{ $t('common.save') }}</AppButton>
       </template>
     </BaseModal>

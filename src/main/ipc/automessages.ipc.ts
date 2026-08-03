@@ -8,7 +8,7 @@ import {
 } from '../db/repositories/automessages.repo'
 import { restartAutomessageSchedulerIfConnected } from '../twitch/chat/tmiClient'
 import { getAdMessageSettings, setAdMessageSettings } from '../twitch/ads/adMessageSettings'
-import { getAdSchedule } from '../twitch/helix/adSchedule.api'
+import { getAdSchedule, normalizeAdSchedule } from '../twitch/helix/adSchedule.api'
 import { getUserIdByLogin } from '../twitch/helix/users.api'
 import { getSetting } from '../db/repositories/appSettings.repo'
 import { logger } from '../logger'
@@ -45,12 +45,12 @@ export function registerAutomessagesIpc(): void {
     try {
       const broadcasterId = await getUserIdByLogin(targetChannel)
       if (!broadcasterId) return null
-      const schedule = await getAdSchedule(broadcasterId)
+      const schedule = normalizeAdSchedule(await getAdSchedule(broadcasterId))
       if (!schedule) return null
       return {
-        nextAdAt: schedule.next_ad_at || null,
-        lastAdAt: schedule.last_ad_at || null,
-        durationSeconds: schedule.duration ?? null
+        nextAdAt: schedule.nextAdAt,
+        lastAdAt: schedule.lastAdAt,
+        durationSeconds: schedule.durationSeconds
       }
     } catch (error) {
       logger.error('Ad-Schedule-Status-Abruf fehlgeschlagen', error)
