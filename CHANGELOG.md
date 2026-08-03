@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.10.12](https://github.com/LandminenTester/StreamingBot/compare/v2.10.11...v2.10.12) (2026-08-03)
+
+
+### Bug Fixes
+
+* payout redemptions on any status ([f4883f2](https://github.com/LandminenTester/StreamingBot/commit/f4883f266974eab0f1d59f1638a2f0ee4ff55114))
+
 ## [2.10.11](https://github.com/LandminenTester/StreamingBot/compare/v2.10.10...v2.10.11) (2026-08-03)
 
 
