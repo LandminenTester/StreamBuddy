@@ -36,6 +36,12 @@ const FIELD_META: Record<string, GameFieldMeta> = {
     unitKey: 'games.units.seconds',
     min: 5
   },
+  resultDelaySeconds: {
+    labelKey: 'games.fields.resultDelaySeconds',
+    hintKey: 'games.fields.resultDelaySecondsHint',
+    unitKey: 'games.units.seconds',
+    min: 1
+  },
   bettingWindowSeconds: {
     labelKey: 'games.fields.bettingWindowSeconds',
     hintKey: 'games.fields.bettingWindowSecondsHint',

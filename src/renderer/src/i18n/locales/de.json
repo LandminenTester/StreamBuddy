@@ -468,7 +468,8 @@
     "name": {
       "gamble": "Gamble",
       "duel": "Duell",
-      "roulette": "Roulette"
+      "roulette": "Roulette",
+      "ssp": "Schere Stein Papier"
     },
     "textSlot": {
       "roundStart": "Runden-Start",
@@ -531,6 +532,8 @@
       "maxBetHint": "0 bedeutet kein Limit.",
       "acceptWindowSeconds": "Annahmefenster",
       "acceptWindowSecondsHint": "So lange bleibt eine Duell-Anfrage offen.",
+      "resultDelaySeconds": "Ergebnis-Wartezeit",
+      "resultDelaySecondsHint": "Wartezeit nach beiden Auswahlen, bevor das Ergebnis angezeigt wird.",
       "bettingWindowSeconds": "Wettfenster",
       "bettingWindowSecondsHint": "So lange kann pro Runde gesetzt werden.",
       "roundCooldownSeconds": "Pause zwischen Runden",

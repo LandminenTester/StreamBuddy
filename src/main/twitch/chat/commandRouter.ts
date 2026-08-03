@@ -234,6 +234,10 @@ export async function handleChatMessage(
         getActiveChatClient()
           ?.say(channel, text)
           .then(() => undefined) ?? Promise.resolve(),
+      whisper: (targetLogin, text) =>
+        getActiveChatClient()
+          ?.whisper(targetLogin, text)
+          .then(() => undefined) ?? Promise.resolve(),
       config: getGameRuntimeConfig(game.id)
     })
     return

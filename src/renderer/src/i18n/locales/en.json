@@ -468,7 +468,8 @@
     "name": {
       "gamble": "Gamble",
       "duel": "Duel",
-      "roulette": "Roulette"
+      "roulette": "Roulette",
+      "ssp": "Rock Paper Scissors"
     },
     "textSlot": {
       "roundStart": "Round start",
@@ -531,6 +532,8 @@
       "maxBetHint": "0 means no limit.",
       "acceptWindowSeconds": "Accept window",
       "acceptWindowSecondsHint": "How long a duel request stays open.",
+      "resultDelaySeconds": "Result delay",
+      "resultDelaySecondsHint": "Delay after both choices before the result is shown.",
       "bettingWindowSeconds": "Betting window",
       "bettingWindowSecondsHint": "How long bets are accepted each round.",
       "roundCooldownSeconds": "Pause between rounds",

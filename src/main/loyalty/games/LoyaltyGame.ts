@@ -2,6 +2,7 @@ export interface LoyaltyGameContext {
   userLogin: string
   args: string[]
   reply: (message: string) => Promise<void>
+  whisper: (userLogin: string, message: string) => Promise<void>
   config: Record<string, unknown>
 }
 
