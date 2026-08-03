@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.9.1](https://github.com/LandminenTester/StreamingBot/compare/v2.9.0...v2.9.1) (2026-08-03)
+
+
+### Bug Fixes
+
+* **commands:** clarify sender-only delivery option ([001428a](https://github.com/LandminenTester/StreamingBot/commit/001428a85d00c2f8a4c3316d587a6468aae8f102))
+
 ## [2.9.0](https://github.com/LandminenTester/StreamingBot/compare/v2.8.3...v2.9.0) (2026-08-03)
 
 
