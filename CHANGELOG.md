@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.9.0](https://github.com/LandminenTester/StreamingBot/compare/v2.8.3...v2.9.0) (2026-08-03)
+
+
+### Features
+
+* **engagement:** resolve command placeholders in automessages ([8002f68](https://github.com/LandminenTester/StreamingBot/commit/8002f68cb56e9f76dce0bb1ad0dd3962b955bcb9))
+
+### Bug Fixes
+
+* **archive:** show viewer join games ([5844e22](https://github.com/LandminenTester/StreamingBot/commit/5844e223956761efbb931d12762ea20cbbe70612))
+
 ## [2.8.3](https://github.com/LandminenTester/StreamingBot/compare/v2.8.1...v2.8.3) (2026-08-03)
 
 
