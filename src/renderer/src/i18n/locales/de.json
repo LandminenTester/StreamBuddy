@@ -399,6 +399,7 @@
         "importFailed": "Import konnte nicht abgeschlossen werden."
       },
       "searchPlaceholder": "Nutzer suchen…",
+      "manualUserPlaceholder": "Nutzer fuer Punkteaktion",
       "points": "Punkte",
       "selectAll": "Alle sichtbaren auswählen",
       "clearSelection": "Auswahl entfernen",
@@ -407,6 +408,8 @@
       "removeSelected": "Ausgewählten entziehen",
       "giveAll": "Allen geben",
       "removeAll": "Allen entziehen",
+      "giveManual": "Nutzer geben",
+      "removeManual": "Nutzer entziehen",
       "confirmAllTitle": "Massenaktion bestätigen",
       "confirmGiveAll": "Allen nicht geblacklisteten Konten werden {amount} Punkte gutgeschrieben.",
       "confirmRemoveAll": "Allen nicht geblacklisteten Konten werden {amount} Punkte entzogen. Das kann Kontostände unter 0 setzen.",

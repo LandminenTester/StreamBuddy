@@ -21,6 +21,7 @@ const store = useLoyaltyStore()
 const selectedLogins = ref<Set<string>>(new Set())
 const pointsAmount = ref(100)
 const searchQuery = ref('')
+const manualUserLogin = ref('')
 const isEditModalOpen = ref(false)
 const isCsvImportModalOpen = ref(false)
 const pendingAllAction = ref<'give' | 'remove' | null>(null)
@@ -49,7 +50,10 @@ function toggleSelection(userLogin: string, checked: boolean): void {
 }
 
 function selectVisible(): void {
-  selectedLogins.value = new Set([...selectedLogins.value, ...filtered.value.map((e) => e.userLogin)])
+  selectedLogins.value = new Set([
+    ...selectedLogins.value,
+    ...filtered.value.map((e) => e.userLogin)
+  ])
 }
 
 function clearSelection(): void {
@@ -60,6 +64,13 @@ async function applyToSelection(direction: 'give' | 'remove'): Promise<void> {
   if (selectedLogins.value.size === 0) return
   await applyPointsToSelection(store, [...selectedLogins.value], pointsAmount.value, direction)
   selectedLogins.value = new Set()
+}
+
+async function applyToManualUser(direction: 'give' | 'remove'): Promise<void> {
+  const login = manualUserLogin.value.trim()
+  if (!login) return
+  await applyPointsToSelection(store, [login], pointsAmount.value, direction)
+  manualUserLogin.value = ''
 }
 
 function requestApplyToAll(direction: 'give' | 'remove'): void {
@@ -120,7 +131,9 @@ function formatBalance(balance: number): string {
 <template>
   <PageSection :title="$t('loyalty.leaderboard.title')" :divided="false">
     <template #actions>
-      <AppButton size="sm" @click="openImportCsv">{{ $t('loyalty.leaderboard.importCsv') }}</AppButton>
+      <AppButton size="sm" @click="openImportCsv">{{
+        $t('loyalty.leaderboard.importCsv')
+      }}</AppButton>
       <AppButton size="sm" @click="exportCsv">{{ $t('loyalty.leaderboard.exportCsv') }}</AppButton>
     </template>
 
@@ -129,7 +142,10 @@ function formatBalance(balance: number): string {
 
     <div class="mt-2 flex flex-wrap items-end gap-3">
       <div class="min-w-48 flex-1">
-        <AppInput v-model="searchQuery" :placeholder="$t('loyalty.leaderboard.searchPlaceholder')" />
+        <AppInput
+          v-model="searchQuery"
+          :placeholder="$t('loyalty.leaderboard.searchPlaceholder')"
+        />
       </div>
       <div class="w-28">
         <AppInput
@@ -137,6 +153,12 @@ function formatBalance(balance: number): string {
           type="number"
           :min="1"
           :label="$t('loyalty.leaderboard.points')"
+        />
+      </div>
+      <div class="min-w-48 flex-1">
+        <AppInput
+          v-model="manualUserLogin"
+          :placeholder="$t('loyalty.leaderboard.manualUserPlaceholder')"
         />
       </div>
     </div>
@@ -152,7 +174,12 @@ function formatBalance(balance: number): string {
           @change="(checked) => (checked ? selectVisible() : clearSelection())"
         />
         <span class="h-4 w-px bg-line" aria-hidden="true" />
-        <AppButton size="sm" variant="ghost" :disabled="selectedLogins.size === 0" @click="clearSelection">
+        <AppButton
+          size="sm"
+          variant="ghost"
+          :disabled="selectedLogins.size === 0"
+          @click="clearSelection"
+        >
           {{ $t('loyalty.leaderboard.clearSelection') }}
         </AppButton>
         <span>
@@ -180,14 +207,27 @@ function formatBalance(balance: number): string {
     </div>
 
     <div class="mt-3 flex flex-wrap items-center gap-2">
-      <AppButton
-        size="sm"
-        @click="requestApplyToAll('give')"
-      >
+      <AppButton size="sm" @click="requestApplyToAll('give')">
         {{ $t('loyalty.leaderboard.giveAll') }}
       </AppButton>
       <AppButton size="sm" variant="danger" @click="requestApplyToAll('remove')">
         {{ $t('loyalty.leaderboard.removeAll') }}
+      </AppButton>
+      <AppButton
+        size="sm"
+        variant="primary"
+        :disabled="!manualUserLogin.trim()"
+        @click="applyToManualUser('give')"
+      >
+        {{ $t('loyalty.leaderboard.giveManual') }}
+      </AppButton>
+      <AppButton
+        size="sm"
+        variant="danger"
+        :disabled="!manualUserLogin.trim()"
+        @click="applyToManualUser('remove')"
+      >
+        {{ $t('loyalty.leaderboard.removeManual') }}
       </AppButton>
     </div>
 

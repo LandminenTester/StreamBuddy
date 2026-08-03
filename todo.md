@@ -27,3 +27,4 @@
 - Sichtbaren Timer im Dashboard bis zum naechsten Roulette-Start anzeigen.
 - Offene Rangliste bei Aenderungen automatisch aktualisieren.
 - Earn Rules fuer Subs und View Time konfigurierbar und wirksam machen.
+- Streamer soll auch eigene Punkte bekommen.

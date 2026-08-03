@@ -9,7 +9,7 @@ import {
   startAutomessageScheduler,
   stopAutomessageScheduler
 } from './automessageScheduler'
-import { attachPresenceTracking, clearPresence } from './presenceTracker'
+import { attachPresenceTracking, clearPresence, markPresent } from './presenceTracker'
 import { recordChatMessageForStats } from './messageCounter'
 import { startViewTimeTicker, stopViewTimeTicker } from '../../loyalty/earnRules/onViewTimeTick'
 import {
@@ -100,6 +100,7 @@ export async function connectChatClient(options: { manual?: boolean } = {}): Pro
     logger.info(`Chat verbunden mit Kanal #${targetChannel}`)
     if (client) {
       setBroadcasterClientRef(client)
+      markPresent(targetChannel)
       startAutomessageScheduler(targetChannel)
       attachPresenceTracking(client)
       startViewTimeTicker()
@@ -124,6 +125,7 @@ export async function connectChatClient(options: { manual?: boolean } = {}): Pro
 
   client.on('message', (channel, tags, message, self) => {
     if (self || !client) return
+    markPresent(tags.username ?? '')
     recordChatLineForAutomessages()
     recordChatMessageForStats((tags.username ?? '').toLowerCase())
     getMainWindow()?.webContents.send(IpcChannels.chat.onMessage, {

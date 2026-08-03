@@ -399,6 +399,7 @@
         "importFailed": "Import could not be completed."
       },
       "searchPlaceholder": "Search users…",
+      "manualUserPlaceholder": "User for points action",
       "points": "Points",
       "selectAll": "Select all visible",
       "clearSelection": "Clear selection",
@@ -407,6 +408,8 @@
       "removeSelected": "Take from selected",
       "giveAll": "Give to all",
       "removeAll": "Take from all",
+      "giveManual": "Give to user",
+      "removeManual": "Take from user",
       "confirmAllTitle": "Confirm bulk action",
       "confirmGiveAll": "All non-blacklisted accounts will receive {amount} points.",
       "confirmRemoveAll": "All non-blacklisted accounts will lose {amount} points. This can move balances below 0.",

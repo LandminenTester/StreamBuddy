@@ -173,6 +173,25 @@ export function getLeaderboard(limit = 25): LoyaltyLeaderboardEntry[] {
   }))
 }
 
+export function getLeaderboardEntry(userLogin: string): LoyaltyLeaderboardEntry | null {
+  const login = userLogin.toLowerCase()
+  const rows = getDb()
+    .prepare<[], AccountRow>(
+      'SELECT * FROM loyalty_accounts WHERE is_blacklisted = 0 ORDER BY balance DESC, user_login ASC'
+    )
+    .all()
+
+  const index = rows.findIndex((row) => row.user_login === login)
+  if (index === -1) return null
+
+  const row = rows[index]
+  return {
+    userLogin: row.user_login,
+    balance: row.balance,
+    rank: index + 1
+  }
+}
+
 /** Alle nicht geblacklisteten Loyalty-Konten ohne Limit -- für CSV-Export und "an alle"-Massenaktionen. */
 export function listAllAccounts(): LoyaltyAccount[] {
   return getDb()

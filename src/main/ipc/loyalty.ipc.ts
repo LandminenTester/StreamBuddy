@@ -60,14 +60,41 @@ function listGamesWithInfo(): LoyaltyGameInfo[] {
   })
 }
 
+function cleanLogin(userLogin: string): string {
+  return userLogin.replace(/^@/, '').trim().toLowerCase()
+}
+
+function normalizeEarnRule(
+  rule: Parameters<typeof upsertEarnRule>[0]
+): Parameters<typeof upsertEarnRule>[0] {
+  const points = Math.floor(Number(rule.points))
+  const cooldownSeconds = Math.floor(Number(rule.cooldownSeconds))
+  if (!Number.isFinite(points) || points < 0) {
+    throw new Error('Punkte muessen eine Zahl >= 0 sein')
+  }
+  if (!Number.isFinite(cooldownSeconds) || cooldownSeconds < 0) {
+    throw new Error('Intervall muss eine Zahl >= 0 sein')
+  }
+  if (rule.reason === 'view_time' && rule.enabled && cooldownSeconds < 30) {
+    throw new Error('View-Time-Intervall muss mindestens 30 Sekunden betragen')
+  }
+  return {
+    reason: rule.reason,
+    points,
+    enabled: Boolean(rule.enabled),
+    cooldownSeconds: rule.reason === 'view_time' ? cooldownSeconds : 0
+  }
+}
+
 export function registerLoyaltyIpc(): void {
   handleTyped(IpcChannels.loyalty.getLeaderboard, () => getLeaderboard())
 
   handleTyped(IpcChannels.loyalty.listEarnRules, () => listEarnRules())
 
   handleTyped(IpcChannels.loyalty.updateEarnRule, (rule) => {
-    upsertEarnRule(rule)
-    if (rule.reason === 'view_time' && getChatStatus().connected) {
+    const normalized = normalizeEarnRule(rule)
+    upsertEarnRule(normalized)
+    if (normalized.reason === 'view_time' && getChatStatus().connected) {
       startViewTimeTicker()
     }
     return listEarnRules()
@@ -128,7 +155,14 @@ export function registerLoyaltyIpc(): void {
     if (userLogins !== 'all' && userLogins.length === 0) {
       throw new Error('Keine Nutzer ausgewählt')
     }
-    applyManualAdjustment(userLogins, amount)
+    const targets =
+      userLogins === 'all'
+        ? userLogins
+        : userLogins.map(cleanLogin).filter((login) => login.length > 0)
+    if (targets !== 'all' && targets.length === 0) {
+      throw new Error('Keine gueltigen Nutzer ausgewaehlt')
+    }
+    applyManualAdjustment(targets, amount)
     return getLeaderboard()
   })
 
@@ -136,7 +170,9 @@ export function registerLoyaltyIpc(): void {
     if (typeof balance !== 'number' || !Number.isFinite(balance) || balance < 0) {
       throw new Error('Kontostand muss eine Zahl >= 0 sein')
     }
-    setAccountBalance(userLogin, balance)
+    const login = cleanLogin(userLogin)
+    if (!login) throw new Error('Nutzername ist erforderlich')
+    setAccountBalance(login, balance)
     return getLeaderboard()
   })
 
@@ -242,7 +278,5 @@ export function registerLoyaltyIpc(): void {
 
   handleTyped(IpcChannels.loyalty.getGreetingSettings, () => getGreetingSettings())
 
-  handleTyped(IpcChannels.loyalty.setGreetingSettings, (settings) =>
-    setGreetingSettings(settings)
-  )
+  handleTyped(IpcChannels.loyalty.setGreetingSettings, (settings) => setGreetingSettings(settings))
 }

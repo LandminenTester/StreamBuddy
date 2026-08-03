@@ -18,6 +18,7 @@ const store = useLoyaltyStore()
 
 const editing = ref<LoyaltyEarnRule | null>(null)
 const draft = ref<LoyaltyEarnRule | null>(null)
+const isSaving = ref(false)
 
 const columns = computed<DataTableColumn[]>(() => [
   { key: 'trigger', label: t('loyalty.earnRules.trigger') },
@@ -34,9 +35,14 @@ function openEdit(rule: LoyaltyEarnRule): void {
 
 async function save(): Promise<void> {
   if (!draft.value) return
-  await saveEarnRule(store, draft.value)
-  editing.value = null
-  draft.value = null
+  isSaving.value = true
+  try {
+    await saveEarnRule(store, draft.value)
+    editing.value = null
+    draft.value = null
+  } finally {
+    isSaving.value = false
+  }
 }
 </script>
 
@@ -56,7 +62,9 @@ async function save(): Promise<void> {
         <span class="tabular-nums">{{ row.points }}</span>
       </template>
       <template #interval="{ row }">
-        <span v-if="row.reason === 'view_time'" class="tabular-nums">{{ row.cooldownSeconds }}</span>
+        <span v-if="row.reason === 'view_time'" class="tabular-nums">{{
+          row.cooldownSeconds
+        }}</span>
         <span v-else class="text-fg-subtle">—</span>
       </template>
       <template #active="{ row }">
@@ -78,6 +86,7 @@ async function save(): Promise<void> {
     >
       <div class="space-y-5">
         <p class="text-sm font-medium text-fg">{{ earnRuleLabel(draft.reason) }}</p>
+        <p v-if="store.error" class="text-xs text-danger">{{ store.error }}</p>
         <AppInput
           v-model="draft.points"
           type="number"
@@ -97,7 +106,9 @@ async function save(): Promise<void> {
 
       <template #footer>
         <AppButton variant="ghost" @click="editing = null">{{ $t('common.cancel') }}</AppButton>
-        <AppButton variant="primary" @click="save">{{ $t('common.save') }}</AppButton>
+        <AppButton variant="primary" :loading="isSaving" @click="save">{{
+          $t('common.save')
+        }}</AppButton>
       </template>
     </BaseModal>
   </PageSection>

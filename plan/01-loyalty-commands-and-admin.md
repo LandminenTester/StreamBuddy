@@ -38,6 +38,9 @@ ihren Rang abfragen koennen.
 9. Earn Rules fuer Follow, Sub, Gift-Sub und View Time als vollstaendige
    Konfiguration pruefen; insbesondere Sub-/View-Time-Events muessen die
    gespeicherten Regeln verwenden.
+10. Der Streamer soll ebenfalls Loyalty-Punkte erhalten koennen. Die eigene
+    Chat-/Kanalpraesenz muss daher in View-Time und Kontoanlage beruecksichtigt
+    werden, ohne Mod-/Bot-Accounts versehentlich doppelt zu belohnen.
 
 ## Datenfluss und Vertraege
 

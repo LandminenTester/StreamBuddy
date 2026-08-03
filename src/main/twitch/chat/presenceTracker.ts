@@ -24,6 +24,12 @@ export function attachPresenceTracking(client: Client): void {
   })
 }
 
+export function markPresent(userLogin: string): void {
+  const login = userLogin.trim().toLowerCase()
+  if (!login) return
+  presentUsers.add(login)
+}
+
 export function getPresentUsers(): string[] {
   return [...presentUsers]
 }

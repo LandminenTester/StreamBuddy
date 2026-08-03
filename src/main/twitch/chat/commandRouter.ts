@@ -1,7 +1,12 @@
 import type { ChatUserstate } from 'tmi.js'
 import type { Command, PermissionLevel } from '@shared/types/command'
 import { incrementCommandUseCount, listCommands } from '../../db/repositories/commands.repo'
-import { getOrCreateAccount, setAccountBlacklisted } from '../../db/repositories/loyalty.repo'
+import {
+  getLeaderboard,
+  getLeaderboardEntry,
+  getOrCreateAccount,
+  setAccountBlacklisted
+} from '../../db/repositories/loyalty.repo'
 import {
   adjustTracker,
   getTrackerCurrentValue,
@@ -19,15 +24,20 @@ import {
   isGameEnabled
 } from '../../loyalty/games/gameRegistry'
 import { getLoyaltyEnabled } from '../../loyalty/loyaltySettings'
+import { applyManualAdjustment } from '../../loyalty/loyaltyLedger'
 import { LOYALTY_OFFLINE_MESSAGE_KEY } from '../../loyalty/offlineMessages'
 import { isStreamLive } from '../../stats/viewerCountPoller'
 import { getActiveChatClient } from './chatClientAccessor'
+import { getLocale } from '../../locale'
 import { logger } from '../../logger'
 
 const PERMISSION_ORDER: PermissionLevel[] = ['everyone', 'subscriber', 'moderator', 'broadcaster']
 
 /** Fixer, nicht umbenennbarer Trigger fuer den eingebauten Mod-Command. */
 const BLACKLIST_TRIGGER = '!blacklist'
+const POINTS_TRIGGER = '!points'
+const RANK_TRIGGER = '!rank'
+const POINTS_ADMIN_TRIGGER = '!punkte'
 
 /** Cooldown-Tracking pro Command, rein in-memory (nicht persistiert, resettet bei App-Neustart). */
 const lastUsedAt = new Map<number, number>()
@@ -41,6 +51,43 @@ function getUserPermissionLevel(tags: ChatUserstate): PermissionLevel {
 
 function hasRequiredPermission(userLevel: PermissionLevel, required: PermissionLevel): boolean {
   return PERMISSION_ORDER.indexOf(userLevel) >= PERMISSION_ORDER.indexOf(required)
+}
+
+function chatText(
+  key: 'points' | 'rank' | 'rankEmpty' | 'adminUsage' | 'adminDone' | 'adminInvalid'
+): string {
+  const locale = getLocale()
+  const texts = {
+    de: {
+      points: '@{user} du hast {points} Punkte.',
+      rank: 'Top 10: {top}. @{user} dein Rang: #{rank} mit {points} Punkten.',
+      rankEmpty: 'Es gibt noch keine Loyalty-Konten.',
+      adminUsage: 'Nutzung: !punkte <nutzer> <betrag>',
+      adminDone: '@{target} wurde um {amount} Punkte angepasst. Neuer Stand: {points}.',
+      adminInvalid: 'Betrag muss eine Zahl ungleich 0 sein.'
+    },
+    en: {
+      points: '@{user} you have {points} points.',
+      rank: 'Top 10: {top}. @{user} your rank: #{rank} with {points} points.',
+      rankEmpty: 'There are no loyalty accounts yet.',
+      adminUsage: 'Usage: !punkte <user> <amount>',
+      adminDone: '@{target} was adjusted by {amount} points. New balance: {points}.',
+      adminInvalid: 'Amount must be a non-zero number.'
+    }
+  } as const
+  return texts[locale][key]
+}
+
+function fill(template: string, values: Record<string, string | number>): string {
+  return Object.entries(values).reduce(
+    (text, [key, value]) => text.replaceAll(`{${key}}`, String(value)),
+    template
+  )
+}
+
+function getTagLogin(tags: ChatUserstate): string | null {
+  const login = tags.username?.trim().toLowerCase()
+  return login ? login : null
 }
 
 /**
@@ -101,6 +148,71 @@ export async function handleChatMessage(
     return
   }
 
+  if (trigger === POINTS_TRIGGER) {
+    if (!getLoyaltyEnabled()) return
+    const login = getTagLogin(tags)
+    if (!login) return
+    const account = getOrCreateAccount(login)
+    if (account.isBlacklisted) return
+    await sender.say(
+      channel,
+      fill(chatText('points'), { user: account.userLogin, points: account.balance })
+    )
+    return
+  }
+
+  if (trigger === RANK_TRIGGER) {
+    if (!getLoyaltyEnabled()) return
+    const login = getTagLogin(tags)
+    if (!login) return
+    const account = getOrCreateAccount(login)
+    if (account.isBlacklisted) return
+    const leaderboard = getLeaderboard(10)
+    const ownRank = getLeaderboardEntry(account.userLogin)
+    if (!ownRank || leaderboard.length === 0) {
+      await sender.say(channel, chatText('rankEmpty'))
+      return
+    }
+    const top = leaderboard
+      .map((entry) => `#${entry.rank} ${entry.userLogin} (${entry.balance})`)
+      .join(', ')
+    await sender.say(
+      channel,
+      fill(chatText('rank'), {
+        top,
+        user: ownRank.userLogin,
+        rank: ownRank.rank,
+        points: ownRank.balance
+      })
+    )
+    return
+  }
+
+  if (trigger === POINTS_ADMIN_TRIGGER) {
+    if (!hasRequiredPermission(getUserPermissionLevel(tags), 'moderator')) return
+    const targetLogin = parts[1]?.replace(/^@/, '').toLowerCase()
+    const amount = Number(parts[2])
+    if (!targetLogin) {
+      await sender.say(channel, chatText('adminUsage'))
+      return
+    }
+    if (!Number.isFinite(amount) || amount === 0) {
+      await sender.say(channel, chatText('adminInvalid'))
+      return
+    }
+    applyManualAdjustment([targetLogin], Math.trunc(amount))
+    const updated = getOrCreateAccount(targetLogin)
+    await sender.say(
+      channel,
+      fill(chatText('adminDone'), {
+        target: updated.userLogin,
+        amount: Math.trunc(amount),
+        points: updated.balance
+      })
+    )
+    return
+  }
+
   const match = getGameByTrigger(trigger)
   if (match) {
     const { game, command } = match
@@ -113,11 +225,15 @@ export async function handleChatMessage(
       return
     }
     // Geblacklistete Konten (z.B. Bots) sind komplett von Loyalty-Games ausgeschlossen.
-    if (getOrCreateAccount(tags.username ?? '').isBlacklisted) return
+    const login = getTagLogin(tags)
+    if (!login || getOrCreateAccount(login).isBlacklisted) return
     await command.handleCommand({
-      userLogin: tags.username ?? '',
+      userLogin: login,
       args: parts.slice(1),
-      reply: (text) => getActiveChatClient()?.say(channel, text).then(() => undefined) ?? Promise.resolve(),
+      reply: (text) =>
+        getActiveChatClient()
+          ?.say(channel, text)
+          .then(() => undefined) ?? Promise.resolve(),
       config: getGameRuntimeConfig(game.id)
     })
     return
