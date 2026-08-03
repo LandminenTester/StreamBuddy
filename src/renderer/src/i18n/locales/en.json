@@ -156,7 +156,7 @@
     "delivery": {
       "public": "Public in chat",
       "mention": "Mention (visible to them)",
-      "whisper": "Whisper (private)"
+      "whisper": "Sender only"
     },
     "title": "Commands",
     "description": "Chat commands with permission, cooldown and aliases.",
@@ -180,7 +180,7 @@
       "permission": "Permission",
       "cooldown": "Cooldown (sec)",
       "delivery": "Delivery",
-      "whisperWarning": "Twitch restricts whispers for many bot accounts — be sure to test.",
+      "whisperWarning": "Sent as a private Twitch whisper and only visible to the sender. Twitch restricts whispers for many bot accounts -- be sure to test.",
       "enabled": "Enabled",
       "responseTab": "Response"
     },
