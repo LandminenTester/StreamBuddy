@@ -100,7 +100,15 @@ async function processRedemptionActionOnce(
 ): Promise<RedemptionLogEntry> {
   if (logEntry.actionProcessedAt) return logEntry
 
-  const actionSucceeded = await runRedemptionAction(localReward, redemption.user_login)
+  let actionSucceeded = false
+  try {
+    actionSucceeded = await runRedemptionAction(localReward, redemption.user_login)
+  } catch (error) {
+    logger.error(
+      `Redemption-Aktion fuer "${localReward.title}" von ${redemption.user_login} fehlgeschlagen`,
+      error
+    )
+  }
   if (!actionSucceeded) return logEntry
 
   return markRedemptionActionProcessed(redemption.id) ?? logEntry
@@ -142,22 +150,29 @@ async function maybeFulfillLocally(
 export async function processPendingRedemptionActions(limit = 50): Promise<RedemptionLogEntry[]> {
   const processed: RedemptionLogEntry[] = []
   for (const item of listPendingActionRedemptions(limit)) {
-    const redemption: RedemptionAddEvent = {
-      id: item.redemption.twitchRedemptionId,
-      user_login: item.redemption.userLogin,
-      user_input: item.redemption.userInput ?? '',
-      reward: {
-        id: item.reward.twitchRewardId ?? String(item.reward.id),
-        title: item.reward.title,
-        cost: item.reward.cost
-      },
-      status: item.redemption.status,
-      redeemed_at: new Date(item.redemption.redeemedAt).toISOString()
-    }
+    try {
+      const redemption: RedemptionAddEvent = {
+        id: item.redemption.twitchRedemptionId,
+        user_login: item.redemption.userLogin,
+        user_input: item.redemption.userInput ?? '',
+        reward: {
+          id: item.reward.twitchRewardId ?? String(item.reward.id),
+          title: item.reward.title,
+          cost: item.reward.cost
+        },
+        status: item.redemption.status,
+        redeemed_at: new Date(item.redemption.redeemedAt).toISOString()
+      }
 
-    let entry = await processRedemptionActionOnce(redemption, item.reward, item.redemption)
-    entry = await maybeFulfillLocally(redemption, item.reward, entry)
-    processed.push(entry)
+      let entry = await processRedemptionActionOnce(redemption, item.reward, item.redemption)
+      entry = await maybeFulfillLocally(redemption, item.reward, entry)
+      processed.push(entry)
+    } catch (error) {
+      logger.error(
+        `Nachverarbeitung fuer Redemption "${item.redemption.twitchRedemptionId}" fehlgeschlagen`,
+        error
+      )
+    }
   }
 
   return processed

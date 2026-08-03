@@ -29,7 +29,11 @@ export function registerChannelPointsIpc(): void {
   handleTyped(IpcChannels.channelPoints.list, () => listRewards())
 
   handleTyped(IpcChannels.channelPoints.listRedemptions, async () => {
-    await processPendingRedemptionActions()
+    try {
+      await processPendingRedemptionActions()
+    } catch (error) {
+      logger.error('Kanalpunkte-Redemptions konnten nicht nachverarbeitet werden', error)
+    }
     return listRecentRedemptions()
   })
 
