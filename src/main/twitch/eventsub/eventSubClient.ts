@@ -9,7 +9,11 @@ import {
   subscribeToSubscriptionEvents,
   subscribeToActivityFeedEvents
 } from './subscriptions'
-import { handleRedemptionAddEvent } from './handlers/onRedemption'
+import {
+  handleAutomaticRedemptionAddEvent,
+  handleRedemptionAddEvent,
+  handleRedemptionUpdateEvent
+} from './handlers/onRedemption'
 import { handlePollEndEvent, handlePollProgressEvent } from './handlers/onPollUpdate'
 import { handleFollowEarnEvent } from '../../loyalty/earnRules/onFollow'
 import { handleSubEarnEvent } from '../../loyalty/earnRules/onSub'
@@ -140,6 +144,10 @@ function handleMessage(raw: string): void {
       handleRedemptionAddEvent(eventData, broadcasterId).catch((error) => {
         logger.error('Verarbeitung der Channel-Points-Redemption fehlgeschlagen', error)
       })
+    } else if (eventType === 'channel.channel_points_custom_reward_redemption.update') {
+      handleRedemptionUpdateEvent(eventData)
+    } else if (eventType === 'channel.channel_points_automatic_reward_redemption.add') {
+      if (isActivityFeedFeatureEnabled()) handleAutomaticRedemptionAddEvent(eventData)
     } else if (eventType === 'channel.poll.progress') {
       handlePollProgressEvent(eventData)
     } else if (eventType === 'channel.poll.end') {

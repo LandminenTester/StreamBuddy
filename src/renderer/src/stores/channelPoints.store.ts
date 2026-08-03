@@ -50,7 +50,19 @@ export const useChannelPointsStore = defineStore('channelPoints', () => {
 
   function subscribeToRedemptions(): () => void {
     return window.api.on('channelPoints:onRedemption', (entry) => {
-      redemptions.value = [entry, ...redemptions.value].slice(0, 50)
+      const existingIndex = redemptions.value.findIndex(
+        (redemption) =>
+          redemption.twitchRedemptionId === entry.twitchRedemptionId || redemption.id === entry.id
+      )
+
+      if (existingIndex === -1) {
+        redemptions.value = [entry, ...redemptions.value].slice(0, 50)
+        return
+      }
+
+      redemptions.value = redemptions.value.map((redemption, index) =>
+        index === existingIndex ? entry : redemption
+      )
     })
   }
 

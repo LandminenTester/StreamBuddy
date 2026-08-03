@@ -3,6 +3,7 @@ import type {
   ChannelPointReward,
   ChannelPointRewardInput,
   RedemptionLogEntry,
+  RedemptionStatus,
   RewardActionPayload
 } from '@shared/types/channelPointReward'
 
@@ -62,6 +63,20 @@ function redemptionToDomain(row: RedemptionRow): RedemptionLogEntry {
     status: row.status,
     redeemedAt: row.redeemed_at
   }
+}
+
+function getRedemptionByTwitchId(twitchRedemptionId: string): RedemptionLogEntry | null {
+  const row = getDb()
+    .prepare<[string], RedemptionRow>(
+      `SELECT redemption_log.*, channel_point_rewards.title AS reward_title
+       FROM redemption_log
+       LEFT JOIN channel_point_rewards ON channel_point_rewards.id = redemption_log.reward_id
+       WHERE redemption_log.twitch_redemption_id = ?
+       ORDER BY redemption_log.id DESC
+       LIMIT 1`
+    )
+    .get(twitchRedemptionId)
+  return row ? redemptionToDomain(row) : null
 }
 
 export function listRewards(): ChannelPointReward[] {
@@ -182,6 +197,20 @@ export function logRedemption(entry: Omit<RedemptionLogEntry, 'id'>): Redemption
     .get(Number(result.lastInsertRowid))!
 
   return redemptionToDomain(row)
+}
+
+export function updateRedemptionLogStatus(
+  twitchRedemptionId: string,
+  status: RedemptionStatus
+): RedemptionLogEntry | null {
+  const existing = getRedemptionByTwitchId(twitchRedemptionId)
+  if (!existing) return null
+
+  getDb()
+    .prepare('UPDATE redemption_log SET status = ? WHERE twitch_redemption_id = ?')
+    .run(status, twitchRedemptionId)
+
+  return getRedemptionByTwitchId(twitchRedemptionId)
 }
 
 export function listRecentRedemptions(limit = 50): RedemptionLogEntry[] {

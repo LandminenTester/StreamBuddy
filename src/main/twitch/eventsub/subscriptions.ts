@@ -3,6 +3,8 @@ import { logger } from '../../logger'
 
 export type EventSubType =
   | 'channel.channel_points_custom_reward_redemption.add'
+  | 'channel.channel_points_custom_reward_redemption.update'
+  | 'channel.channel_points_automatic_reward_redemption.add'
   | 'channel.poll.progress'
   | 'channel.poll.end'
   | 'channel.follow'
@@ -41,11 +43,27 @@ export async function subscribeToChannelPointRedemptions(
   sessionId: string,
   broadcasterId: string
 ): Promise<void> {
-  await createSubscription(sessionId, {
-    type: 'channel.channel_points_custom_reward_redemption.add',
-    version: '1',
-    condition: { broadcaster_user_id: broadcasterId }
-  })
+  const customRewardSubscriptions: SubscriptionSpec[] = [
+    {
+      type: 'channel.channel_points_custom_reward_redemption.add',
+      version: '1',
+      condition: { broadcaster_user_id: broadcasterId }
+    },
+    {
+      type: 'channel.channel_points_custom_reward_redemption.update',
+      version: '1',
+      condition: { broadcaster_user_id: broadcasterId }
+    },
+    {
+      type: 'channel.channel_points_automatic_reward_redemption.add',
+      version: '2',
+      condition: { broadcaster_user_id: broadcasterId }
+    }
+  ]
+
+  for (const spec of customRewardSubscriptions) {
+    await createSubscription(sessionId, spec)
+  }
 }
 
 export async function subscribeToPollEvents(
