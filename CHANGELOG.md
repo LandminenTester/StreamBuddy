@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.10.7](https://github.com/LandminenTester/StreamingBot/compare/v2.10.6...v2.10.7) (2026-08-03)
+
+
+### Bug Fixes
+
+* align channel point eventsub redemptions ([9705b20](https://github.com/LandminenTester/StreamingBot/commit/9705b20ad33814374ec6fcc74a462c0b9efc34fc))
+
 ## [2.10.6](https://github.com/LandminenTester/StreamingBot/compare/v2.10.5...v2.10.6) (2026-08-03)
 
 
