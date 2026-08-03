@@ -32,14 +32,12 @@ import { getActiveChatClient } from './chatClientAccessor'
 import { getLocale } from '../../locale'
 import { logger } from '../../logger'
 import { sendWhisper } from '../helix/whispers.api'
+import { resolveBuiltInLoyaltyCommand } from './loyaltyCommandTriggers'
 
 const PERMISSION_ORDER: PermissionLevel[] = ['everyone', 'subscriber', 'moderator', 'broadcaster']
 
 /** Fixer, nicht umbenennbarer Trigger fuer den eingebauten Mod-Command. */
 const BLACKLIST_TRIGGER = '!blacklist'
-const POINTS_TRIGGER = '!points'
-const RANK_TRIGGER = '!rank'
-const POINTS_ADMIN_TRIGGER = '!punkte'
 
 /** Cooldown-Tracking pro Command, rein in-memory (nicht persistiert, resettet bei App-Neustart). */
 const lastUsedAt = new Map<number, number>()
@@ -64,7 +62,7 @@ function chatText(
       points: '@{user} du hast {points} Punkte.',
       rank: 'Top 10: {top}. @{user} dein Rang: #{rank} mit {points} Punkten.',
       rankEmpty: 'Es gibt noch keine Loyalty-Konten.',
-      adminUsage: 'Nutzung: !punkte <nutzer> <betrag>',
+      adminUsage: 'Nutzung: !punkteadmin <nutzer> <betrag>',
       adminDone: '@{target} wurde um {amount} Punkte angepasst. Neuer Stand: {points}.',
       adminInvalid: 'Betrag muss eine Zahl ungleich 0 sein.'
     },
@@ -72,7 +70,7 @@ function chatText(
       points: '@{user} you have {points} points.',
       rank: 'Top 10: {top}. @{user} your rank: #{rank} with {points} points.',
       rankEmpty: 'There are no loyalty accounts yet.',
-      adminUsage: 'Usage: !punkte <user> <amount>',
+      adminUsage: 'Usage: !pointsadmin <user> <amount>',
       adminDone: '@{target} was adjusted by {amount} points. New balance: {points}.',
       adminInvalid: 'Amount must be a non-zero number.'
     }
@@ -143,6 +141,7 @@ export async function handleChatMessage(
 
   const parts = message.trim().split(/\s+/)
   const trigger = parts[0].toLowerCase()
+  const loyaltyCommand = resolveBuiltInLoyaltyCommand(trigger)
 
   // Eingebauter Mod-Command, ausserhalb des Game-/Custom-Command-Systems, damit er nie
   // durch einen umbenannten Custom-Command ueberschattet werden kann.
@@ -156,7 +155,7 @@ export async function handleChatMessage(
     return
   }
 
-  if (trigger === POINTS_TRIGGER) {
+  if (loyaltyCommand === 'points') {
     if (!getLoyaltyEnabled()) return
     const login = getTagLogin(tags)
     if (!login) return
@@ -169,7 +168,7 @@ export async function handleChatMessage(
     return
   }
 
-  if (trigger === RANK_TRIGGER) {
+  if (loyaltyCommand === 'rank') {
     if (!getLoyaltyEnabled()) return
     const login = getTagLogin(tags)
     if (!login) return
@@ -196,7 +195,7 @@ export async function handleChatMessage(
     return
   }
 
-  if (trigger === POINTS_ADMIN_TRIGGER) {
+  if (loyaltyCommand === 'pointsAdmin') {
     if (!hasRequiredPermission(getUserPermissionLevel(tags), 'moderator')) return
     const targetLogin = parts[1]?.replace(/^@/, '').toLowerCase()
     const amount = Number(parts[2])
