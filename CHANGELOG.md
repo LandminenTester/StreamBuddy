@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.7.0](https://github.com/LandminenTester/StreamingBot/compare/v2.6.5...v2.7.0) (2026-08-03)
+
+
+### Features
+
+* **loyalty:** add points commands and admin adjustments ([1046dc7](https://github.com/LandminenTester/StreamingBot/commit/1046dc7f99e527b2755015c2a916d49cff5741aa))
+
 ## [2.6.5](https://github.com/LandminenTester/StreamingBot/compare/v2.6.4...v2.6.5) (2026-08-02)
 
 
