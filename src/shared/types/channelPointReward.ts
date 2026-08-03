@@ -32,6 +32,7 @@ export type RedemptionStatus = 'unfulfilled' | 'fulfilled' | 'canceled'
 export interface RedemptionLogEntry {
   id: number
   rewardId: number
+  rewardTitle?: string
   twitchRedemptionId: string
   userLogin: string
   userInput: string | null

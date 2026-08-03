@@ -28,15 +28,26 @@ export async function runRedemptionAction(
 
   if (reward.actionType === 'loyalty_exchange') {
     const payload = reward.actionPayload
-    if (!payload?.loyaltyExchangeMode || !payload.loyaltyExchangeValue) {
+    if (
+      !payload?.loyaltyExchangeMode ||
+      typeof payload.loyaltyExchangeValue !== 'number' ||
+      !Number.isFinite(payload.loyaltyExchangeValue) ||
+      payload.loyaltyExchangeValue <= 0
+    ) {
       logger.warn(`Redemption-Aktion: loyalty_exchange für Reward "${reward.title}" ohne gültige payload`)
       return
     }
 
+    const exchangeValue = payload.loyaltyExchangeValue
     const points =
       payload.loyaltyExchangeMode === 'rate'
-        ? Math.floor(reward.cost / payload.loyaltyExchangeValue)
-        : payload.loyaltyExchangeValue
+        ? Math.floor(reward.cost / exchangeValue)
+        : exchangeValue
+
+    if (points <= 0) {
+      logger.warn(`Redemption-Aktion: loyalty_exchange fuer Reward "${reward.title}" ergibt 0 Punkte`)
+      return
+    }
 
     creditLoyalty(userLogin, points, 'channel_point_exchange')
     logger.info(

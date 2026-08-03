@@ -24,6 +24,7 @@ interface RewardRow {
 interface RedemptionRow {
   id: number
   reward_id: number
+  reward_title?: string | null
   twitch_redemption_id: string
   user_login: string
   user_input: string | null
@@ -54,6 +55,7 @@ function redemptionToDomain(row: RedemptionRow): RedemptionLogEntry {
   return {
     id: row.id,
     rewardId: row.reward_id,
+    rewardTitle: row.reward_title ?? undefined,
     twitchRedemptionId: row.twitch_redemption_id,
     userLogin: row.user_login,
     userInput: row.user_input,
@@ -147,6 +149,13 @@ export function getRewardByTwitchId(twitchRewardId: string): ChannelPointReward 
   return row ? toDomain(row) : null
 }
 
+export function getUniqueRewardByTitle(title: string): ChannelPointReward | null {
+  const rows = getDb()
+    .prepare<[string], RewardRow>('SELECT * FROM channel_point_rewards WHERE title = ? LIMIT 2')
+    .all(title)
+  return rows.length === 1 ? toDomain(rows[0]) : null
+}
+
 export function logRedemption(entry: Omit<RedemptionLogEntry, 'id'>): RedemptionLogEntry {
   const result = getDb()
     .prepare(
@@ -164,7 +173,12 @@ export function logRedemption(entry: Omit<RedemptionLogEntry, 'id'>): Redemption
     })
 
   const row = getDb()
-    .prepare<[number], RedemptionRow>('SELECT * FROM redemption_log WHERE id = ?')
+    .prepare<[number], RedemptionRow>(
+      `SELECT redemption_log.*, channel_point_rewards.title AS reward_title
+       FROM redemption_log
+       LEFT JOIN channel_point_rewards ON channel_point_rewards.id = redemption_log.reward_id
+       WHERE redemption_log.id = ?`
+    )
     .get(Number(result.lastInsertRowid))!
 
   return redemptionToDomain(row)
@@ -173,7 +187,11 @@ export function logRedemption(entry: Omit<RedemptionLogEntry, 'id'>): Redemption
 export function listRecentRedemptions(limit = 50): RedemptionLogEntry[] {
   return getDb()
     .prepare<[number], RedemptionRow>(
-      'SELECT * FROM redemption_log ORDER BY redeemed_at DESC LIMIT ?'
+      `SELECT redemption_log.*, channel_point_rewards.title AS reward_title
+       FROM redemption_log
+       LEFT JOIN channel_point_rewards ON channel_point_rewards.id = redemption_log.reward_id
+       ORDER BY redemption_log.redeemed_at DESC
+       LIMIT ?`
     )
     .all(limit)
     .map(redemptionToDomain)

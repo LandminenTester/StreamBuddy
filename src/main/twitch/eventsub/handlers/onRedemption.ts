@@ -1,4 +1,9 @@
-import { getRewardByTwitchId, logRedemption } from '../../../db/repositories/channelPoints.repo'
+import {
+  getRewardByTwitchId,
+  getUniqueRewardByTitle,
+  logRedemption,
+  setRewardTwitchSync
+} from '../../../db/repositories/channelPoints.repo'
 import { updateRedemptionStatus } from '../../helix/channelPoints.api'
 import { runRedemptionAction } from '../../redemptionActions'
 import { getMainWindow } from '../../../window'
@@ -9,7 +14,7 @@ interface RedemptionAddEvent {
   id: string
   user_login: string
   user_input: string
-  reward: { id: string }
+  reward: { id: string; title?: string }
   redeemed_at: string
 }
 
@@ -19,7 +24,17 @@ export async function handleRedemptionAddEvent(
   broadcasterId: string
 ): Promise<void> {
   const redemption = event as unknown as RedemptionAddEvent
-  const localReward = getRewardByTwitchId(redemption.reward.id)
+  let localReward = getRewardByTwitchId(redemption.reward.id)
+
+  if (!localReward && redemption.reward.title) {
+    localReward = getUniqueRewardByTitle(redemption.reward.title)
+    if (localReward && localReward.twitchRewardId !== redemption.reward.id) {
+      setRewardTwitchSync(localReward.id, redemption.reward.id, Date.now())
+      logger.info(
+        `Reward "${localReward.title}" per Titel-Fallback mit Twitch-ID "${redemption.reward.id}" verknuepft`
+      )
+    }
+  }
 
   if (!localReward) {
     logger.warn(`Redemption für unbekannten Reward "${redemption.reward.id}" ignoriert`)

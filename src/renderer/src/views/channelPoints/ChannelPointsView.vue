@@ -156,6 +156,9 @@ async function handleSubmit(form: RewardFormState): Promise<void> {
         >
           <span class="min-w-0 truncate text-fg">
             {{ entry.userLogin }}
+            <span v-if="entry.rewardTitle" class="text-fg-muted">
+              - {{ entry.rewardTitle }}
+            </span>
             <span v-if="entry.userInput" class="text-fg-muted">— „{{ entry.userInput }}“</span>
           </span>
           <span class="shrink-0 text-xs text-fg-subtle">{{ entry.status }}</span>
