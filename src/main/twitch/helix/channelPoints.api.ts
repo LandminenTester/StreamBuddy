@@ -21,7 +21,13 @@ interface CustomRewardsResponse {
  */
 export async function createTwitchReward(
   broadcasterId: string,
-  input: { title: string; cost: number; prompt: string | null; backgroundColor: string | null }
+  input: {
+    title: string
+    cost: number
+    prompt: string | null
+    backgroundColor: string | null
+    autoFulfill?: boolean
+  }
 ): Promise<TwitchCustomReward> {
   const response = await helixFetch(
     `/channel_points/custom_rewards?broadcaster_id=${broadcasterId}`,
@@ -32,7 +38,7 @@ export async function createTwitchReward(
         cost: input.cost,
         prompt: input.prompt ?? undefined,
         background_color: input.backgroundColor ?? undefined,
-        should_redemptions_skip_request_queue: false
+        should_redemptions_skip_request_queue: input.autoFulfill ?? false
       })
     }
   )
@@ -52,6 +58,7 @@ export async function updateTwitchReward(
     prompt?: string | null
     isEnabled?: boolean
     backgroundColor?: string | null
+    autoFulfill?: boolean
   }
 ): Promise<TwitchCustomReward> {
   const response = await helixFetch(
@@ -63,7 +70,8 @@ export async function updateTwitchReward(
         cost: input.cost,
         prompt: input.prompt ?? undefined,
         is_enabled: input.isEnabled,
-        background_color: input.backgroundColor ?? undefined
+        background_color: input.backgroundColor ?? undefined,
+        should_redemptions_skip_request_queue: input.autoFulfill
       })
     }
   )

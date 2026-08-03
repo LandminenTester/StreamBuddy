@@ -1,64 +1,152 @@
 import type { ChannelPointReward } from '@shared/types/channelPointReward'
+import type { Command } from '@shared/types/command'
 import { sendChatMessage } from './chat/tmiClient'
-import { getCommandById } from '../db/repositories/commands.repo'
+import { getCommandById, incrementCommandUseCount } from '../db/repositories/commands.repo'
+import { adjustTracker, getTrackerCurrentValue, listTrackers } from '../db/repositories/trackers.repo'
+import {
+  findTrackerByPlaceholderKey,
+  formatTrackerCurrentValue,
+  WERT_PLACEHOLDER_PATTERN
+} from '@shared/utils/wertPlaceholders'
 import { creditLoyalty } from '../loyalty/loyaltyLedger'
+import { getSetting } from '../db/repositories/appSettings.repo'
+import { getActiveChatClient } from './chat/chatClientAccessor'
 import { logger } from '../logger'
 
-/** Führt die konfigurierte Aktion eines Custom Rewards nach einer Redemption aus. */
+function resolveCommandResponse(
+  response: string,
+  oldValues: Record<number, string>,
+  newValues: Record<number, string>
+): string {
+  let result = response
+
+  const firstOldValue = Object.values(oldValues)[0]
+  const firstNewValue = Object.values(newValues)[0]
+  if (firstOldValue !== undefined) result = result.replaceAll('{alter_wert}', firstOldValue)
+  if (firstNewValue !== undefined) result = result.replaceAll('{neuer_wert}', firstNewValue)
+
+  result = result.replace(/\{old:(\d+)\}/g, (_, rawId: string) => oldValues[Number(rawId)] ?? '')
+  result = result.replace(/\{new:(\d+)\}/g, (_, rawId: string) => newValues[Number(rawId)] ?? '')
+
+  const trackers = listTrackers()
+  return result.replace(WERT_PLACEHOLDER_PATTERN, (_, rawKey: string) => {
+    const tracker = findTrackerByPlaceholderKey(trackers, rawKey)
+    return tracker ? formatTrackerCurrentValue(tracker) : ''
+  })
+}
+
+async function sendRewardCommandResponse(
+  command: Command,
+  userLogin: string,
+  resolvedResponse: string
+): Promise<void> {
+  const sender = getActiveChatClient()
+  const channel = getSetting('target_channel')
+
+  if (!sender || !channel) {
+    logger.warn(`Redemption-Command "${command.trigger}" ausgefuehrt, aber Chat ist nicht verbunden`)
+    return
+  }
+
+  if (command.deliveryMode === 'whisper') {
+    await sender.whisper(userLogin, resolvedResponse)
+    return
+  }
+
+  await sender.say(
+    channel,
+    command.deliveryMode === 'mention' ? `@${userLogin} ${resolvedResponse}` : resolvedResponse
+  )
+}
+
+async function runCommandRewardAction(command: Command, userLogin: string): Promise<void> {
+  if (!command.enabled) {
+    logger.warn(`Redemption-Command "${command.trigger}" ist deaktiviert`)
+    return
+  }
+
+  const oldValues: Record<number, string> = {}
+  const newValues: Record<number, string> = {}
+  const trackerActions = command.trackerActions.length
+    ? command.trackerActions
+    : command.trackerId && command.trackerAction
+      ? [{ trackerId: command.trackerId, action: command.trackerAction }]
+      : []
+
+  for (const trackerAction of trackerActions) {
+    oldValues[trackerAction.trackerId] = getTrackerCurrentValue(trackerAction.trackerId)
+    adjustTracker(trackerAction.trackerId, trackerAction.action === 'increment' ? 1 : -1)
+    newValues[trackerAction.trackerId] = getTrackerCurrentValue(trackerAction.trackerId)
+  }
+
+  const resolvedResponse = resolveCommandResponse(command.response, oldValues, newValues)
+  await sendRewardCommandResponse(command, userLogin, resolvedResponse)
+  incrementCommandUseCount(command.id)
+}
+
+/** Fuehrt die konfigurierte Aktion eines Custom Rewards nach einer Redemption aus. */
 export async function runRedemptionAction(
   reward: ChannelPointReward,
   userLogin: string
 ): Promise<void> {
   if (reward.actionType === 'chat_message' && reward.actionPayload?.message) {
     await sendChatMessage(reward.actionPayload.message)
-    logger.info(`Redemption-Aktion: Chatnachricht für Reward "${reward.title}" gesendet`)
+    logger.info(`Redemption-Aktion: Chatnachricht fuer Reward "${reward.title}" gesendet`)
     return
   }
 
   if (reward.actionType === 'trigger_command' && reward.actionPayload?.commandId) {
     try {
       const command = getCommandById(reward.actionPayload.commandId)
-      await sendChatMessage(command.response)
-      logger.info(`Redemption-Aktion: Command für Reward "${reward.title}" ausgelöst`)
+      await runCommandRewardAction(command, userLogin)
+      logger.info(`Redemption-Aktion: Command fuer Reward "${reward.title}" ausgeloest`)
     } catch (error) {
-      logger.error(`Redemption-Aktion: Command nicht gefunden für Reward "${reward.title}"`, error)
+      logger.error(`Redemption-Aktion: Command nicht gefunden fuer Reward "${reward.title}"`, error)
     }
     return
   }
 
   if (reward.actionType === 'loyalty_exchange') {
     const payload = reward.actionPayload
+    const exchangeValue = Number(payload?.loyaltyExchangeValue)
     if (
       !payload?.loyaltyExchangeMode ||
-      typeof payload.loyaltyExchangeValue !== 'number' ||
-      !Number.isFinite(payload.loyaltyExchangeValue) ||
-      payload.loyaltyExchangeValue <= 0
+      !Number.isFinite(exchangeValue) ||
+      exchangeValue <= 0
     ) {
-      logger.warn(`Redemption-Aktion: loyalty_exchange für Reward "${reward.title}" ohne gültige payload`)
+      logger.warn(
+        `Redemption-Aktion: loyalty_exchange fuer Reward "${reward.title}" ohne gueltige payload`
+      )
       return
     }
 
-    const exchangeValue = payload.loyaltyExchangeValue
     const points =
       payload.loyaltyExchangeMode === 'rate'
         ? Math.floor(reward.cost / exchangeValue)
-        : exchangeValue
+        : Math.floor(exchangeValue)
 
     if (points <= 0) {
       logger.warn(`Redemption-Aktion: loyalty_exchange fuer Reward "${reward.title}" ergibt 0 Punkte`)
       return
     }
 
-    creditLoyalty(userLogin, points, 'channel_point_exchange')
+    const transaction = creditLoyalty(userLogin, points, 'channel_point_exchange')
+    if (!transaction) {
+      logger.warn(
+        `Redemption-Aktion: Loyalty-Punkte fuer "${userLogin}" uebersprungen, Konto ist geblacklistet`
+      )
+      return
+    }
+
     logger.info(
-      `Redemption-Aktion: ${points} Loyalty-Punkte für "${userLogin}" via Reward "${reward.title}" gutgeschrieben`
+      `Redemption-Aktion: ${points} Loyalty-Punkte fuer "${userLogin}" via Reward "${reward.title}" gutgeschrieben`
     )
     return
   }
 
   if (reward.actionType !== 'none') {
     logger.warn(
-      `Redemption-Aktion für Reward "${reward.title}" übersprungen: actionType=${reward.actionType}, aber keine gültige actionPayload konfiguriert`
+      `Redemption-Aktion fuer Reward "${reward.title}" uebersprungen: actionType=${reward.actionType}, aber keine gueltige actionPayload konfiguriert`
     )
   }
 }

@@ -59,7 +59,6 @@ onBeforeUnmount(() => {
   <Teleport to="body">
     <div
       class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
-      @click="emit('close')"
     >
       <div
         ref="panel"
@@ -68,7 +67,6 @@ onBeforeUnmount(() => {
         :aria-label="title"
         class="flex max-h-[85vh] w-full flex-col rounded-lg bg-surface-elevated shadow-xl"
         :class="maxWidth"
-        @click.stop
       >
         <div class="flex items-center justify-between gap-4 px-5 pb-3 pt-5">
           <h2 class="text-lg font-semibold text-fg">{{ title }}</h2>

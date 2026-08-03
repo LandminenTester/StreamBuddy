@@ -19,6 +19,7 @@ interface RedemptionAddEvent {
   user_name?: string
   user_input: string
   reward: { id: string; title?: string; cost?: number }
+  status?: string
   redeemed_at: string
 }
 
@@ -111,16 +112,17 @@ export async function handleRedemptionAddEvent(
     twitchRedemptionId: redemption.id,
     userLogin: redemption.user_login,
     userInput: redemption.user_input || null,
-    status: 'unfulfilled',
+    status: mapRedemptionStatus(redemption.status ?? '') ?? 'unfulfilled',
     redeemedAt: Date.parse(redemption.redeemed_at)
   })
 
   await runRedemptionAction(localReward, redemption.user_login)
 
-  if (localReward.autoFulfill) {
+  if (localReward.autoFulfill && logEntry.status !== 'fulfilled') {
     try {
       await updateRedemptionStatus(broadcasterId, redemption.reward.id, redemption.id, 'FULFILLED')
       logEntry.status = 'fulfilled'
+      updateRedemptionLogStatus(redemption.id, 'fulfilled')
     } catch (error) {
       logger.error('Konnte Redemption nicht als fulfilled markieren', error)
     }

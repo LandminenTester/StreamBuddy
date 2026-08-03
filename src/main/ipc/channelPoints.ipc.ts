@@ -40,7 +40,8 @@ export function registerChannelPointsIpc(): void {
         title: created.title,
         cost: created.cost,
         prompt: created.prompt,
-        backgroundColor: created.backgroundColor
+        backgroundColor: created.backgroundColor,
+        autoFulfill: created.autoFulfill
       })
       setRewardTwitchSync(created.id, twitchReward.id, Date.now())
       return getRewardById(created.id)
@@ -69,7 +70,8 @@ export function registerChannelPointsIpc(): void {
           cost: updated.cost,
           prompt: updated.prompt,
           isEnabled: updated.isEnabled,
-          backgroundColor: updated.backgroundColor
+          backgroundColor: updated.backgroundColor,
+          autoFulfill: updated.autoFulfill
         })
       } catch (error) {
         logger.error('Twitch-Reward-Sync bei update fehlgeschlagen', error)
