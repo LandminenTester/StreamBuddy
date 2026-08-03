@@ -18,6 +18,7 @@ export interface ViewerSession {
   joinedAt: number
   leftAt: number | null
   durationSeconds: number | null
+  games: string[]
 }
 
 export interface StreamStats {

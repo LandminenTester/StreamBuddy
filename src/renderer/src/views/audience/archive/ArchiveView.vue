@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Tv2, ChevronDown, ChevronUp } from 'lucide-vue-next'
+import { ChevronDown, ChevronUp, Tv2 } from 'lucide-vue-next'
 import EmptyState from '@renderer/components/ui/EmptyState.vue'
 import PageSection from '@renderer/components/ui/PageSection.vue'
 import AppBadge from '@renderer/components/ui/AppBadge.vue'
@@ -21,7 +21,8 @@ async function toggleStream(streamId: string): Promise<void> {
   await store.fetchStreamViewers(streamId)
 }
 
-function formatDate(ts: number): string {
+function formatDate(ts: number | null): string {
+  if (!ts || !Number.isFinite(ts) || ts <= 0) return t('common.none')
   return d(new Date(ts * 1000), 'short')
 }
 
@@ -33,9 +34,13 @@ function formatDuration(seconds: number | null): string {
 }
 
 function formatViewDuration(seconds: number | null): string {
-  if (seconds === null) return '—'
+  if (seconds === null) return t('common.none')
   const m = Math.floor(seconds / 60)
   return `${m} min`
+}
+
+function formatGames(games: string[]): string {
+  return games.length > 0 ? games.join(', ') : t('common.none')
 }
 
 const currentStats = computed(() => store.selectedStreamStats)
@@ -77,17 +82,39 @@ const currentStats = computed(() => store.selectedStreamStats)
             </p>
           </div>
           <div class="flex shrink-0 items-center gap-4 text-xs text-fg-muted">
-            <span>{{ $t('audience.archive.columns.duration') }}: {{ formatDuration(stream.durationSeconds) }}</span>
-            <span>{{ $t('audience.archive.columns.peakViewers') }}: {{ stream.peakViewerCount }}</span>
-            <span>{{ $t('audience.archive.columns.uniqueChatters') }}: {{ stream.uniqueChatters }}</span>
-            <component :is="expandedStreamId === stream.streamId ? ChevronUp : ChevronDown" class="h-4 w-4" />
+            <span>
+              {{ $t('audience.archive.columns.duration') }}:
+              {{ formatDuration(stream.durationSeconds) }}
+            </span>
+            <span
+              >{{ $t('audience.archive.columns.peakViewers') }}: {{ stream.peakViewerCount }}</span
+            >
+            <span>
+              {{ $t('audience.archive.columns.uniqueChatters') }}:
+              {{ stream.uniqueChatters }}
+            </span>
+            <component
+              :is="expandedStreamId === stream.streamId ? ChevronUp : ChevronDown"
+              class="h-4 w-4"
+            />
           </div>
         </button>
 
-        <div v-if="expandedStreamId === stream.streamId" class="border-t border-line px-4 pb-4 pt-3">
+        <div
+          v-if="expandedStreamId === stream.streamId"
+          class="border-t border-line px-4 pb-4 pt-3"
+        >
           <div v-if="currentStats" class="mb-3 flex flex-wrap gap-4 text-xs text-fg-muted">
-            <span>{{ $t('audience.archive.stats.uniqueChatters') }}: <strong class="text-fg">{{ currentStats.uniqueChatters }}</strong></span>
-            <span>{{ $t('audience.archive.stats.avgDuration') }}: <strong class="text-fg">{{ formatViewDuration(currentStats.avgDurationSeconds) }}</strong></span>
+            <span>
+              {{ $t('audience.archive.stats.uniqueChatters') }}:
+              <strong class="text-fg">{{ currentStats.uniqueChatters }}</strong>
+            </span>
+            <span>
+              {{ $t('audience.archive.stats.avgDuration') }}:
+              <strong class="text-fg">{{
+                formatViewDuration(currentStats.avgDurationSeconds)
+              }}</strong>
+            </span>
           </div>
 
           <div v-if="store.selectedStreamViewers.length === 0" class="text-xs text-fg-muted">
@@ -98,8 +125,15 @@ const currentStats = computed(() => store.selectedStreamStats)
             <table class="w-full text-xs">
               <thead>
                 <tr class="border-b border-line text-left text-fg-muted">
-                  <th class="pb-1.5 pr-3 font-medium">{{ $t('audience.archive.columns.viewer') }}</th>
-                  <th class="pb-1.5 pr-3 font-medium">{{ $t('audience.archive.columns.joined') }}</th>
+                  <th class="pb-1.5 pr-3 font-medium">
+                    {{ $t('audience.archive.columns.viewer') }}
+                  </th>
+                  <th class="pb-1.5 pr-3 font-medium">
+                    {{ $t('audience.archive.columns.joined') }}
+                  </th>
+                  <th class="pb-1.5 pr-3 font-medium">
+                    {{ $t('audience.archive.columns.games') }}
+                  </th>
                   <th class="pb-1.5 font-medium">{{ $t('audience.archive.columns.viewTime') }}</th>
                 </tr>
               </thead>
@@ -111,6 +145,7 @@ const currentStats = computed(() => store.selectedStreamStats)
                 >
                   <td class="py-1.5 pr-3 font-medium text-fg">{{ session.userLogin }}</td>
                   <td class="py-1.5 pr-3">{{ formatDate(session.joinedAt) }}</td>
+                  <td class="py-1.5 pr-3">{{ formatGames(session.games) }}</td>
                   <td class="py-1.5">{{ formatViewDuration(session.durationSeconds) }}</td>
                 </tr>
               </tbody>

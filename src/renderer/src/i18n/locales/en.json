@@ -757,6 +757,7 @@
         "uniqueChatters": "Chatters",
         "viewer": "Viewer",
         "joined": "Joined",
+        "games": "Games",
         "viewTime": "View time"
       },
       "stats": {
