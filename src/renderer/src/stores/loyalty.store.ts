@@ -19,6 +19,7 @@ export const useLoyaltyStore = defineStore('loyalty', () => {
   const earnRules = ref<LoyaltyEarnRule[]>([])
   const games = ref<LoyaltyGameInfo[]>([])
   const blacklist = ref<LoyaltyAccount[]>([])
+  const knownBots = ref<string[]>([])
   const error = ref<string | null>(null)
   const gameHistory = ref<LoyaltyGameHistoryEntry[]>([])
   const gameStats = ref<LoyaltyGameStats | null>(null)
@@ -137,6 +138,15 @@ export const useLoyaltyStore = defineStore('loyalty', () => {
     await fetchLeaderboard()
   }
 
+  async function fetchKnownBots(): Promise<void> {
+    knownBots.value = await window.api.invoke('loyalty:listKnownBots', undefined)
+  }
+
+  async function blacklistKnownBots(): Promise<void> {
+    blacklist.value = await window.api.invoke('loyalty:blacklistKnownBots', undefined)
+    await fetchLeaderboard()
+  }
+
   async function updateGameTriggers(
     gameId: string,
     commandTriggers: Record<string, string>
@@ -207,6 +217,7 @@ export const useLoyaltyStore = defineStore('loyalty', () => {
     earnRules,
     games,
     blacklist,
+    knownBots,
     error,
     gameHistory,
     gameStats,
@@ -230,6 +241,8 @@ export const useLoyaltyStore = defineStore('loyalty', () => {
     exportCsv,
     fetchBlacklist,
     setBlacklisted,
+    fetchKnownBots,
+    blacklistKnownBots,
     updateGameTriggers,
     updateGameTexts,
     fetchGameHistory,

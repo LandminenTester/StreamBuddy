@@ -1,20 +1,27 @@
 import { listEarnRules } from '../../db/repositories/loyalty.repo'
+import { getSetting } from '../../db/repositories/appSettings.repo'
 import { creditLoyalty } from '../loyaltyLedger'
 import { getLoyaltyEnabled } from '../loyaltySettings'
 import { getPresentUsers } from '../../twitch/chat/presenceTracker'
-import { isStreamLive } from '../../stats/viewerCountPoller'
 import { logger } from '../../logger'
 
 let tickTimer: NodeJS.Timeout | null = null
 
+function cleanLogin(login: string): string {
+  return login.trim().replace(/^@|^#/, '').toLowerCase()
+}
+
 function runTick(points: number): void {
-  if (!getLoyaltyEnabled() || !isStreamLive()) return
-  const users = getPresentUsers()
+  if (!getLoyaltyEnabled()) return
+  const users = new Set(getPresentUsers().map(cleanLogin))
+  const targetChannel = getSetting('target_channel')
+  if (targetChannel) users.add(cleanLogin(targetChannel))
+
   for (const userLogin of users) {
     creditLoyalty(userLogin, points, 'view_time')
   }
-  if (users.length > 0) {
-    logger.info(`Loyalty: View-Time-Tick, +${points} für ${users.length} anwesende Chatter`)
+  if (users.size > 0) {
+    logger.info(`Loyalty: View-Time-Tick, +${points} fuer ${users.size} anwesende Chatter`)
   }
 }
 

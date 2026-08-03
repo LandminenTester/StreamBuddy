@@ -437,6 +437,7 @@
       "manualLabel": "Nutzer manuell hinzufügen",
       "manualPlaceholder": "twitch_name",
       "addManual": "Blacklisten",
+      "addKnownBots": "Bekannte Bots blacklisten",
       "remove": "Entfernen"
     },
     "earnRules": {
@@ -483,7 +484,23 @@
     "textSlot": {
       "roundStart": "Runden-Start",
       "spinning": "Dreh-/Wartephase",
-      "result": "Ergebnis"
+      "result": "Ergebnis",
+      "cooldown": "Cooldown",
+      "usage": "Nutzungshinweis",
+      "win": "Gewinn",
+      "loss": "Niederlage",
+      "selfChallenge": "Selbst-Herausforderung",
+      "challenge": "Herausforderung",
+      "noPending": "Keine offene Anfrage",
+      "insufficientFunds": "Nicht genug Punkte",
+      "alreadyPlaying": "Bereits im Spiel",
+      "privateOptions": "Private Optionen",
+      "accepted": "Angenommen",
+      "noActive": "Kein aktives Spiel",
+      "alreadyChosen": "Auswahl bereits gespeichert",
+      "choiceSaved": "Auswahl gespeichert",
+      "draw": "Unentschieden",
+      "payoutFailed": "Auszahlung fehlgeschlagen"
     },
     "title": "Games",
     "description": "Chat-Spiele, die mit Loyalty-Punkten gespielt werden.",
@@ -613,6 +630,7 @@
       "mod_account": "Mod-Account",
       "channel": "Kanal",
       "features": "Features",
+      "bot_blacklist": "Bot-Blacklist",
       "summary": "Fertig"
     },
     "welcome": {
@@ -664,6 +682,14 @@
       "description": "Jedes Feature fordert bei der Verbindung nur die Berechtigungen an, die es wirklich braucht. Du kannst das später jederzeit ändern.",
       "coreChat": "Chat lesen und schreiben",
       "coreChatDescription": "Grundlage für Commands und Automessages — immer aktiv."
+    },
+    "botBlacklist": {
+      "title": "Bekannte Bots ausblenden",
+      "description": "StreamBuddy kann bekannte Streamer-Bots automatisch aus Loyalty-Rangliste, Punkten und Begrüßungen heraushalten.",
+      "toggle": "Bekannte Bots blacklisten",
+      "toggleHint": "Die Liste wird lokal gepflegt und kann später in der Loyalty-Blacklist bearbeitet werden.",
+      "preview": "{count} bekannte Bots, z.B. {bots}",
+      "applyNow": "Jetzt anwenden"
     },
     "summary": {
       "title": "Alles bereit",

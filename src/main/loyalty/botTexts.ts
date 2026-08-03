@@ -25,6 +25,24 @@ export const BOT_TEXTS: Record<AppLocale, BotTextSet> = {
       'Ruhe im Laden -- die Spiele oeffnen erst wieder, wenn es live geht.'
     ],
     gameTexts: {
+      gamble: {
+        cooldown: ['@{user} Gamble-Cooldown: noch {seconds}s warten.'],
+        usage: ['@{user} Nutzung: !gamble <Einsatz|all|xx%> ({limit}, max. Kontostand: {balance})'],
+        win: ['@{user} Gewonnen! +{amount} Punkte.'],
+        loss: ['@{user} Verloren. -{amount} Punkte.']
+      },
+      duel: {
+        usage: ['@{user} Nutzung: !duel @user <Einsatz|all|xx%>'],
+        selfChallenge: ['@{user} Du kannst nicht gegen dich selbst antreten.'],
+        challenge: [
+          '@{opponent} wurde von @{challenger} zu einem Duell um {amount} Punkte herausgefordert! Mit "{acceptTrigger}" annehmen ({seconds}s Zeit).'
+        ],
+        noPending: ['@{user} Keine offene Duell-Anfrage.'],
+        insufficientFunds: [
+          '@{user} Duell abgebrochen -- nicht genug Punkte bei einem der Teilnehmer.'
+        ],
+        result: ['Duell entschieden: @{winner} gewinnt {amount} Punkte von @{loser}!']
+      },
       roulette: {
         roundStart: [
           'Neue Roulette-Runde! {seconds}s Zeit zum Setzen: !red / !black / !green / !number <0-36> <Einsatz|all|xx%>.',
@@ -45,6 +63,32 @@ export const BOT_TEXTS: Record<AppLocale, BotTextSet> = {
           'Keine Wetten gesetzt -- die Kugel landet auf {colorEmoji} {number} ({color}).',
           'Leere Runde: {colorEmoji} {number} ({color}). Naechste Runde startet gleich.'
         ]
+      },
+      ssp: {
+        usage: ['@{user} Nutzung: !ssp @user <Punkte|all|xx%>'],
+        selfChallenge: ['@{user} Du kannst nicht gegen dich selbst spielen.'],
+        alreadyPlaying: ['@{user} Einer von euch spielt bereits Schere Stein Papier.'],
+        challenge: [
+          '@{opponent} wurde von @{challenger} zu Schere Stein Papier um {amount} Punkte herausgefordert. Mit !ssp accept annehmen.'
+        ],
+        noPending: ['@{user} Keine offene SSP-Herausforderung.'],
+        insufficientFunds: ['@{user} SSP abgebrochen -- nicht genug Punkte bei einem Teilnehmer.'],
+        privateOptions: [
+          'SSP gegen @{opponent}: Antworte mit !ssp 1, !ssp 2 oder !ssp 3. Deine Zuordnung: {mapping}.'
+        ],
+        accepted: [
+          'SSP zwischen @{challenger} und @{opponent} wurde angenommen. Beide haben ihre Optionen privat erhalten.'
+        ],
+        noActive: ['Du hast gerade kein aktives SSP-Spiel.'],
+        alreadyChosen: ['Deine SSP-Auswahl wurde bereits gespeichert.'],
+        choiceSaved: ['Auswahl gespeichert: {choice}. Warte auf den anderen Spieler.'],
+        draw: [
+          'SSP endet unentschieden: @{challenger} ({challengerMove}) gegen @{opponent} ({opponentMove}).'
+        ],
+        payoutFailed: ['SSP abgebrochen -- Punkte konnten beim Abschluss nicht gebucht werden.'],
+        result: [
+          'SSP entschieden: @{winner} gewinnt {amount} Punkte! @{challenger} ({challengerMove}) gegen @{opponent} ({opponentMove}).'
+        ]
       }
     }
   },
@@ -57,6 +101,24 @@ export const BOT_TEXTS: Record<AppLocale, BotTextSet> = {
       'All quiet -- the games reopen once we go live.'
     ],
     gameTexts: {
+      gamble: {
+        cooldown: ['@{user} Gamble cooldown: wait {seconds}s.'],
+        usage: ['@{user} Usage: !gamble <bet|all|xx%> ({limit}, max balance: {balance})'],
+        win: ['@{user} You won! +{amount} points.'],
+        loss: ['@{user} You lost. -{amount} points.']
+      },
+      duel: {
+        usage: ['@{user} Usage: !duel @user <bet|all|xx%>'],
+        selfChallenge: ['@{user} You cannot duel yourself.'],
+        challenge: [
+          '@{opponent} was challenged by @{challenger} to a duel for {amount} points! Accept with "{acceptTrigger}" ({seconds}s).'
+        ],
+        noPending: ['@{user} No pending duel request.'],
+        insufficientFunds: [
+          '@{user} Duel canceled -- one participant does not have enough points.'
+        ],
+        result: ['Duel decided: @{winner} wins {amount} points from @{loser}!']
+      },
       roulette: {
         roundStart: [
           'New roulette round! {seconds}s to place your bets: !red / !black / !green / !number <0-36> <bet|all|xx%>.',
@@ -76,6 +138,30 @@ export const BOT_TEXTS: Record<AppLocale, BotTextSet> = {
         noBets: [
           'No bets placed -- the ball lands on {colorEmoji} {number} ({color}).',
           'Empty round: {colorEmoji} {number} ({color}). Next round starts soon.'
+        ]
+      },
+      ssp: {
+        usage: ['@{user} Usage: !ssp @user <points|all|xx%>'],
+        selfChallenge: ['@{user} You cannot play against yourself.'],
+        alreadyPlaying: ['@{user} One of you is already playing Rock Paper Scissors.'],
+        challenge: [
+          '@{opponent} was challenged by @{challenger} to Rock Paper Scissors for {amount} points. Accept with !ssp accept.'
+        ],
+        noPending: ['@{user} No pending RPS challenge.'],
+        insufficientFunds: ['@{user} RPS canceled -- one participant does not have enough points.'],
+        privateOptions: [
+          'RPS against @{opponent}: reply with !ssp 1, !ssp 2 or !ssp 3. Your mapping: {mapping}.'
+        ],
+        accepted: [
+          'RPS between @{challenger} and @{opponent} was accepted. Both players received their options privately.'
+        ],
+        noActive: ['You do not have an active RPS game.'],
+        alreadyChosen: ['Your RPS choice was already saved.'],
+        choiceSaved: ['Choice saved: {choice}. Waiting for the other player.'],
+        draw: ['RPS is a draw: @{challenger} ({challengerMove}) vs @{opponent} ({opponentMove}).'],
+        payoutFailed: ['RPS canceled -- points could not be booked.'],
+        result: [
+          'RPS decided: @{winner} wins {amount} points! @{challenger} ({challengerMove}) vs @{opponent} ({opponentMove}).'
         ]
       }
     }

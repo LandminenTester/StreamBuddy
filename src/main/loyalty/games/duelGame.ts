@@ -27,6 +27,18 @@ async function handleChallenge(ctx: LoyaltyGameContext): Promise<void> {
 export const duelGame: LoyaltyGame = {
   id: 'duel',
   defaultConfig: { acceptWindowSeconds: 60, minBet: 10, maxBet: 1000 } satisfies DuelConfig,
+  defaultTexts: {
+    usage: ['@{user} Nutzung: !duel @user <Einsatz|all|xx%>'],
+    selfChallenge: ['@{user} Du kannst nicht gegen dich selbst antreten.'],
+    challenge: [
+      '@{opponent} wurde von @{challenger} zu einem Duell um {amount} Punkte herausgefordert! Mit "{acceptTrigger}" annehmen ({seconds}s Zeit).'
+    ],
+    noPending: ['@{user} Keine offene Duell-Anfrage.'],
+    insufficientFunds: [
+      '@{user} Duell abgebrochen -- nicht genug Punkte bei einem der Teilnehmer.'
+    ],
+    result: ['Duell entschieden: @{winner} gewinnt {amount} Punkte von @{loser}!']
+  },
   commands: [
     { key: 'challenge', defaultTrigger: '!duel', handleCommand: handleChallenge },
     { key: 'accept', defaultTrigger: '!accept', handleCommand: acceptDuel }
@@ -44,11 +56,17 @@ async function challengeDuel(ctx: LoyaltyGameContext, config: DuelConfig): Promi
   )
 
   if (!opponentLogin || amount === null) {
-    await ctx.reply(`@${ctx.userLogin} Nutzung: !duel @user <Einsatz|all|xx%>`)
+    await ctx.reply(
+      ctx.text('usage', '@{user} Nutzung: !duel @user <Einsatz|all|xx%>', { user: ctx.userLogin })
+    )
     return
   }
   if (opponentLogin === ctx.userLogin.toLowerCase()) {
-    await ctx.reply(`@${ctx.userLogin} Du kannst nicht gegen dich selbst antreten.`)
+    await ctx.reply(
+      ctx.text('selfChallenge', '@{user} Du kannst nicht gegen dich selbst antreten.', {
+        user: ctx.userLogin
+      })
+    )
     return
   }
 
@@ -61,8 +79,17 @@ async function challengeDuel(ctx: LoyaltyGameContext, config: DuelConfig): Promi
   const acceptCommand = duelGame.commands.find((c) => c.key === 'accept')!
   const acceptTrigger = resolveCommandTrigger('duel', acceptCommand)
   await ctx.reply(
-    `@${opponentLogin} wurde von @${ctx.userLogin} zu einem Duell um ${amount} Punkte herausgefordert! ` +
-      `Mit "${acceptTrigger}" annehmen (${config.acceptWindowSeconds}s Zeit).`
+    ctx.text(
+      'challenge',
+      '@{opponent} wurde von @{challenger} zu einem Duell um {amount} Punkte herausgefordert! Mit "{acceptTrigger}" annehmen ({seconds}s Zeit).',
+      {
+        opponent: opponentLogin,
+        challenger: ctx.userLogin,
+        amount,
+        acceptTrigger,
+        seconds: config.acceptWindowSeconds
+      }
+    )
   )
 }
 
@@ -72,7 +99,9 @@ async function acceptDuel(ctx: LoyaltyGameContext): Promise<void> {
 
   if (!pending || pending.expiresAt < Date.now()) {
     pendingDuels.delete(opponentLogin)
-    await ctx.reply(`@${ctx.userLogin} Keine offene Duell-Anfrage.`)
+    await ctx.reply(
+      ctx.text('noPending', '@{user} Keine offene Duell-Anfrage.', { user: ctx.userLogin })
+    )
     return
   }
   pendingDuels.delete(opponentLogin)
@@ -82,7 +111,11 @@ async function acceptDuel(ctx: LoyaltyGameContext): Promise<void> {
 
   if (challengerAccount.balance < pending.amount || opponentAccount.balance < pending.amount) {
     await ctx.reply(
-      `@${ctx.userLogin} Duell abgebrochen -- nicht genug Punkte bei einem der Teilnehmer.`
+      ctx.text(
+        'insufficientFunds',
+        '@{user} Duell abgebrochen -- nicht genug Punkte bei einem der Teilnehmer.',
+        { user: ctx.userLogin }
+      )
     )
     return
   }
@@ -101,5 +134,11 @@ async function acceptDuel(ctx: LoyaltyGameContext): Promise<void> {
     amount: pending.amount
   })
 
-  await ctx.reply(`Duell entschieden: @${winner} gewinnt ${pending.amount} Punkte von @${loser}!`)
+  await ctx.reply(
+    ctx.text('result', 'Duell entschieden: @{winner} gewinnt {amount} Punkte von @{loser}!', {
+      winner,
+      amount: pending.amount,
+      loser
+    })
+  )
 }

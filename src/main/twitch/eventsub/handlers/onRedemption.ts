@@ -2,6 +2,7 @@ import {
   getRedemptionByTwitchId,
   getRewardByTwitchId,
   getUniqueRewardByTitle,
+  listPendingActionRedemptions,
   logRedemption,
   markRedemptionActionProcessed,
   setRewardTwitchSync,
@@ -105,11 +106,61 @@ async function processRedemptionActionOnce(
   return markRedemptionActionProcessed(redemption.id) ?? logEntry
 }
 
-function setLocalFulfilled(twitchRedemptionId: string, fallback: RedemptionLogEntry): RedemptionLogEntry {
-  return updateRedemptionLogStatus(twitchRedemptionId, 'fulfilled') ?? {
-    ...fallback,
-    status: 'fulfilled'
+function setLocalFulfilled(
+  twitchRedemptionId: string,
+  fallback: RedemptionLogEntry
+): RedemptionLogEntry {
+  return (
+    updateRedemptionLogStatus(twitchRedemptionId, 'fulfilled') ?? {
+      ...fallback,
+      status: 'fulfilled'
+    }
+  )
+}
+
+async function maybeFulfillLocally(
+  redemption: RedemptionAddEvent,
+  localReward: ChannelPointReward,
+  logEntry: RedemptionLogEntry,
+  broadcasterId?: string
+): Promise<RedemptionLogEntry> {
+  const shouldFulfillLocally =
+    localReward.autoFulfill || localReward.actionType === 'loyalty_exchange'
+  if (!shouldFulfillLocally || logEntry.status === 'fulfilled') return logEntry
+
+  if (localReward.autoFulfill && broadcasterId) {
+    try {
+      await updateRedemptionStatus(broadcasterId, redemption.reward.id, redemption.id, 'FULFILLED')
+    } catch (error) {
+      logger.error('Konnte Redemption nicht als fulfilled markieren', error)
+    }
   }
+
+  return setLocalFulfilled(redemption.id, logEntry)
+}
+
+export async function processPendingRedemptionActions(limit = 50): Promise<RedemptionLogEntry[]> {
+  const processed: RedemptionLogEntry[] = []
+  for (const item of listPendingActionRedemptions(limit)) {
+    const redemption: RedemptionAddEvent = {
+      id: item.redemption.twitchRedemptionId,
+      user_login: item.redemption.userLogin,
+      user_input: item.redemption.userInput ?? '',
+      reward: {
+        id: item.reward.twitchRewardId ?? String(item.reward.id),
+        title: item.reward.title,
+        cost: item.reward.cost
+      },
+      status: item.redemption.status,
+      redeemed_at: new Date(item.redemption.redeemedAt).toISOString()
+    }
+
+    let entry = await processRedemptionActionOnce(redemption, item.reward, item.redemption)
+    entry = await maybeFulfillLocally(redemption, item.reward, entry)
+    processed.push(entry)
+  }
+
+  return processed
 }
 
 /** Verarbeitet eine `channel.channel_points_custom_reward_redemption.add`-Notification. */
@@ -141,14 +192,7 @@ export async function handleRedemptionAddEvent(
 
   logEntry = await processRedemptionActionOnce(redemption, localReward, logEntry)
 
-  if (localReward.autoFulfill && logEntry.status !== 'fulfilled') {
-    try {
-      await updateRedemptionStatus(broadcasterId, redemption.reward.id, redemption.id, 'FULFILLED')
-    } catch (error) {
-      logger.error('Konnte Redemption nicht als fulfilled markieren', error)
-    }
-    logEntry = setLocalFulfilled(redemption.id, logEntry)
-  }
+  logEntry = await maybeFulfillLocally(redemption, localReward, logEntry, broadcasterId)
 
   getMainWindow()?.webContents.send(IpcChannels.channelPoints.onRedemption, logEntry)
 }

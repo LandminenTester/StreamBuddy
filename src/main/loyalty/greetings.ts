@@ -1,8 +1,10 @@
 import type { LoyaltyGreetingSettings, LoyaltyPersonalGreeting } from '@shared/types/loyalty'
+import { isAccountBlacklisted } from '../db/repositories/loyalty.repo'
 import { getSetting, setSetting } from '../db/repositories/appSettings.repo'
 import { getActiveChatClient } from '../twitch/chat/chatClientAccessor'
 import { getPresentUsers } from '../twitch/chat/presenceTracker'
 import { logger } from '../logger'
+import { isKnownStreamerBot } from './knownStreamerBots'
 
 const GREETING_SETTINGS_KEY = 'loyalty_greetings'
 
@@ -90,6 +92,8 @@ export async function handleViewerGreeting(userLogin: string): Promise<void> {
   const sender = getActiveChatClient()
   const channel = getSetting('target_channel')
   if (!channel || !sender) return
+  if (login === cleanLogin(channel) || isKnownStreamerBot(login) || isAccountBlacklisted(login))
+    return
 
   const settings = getGreetingSettings()
   const personalRule = settings.personalGreetings.find(

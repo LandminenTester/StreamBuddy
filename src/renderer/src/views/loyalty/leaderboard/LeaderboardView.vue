@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Trophy } from 'lucide-vue-next'
 import AppButton from '@renderer/components/ui/AppButton.vue'
@@ -27,6 +27,17 @@ const isCsvImportModalOpen = ref(false)
 const pendingAllAction = ref<'give' | 'remove' | null>(null)
 const activeEditForm = ref<AccountEditFormState>({ userLogin: '', balance: 0 })
 const resultMessage = ref<string | null>(null)
+let refreshTimer: ReturnType<typeof setInterval> | null = null
+
+onMounted(() => {
+  void store.fetchLeaderboard()
+  refreshTimer = setInterval(() => void store.fetchLeaderboard(), 10_000)
+})
+
+onUnmounted(() => {
+  if (refreshTimer) clearInterval(refreshTimer)
+  refreshTimer = null
+})
 
 const filtered = computed(() => {
   const query = searchQuery.value.trim().toLowerCase()

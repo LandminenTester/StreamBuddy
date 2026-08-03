@@ -35,6 +35,7 @@ import {
 } from '../loyalty/loyaltySettings'
 import { LOYALTY_OFFLINE_MESSAGE_KEY } from '../loyalty/offlineMessages'
 import { getGreetingSettings, setGreetingSettings } from '../loyalty/greetings'
+import { KNOWN_STREAMER_BOTS } from '../loyalty/knownStreamerBots'
 import { parseLoyaltyCsv, serializeLoyaltyCsv } from '../loyalty/csv'
 import { getChatStatus } from '../twitch/chat/tmiClient'
 import { getMainWindow } from '../window'
@@ -241,6 +242,16 @@ export function registerLoyaltyIpc(): void {
   handleTyped(IpcChannels.loyalty.setBlacklisted, ({ userLogin, blacklisted }) => {
     getOrCreateAccount(userLogin)
     setAccountBlacklisted(userLogin, blacklisted)
+    return listBlacklistedAccounts()
+  })
+
+  handleTyped(IpcChannels.loyalty.listKnownBots, () => [...KNOWN_STREAMER_BOTS])
+
+  handleTyped(IpcChannels.loyalty.blacklistKnownBots, () => {
+    for (const botLogin of KNOWN_STREAMER_BOTS) {
+      getOrCreateAccount(botLogin)
+      setAccountBlacklisted(botLogin, true)
+    }
     return listBlacklistedAccounts()
   })
 

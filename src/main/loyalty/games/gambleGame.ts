@@ -18,7 +18,12 @@ async function handleBet(ctx: LoyaltyGameContext): Promise<void> {
   const lastUsed = lastGambleAt.get(login) ?? 0
   const remainingSeconds = Math.ceil((lastUsed + config.cooldownSeconds * 1000 - Date.now()) / 1000)
   if (remainingSeconds > 0) {
-    await ctx.reply(`@${ctx.userLogin} Gamble-Cooldown: noch ${remainingSeconds}s warten.`)
+    await ctx.reply(
+      ctx.text('cooldown', '@{user} Gamble-Cooldown: noch {seconds}s warten.', {
+        user: ctx.userLogin,
+        seconds: remainingSeconds
+      })
+    )
     return
   }
 
@@ -28,7 +33,11 @@ async function handleBet(ctx: LoyaltyGameContext): Promise<void> {
   if (amount === null) {
     const limit = config.maxBet > 0 ? `${config.minBet}-${config.maxBet}` : `ab ${config.minBet}`
     await ctx.reply(
-      `@${ctx.userLogin} Nutzung: !gamble <Einsatz|all|xx%> (${limit}, max. Kontostand: ${account.balance})`
+      ctx.text(
+        'usage',
+        '@{user} Nutzung: !gamble <Einsatz|all|xx%> ({limit}, max. Kontostand: {balance})',
+        { user: ctx.userLogin, limit, balance: account.balance }
+      )
     )
     return
   }
@@ -38,10 +47,20 @@ async function handleBet(ctx: LoyaltyGameContext): Promise<void> {
 
   if (won) {
     creditLoyalty(ctx.userLogin, amount, 'game_win', 'gamble')
-    await ctx.reply(`@${ctx.userLogin} Gewonnen! +${amount} Punkte.`)
+    await ctx.reply(
+      ctx.text('win', '@{user} Gewonnen! +{amount} Punkte.', {
+        user: ctx.userLogin,
+        amount
+      })
+    )
   } else {
     creditLoyalty(ctx.userLogin, -amount, 'game_loss', 'gamble')
-    await ctx.reply(`@${ctx.userLogin} Verloren. -${amount} Punkte.`)
+    await ctx.reply(
+      ctx.text('loss', '@{user} Verloren. -{amount} Punkte.', {
+        user: ctx.userLogin,
+        amount
+      })
+    )
   }
 }
 
@@ -53,5 +72,11 @@ export const gambleGame: LoyaltyGame = {
     minBet: 10,
     maxBet: 1000
   } satisfies GambleConfig,
+  defaultTexts: {
+    cooldown: ['@{user} Gamble-Cooldown: noch {seconds}s warten.'],
+    usage: ['@{user} Nutzung: !gamble <Einsatz|all|xx%> ({limit}, max. Kontostand: {balance})'],
+    win: ['@{user} Gewonnen! +{amount} Punkte.'],
+    loss: ['@{user} Verloren. -{amount} Punkte.']
+  },
   commands: [{ key: 'bet', defaultTrigger: '!gamble', handleCommand: handleBet }]
 }

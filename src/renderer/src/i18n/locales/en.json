@@ -437,6 +437,7 @@
       "manualLabel": "Add user manually",
       "manualPlaceholder": "twitch_name",
       "addManual": "Blacklist",
+      "addKnownBots": "Blacklist known bots",
       "remove": "Remove"
     },
     "earnRules": {
@@ -483,7 +484,23 @@
     "textSlot": {
       "roundStart": "Round start",
       "spinning": "Spin / waiting phase",
-      "result": "Result"
+      "result": "Result",
+      "cooldown": "Cooldown",
+      "usage": "Usage hint",
+      "win": "Win",
+      "loss": "Loss",
+      "selfChallenge": "Self challenge",
+      "challenge": "Challenge",
+      "noPending": "No pending request",
+      "insufficientFunds": "Not enough points",
+      "alreadyPlaying": "Already playing",
+      "privateOptions": "Private options",
+      "accepted": "Accepted",
+      "noActive": "No active game",
+      "alreadyChosen": "Choice already saved",
+      "choiceSaved": "Choice saved",
+      "draw": "Draw",
+      "payoutFailed": "Payout failed"
     },
     "title": "Games",
     "description": "Chat games played with loyalty points.",
@@ -613,6 +630,7 @@
       "mod_account": "Mod account",
       "channel": "Channel",
       "features": "Features",
+      "bot_blacklist": "Bot blacklist",
       "summary": "Done"
     },
     "welcome": {
@@ -664,6 +682,14 @@
       "description": "Each feature only requests the permissions it actually needs. You can change this any time.",
       "coreChat": "Read and write chat",
       "coreChatDescription": "The basis for commands and auto messages — always on."
+    },
+    "botBlacklist": {
+      "title": "Hide known bots",
+      "description": "StreamBuddy can automatically keep known streamer bots out of loyalty rankings, points, and greetings.",
+      "toggle": "Blacklist known bots",
+      "toggleHint": "The list is maintained locally and can be edited later in the loyalty blacklist.",
+      "preview": "{count} known bots, e.g. {bots}",
+      "applyNow": "Apply now"
     },
     "summary": {
       "title": "All set",

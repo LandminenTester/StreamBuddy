@@ -4,6 +4,7 @@ export interface LoyaltyGameContext {
   reply: (message: string) => Promise<void>
   whisper: (userLogin: string, message: string) => Promise<void>
   config: Record<string, unknown>
+  text: (slot: string, fallback: string, values?: Record<string, string | number>) => string
 }
 
 /**

@@ -17,7 +17,7 @@ export function resolveCommandTrigger(gameId: string, command: LoyaltyGameComman
   return stored?.commandTriggers[command.key] ?? command.defaultTrigger
 }
 
-/** Findet das Game + den konkreten Command anhand des aktuell wirksamen (ggf. umbenannten) Triggers. */
+/** Findet das Game + den konkreten Command anhand des aktuell wirksamen Triggers. */
 export function getGameByTrigger(
   trigger: string
 ): { game: LoyaltyGame; command: LoyaltyGameCommand } | undefined {
@@ -43,21 +43,20 @@ export function getGameRuntimeConfig(gameId: string): Record<string, unknown> {
   return { ...(game?.defaultConfig ?? {}), ...(stored?.config ?? {}) }
 }
 
-/** Merged Default-Texte des Spiels mit den in der DB gespeicherten Overrides (pro Slot). */
+/** Merged Default-Texte des Spiels mit den in der DB gespeicherten Overrides. */
 export function getGameRuntimeTexts(gameId: string): Record<string, string[]> {
   const game = GAMES.find((g) => g.id === gameId)
   const stored = listGameConfigs().find((c) => c.gameId === gameId)
   return { ...(game?.defaultTexts ?? {}), ...(stored?.texts ?? {}) }
 }
 
-/** Zufällige Textvariante aus dem gemergten Text-Slot, oder ein Leerstring falls keine Varianten existieren. */
 export function pickGameText(gameId: string, slot: string): string {
   const variants = getGameRuntimeTexts(gameId)[slot] ?? []
   if (variants.length === 0) return ''
   return variants[Math.floor(Math.random() * variants.length)]
 }
 
-/** Seedet Default-Configs für alle registrierten Spiele beim ersten Start. */
+/** Seedet Default-Configs fuer alle registrierten Spiele beim ersten Start. */
 export function seedGameDefaults(): void {
   for (const game of GAMES) {
     seedDefaultGameConfig(game.id, game.defaultConfig)

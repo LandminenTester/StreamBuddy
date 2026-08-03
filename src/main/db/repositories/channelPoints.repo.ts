@@ -215,7 +215,9 @@ export function updateRedemptionLogStatus(
   return getRedemptionByTwitchId(twitchRedemptionId)
 }
 
-export function markRedemptionActionProcessed(twitchRedemptionId: string): RedemptionLogEntry | null {
+export function markRedemptionActionProcessed(
+  twitchRedemptionId: string
+): RedemptionLogEntry | null {
   const existing = getRedemptionByTwitchId(twitchRedemptionId)
   if (!existing || existing.actionProcessedAt) return existing
 
@@ -228,6 +230,57 @@ export function markRedemptionActionProcessed(twitchRedemptionId: string): Redem
     .run(Date.now(), twitchRedemptionId)
 
   return getRedemptionByTwitchId(twitchRedemptionId)
+}
+
+export function listPendingActionRedemptions(
+  limit = 50
+): { redemption: RedemptionLogEntry; reward: ChannelPointReward }[] {
+  interface PendingActionRow extends RedemptionRow, RewardRow {
+    redemption_id: number
+    reward_row_id: number
+  }
+
+  const rows = getDb()
+    .prepare<[number], PendingActionRow>(
+      `SELECT
+         redemption_log.*,
+         redemption_log.id AS redemption_id,
+         channel_point_rewards.title AS reward_title,
+         channel_point_rewards.id AS reward_row_id,
+         channel_point_rewards.twitch_reward_id,
+         channel_point_rewards.title,
+         channel_point_rewards.cost,
+         channel_point_rewards.prompt,
+         channel_point_rewards.is_enabled,
+         channel_point_rewards.auto_fulfill,
+         channel_point_rewards.action_type,
+         channel_point_rewards.action_payload,
+         channel_point_rewards.background_color,
+         channel_point_rewards.synced_at,
+         channel_point_rewards.created_at
+       FROM redemption_log
+       JOIN channel_point_rewards ON channel_point_rewards.id = redemption_log.reward_id
+       WHERE redemption_log.action_processed_at IS NULL
+         AND channel_point_rewards.action_type != 'none'
+       ORDER BY redemption_log.redeemed_at ASC
+       LIMIT ?`
+    )
+    .all(limit)
+
+  return rows.map((row) => ({
+    redemption: redemptionToDomain({
+      id: row.redemption_id,
+      reward_id: row.reward_id,
+      reward_title: row.reward_title,
+      twitch_redemption_id: row.twitch_redemption_id,
+      user_login: row.user_login,
+      user_input: row.user_input,
+      status: row.status,
+      redeemed_at: row.redeemed_at,
+      action_processed_at: row.action_processed_at
+    }),
+    reward: toDomain({ ...row, id: row.reward_row_id })
+  }))
 }
 
 export function listRecentRedemptions(limit = 50): RedemptionLogEntry[] {

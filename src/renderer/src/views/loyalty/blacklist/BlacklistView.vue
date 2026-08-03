@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { UserX } from 'lucide-vue-next'
 import AppButton from '@renderer/components/ui/AppButton.vue'
 import AppInput from '@renderer/components/ui/AppInput.vue'
@@ -10,11 +10,19 @@ import { useLoyaltyStore } from '@renderer/stores/loyalty.store'
 const store = useLoyaltyStore()
 const manualUserLogin = ref('')
 
+onMounted(() => {
+  void store.fetchKnownBots()
+})
+
 async function addManualBlacklist(): Promise<void> {
   const login = manualUserLogin.value.trim().replace(/^@/, '').toLowerCase()
   if (!login) return
   await store.setBlacklisted(login, true)
   manualUserLogin.value = ''
+}
+
+async function addKnownBots(): Promise<void> {
+  await store.blacklistKnownBots()
 }
 </script>
 
@@ -35,6 +43,9 @@ async function addManualBlacklist(): Promise<void> {
       <AppButton type="submit" variant="primary" :disabled="manualUserLogin.trim().length === 0">
         {{ $t('loyalty.blacklist.addManual') }}
       </AppButton>
+      <AppButton type="button" variant="ghost" @click="addKnownBots">
+        {{ $t('loyalty.blacklist.addKnownBots') }}
+      </AppButton>
     </form>
 
     <EmptyState v-if="store.blacklist.length === 0" :title="$t('loyalty.blacklist.empty')">
@@ -48,7 +59,11 @@ async function addManualBlacklist(): Promise<void> {
         class="flex items-center justify-between gap-4 py-2.5 text-sm"
       >
         <span class="text-fg">{{ account.userLogin }}</span>
-        <AppButton size="sm" variant="ghost" @click="store.setBlacklisted(account.userLogin, false)">
+        <AppButton
+          size="sm"
+          variant="ghost"
+          @click="store.setBlacklisted(account.userLogin, false)"
+        >
           {{ $t('loyalty.blacklist.remove') }}
         </AppButton>
       </li>

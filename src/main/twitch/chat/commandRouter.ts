@@ -21,6 +21,7 @@ import { pickRandomMessage } from '../../db/repositories/botMessages.repo'
 import {
   getGameByTrigger,
   getGameRuntimeConfig,
+  getGameRuntimeTexts,
   isGameEnabled
 } from '../../loyalty/games/gameRegistry'
 import { getLoyaltyEnabled } from '../../loyalty/loyaltySettings'
@@ -83,6 +84,12 @@ function fill(template: string, values: Record<string, string | number>): string
     (text, [key, value]) => text.replaceAll(`{${key}}`, String(value)),
     template
   )
+}
+
+function pickTextVariant(texts: Record<string, string[]>, slot: string): string {
+  const variants = texts[slot] ?? []
+  if (variants.length === 0) return ''
+  return variants[Math.floor(Math.random() * variants.length)]
 }
 
 function getTagLogin(tags: ChatUserstate): string | null {
@@ -227,6 +234,7 @@ export async function handleChatMessage(
     // Geblacklistete Konten (z.B. Bots) sind komplett von Loyalty-Games ausgeschlossen.
     const login = getTagLogin(tags)
     if (!login || getOrCreateAccount(login).isBlacklisted) return
+    const gameTexts = getGameRuntimeTexts(game.id)
     await command.handleCommand({
       userLogin: login,
       args: parts.slice(1),
@@ -238,7 +246,9 @@ export async function handleChatMessage(
         getActiveChatClient()
           ?.whisper(targetLogin, text)
           .then(() => undefined) ?? Promise.resolve(),
-      config: getGameRuntimeConfig(game.id)
+      config: getGameRuntimeConfig(game.id),
+      text: (slot, fallback, values = {}) =>
+        fill(pickTextVariant(gameTexts, slot) || fallback, values)
     })
     return
   }

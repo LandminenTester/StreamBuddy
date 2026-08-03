@@ -267,6 +267,15 @@ export function listBlacklistedAccounts(): LoyaltyAccount[] {
     .map(accountToDomain)
 }
 
+export function isAccountBlacklisted(userLogin: string): boolean {
+  const row = getDb()
+    .prepare<[string], { is_blacklisted: number }>(
+      'SELECT is_blacklisted FROM loyalty_accounts WHERE user_login = ?'
+    )
+    .get(userLogin.toLowerCase())
+  return Boolean(row?.is_blacklisted)
+}
+
 export function setAccountBlacklisted(userLogin: string, blacklisted: boolean): void {
   if (blacklisted) {
     getOrCreateAccount(userLogin)

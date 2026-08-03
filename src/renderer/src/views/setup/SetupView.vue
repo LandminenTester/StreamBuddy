@@ -12,6 +12,7 @@ import ConnectionStep from './steps/ConnectionStep.vue'
 import ModAccountStep from './steps/ModAccountStep.vue'
 import ChannelStep from './steps/ChannelStep.vue'
 import FeaturesStep from './steps/FeaturesStep.vue'
+import BotBlacklistStep from './steps/BotBlacklistStep.vue'
 import SummaryStep from './steps/SummaryStep.vue'
 
 const STEP_COMPONENTS: Record<SetupStep, unknown> = {
@@ -21,6 +22,7 @@ const STEP_COMPONENTS: Record<SetupStep, unknown> = {
   mod_account: ModAccountStep,
   channel: ChannelStep,
   features: FeaturesStep,
+  bot_blacklist: BotBlacklistStep,
   summary: SummaryStep
 }
 

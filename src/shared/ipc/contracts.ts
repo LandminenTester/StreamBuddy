@@ -209,6 +209,8 @@ export interface IpcContracts {
     request: { userLogin: string; blacklisted: boolean }
     response: LoyaltyAccount[]
   }
+  [IpcChannels.loyalty.listKnownBots]: { request: void; response: string[] }
+  [IpcChannels.loyalty.blacklistKnownBots]: { request: void; response: LoyaltyAccount[] }
   [IpcChannels.loyalty.renameGame]: {
     request: { gameId: string; displayName: string }
     response: LoyaltyGameInfo[]

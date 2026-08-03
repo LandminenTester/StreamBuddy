@@ -106,6 +106,8 @@ export const IpcChannels = {
     exportCsv: 'loyalty:exportCsv',
     listBlacklist: 'loyalty:listBlacklist',
     setBlacklisted: 'loyalty:setBlacklisted',
+    listKnownBots: 'loyalty:listKnownBots',
+    blacklistKnownBots: 'loyalty:blacklistKnownBots',
     renameGame: 'loyalty:renameGame',
     updateGameTriggers: 'loyalty:updateGameTriggers',
     updateGameTexts: 'loyalty:updateGameTexts',

@@ -5,6 +5,7 @@ export const SETUP_STEPS = [
   'mod_account',
   'channel',
   'features',
+  'bot_blacklist',
   'summary'
 ] as const
 

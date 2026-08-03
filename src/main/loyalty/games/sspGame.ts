@@ -78,15 +78,25 @@ async function challenge(ctx: LoyaltyGameContext, config: SspConfig): Promise<vo
   )
 
   if (!opponent || amount === null) {
-    await ctx.reply(`@${challenger} Nutzung: !ssp @user <Punkte|all|xx%>`)
+    await ctx.reply(
+      ctx.text('usage', '@{user} Nutzung: !ssp @user <Punkte|all|xx%>', { user: challenger })
+    )
     return
   }
   if (opponent === challenger) {
-    await ctx.reply(`@${challenger} Du kannst nicht gegen dich selbst spielen.`)
+    await ctx.reply(
+      ctx.text('selfChallenge', '@{user} Du kannst nicht gegen dich selbst spielen.', {
+        user: challenger
+      })
+    )
     return
   }
   if (findActiveMatch(challenger) || findActiveMatch(opponent)) {
-    await ctx.reply(`@${challenger} Einer von euch spielt bereits Schere Stein Papier.`)
+    await ctx.reply(
+      ctx.text('alreadyPlaying', '@{user} Einer von euch spielt bereits Schere Stein Papier.', {
+        user: challenger
+      })
+    )
     return
   }
 
@@ -98,7 +108,11 @@ async function challenge(ctx: LoyaltyGameContext, config: SspConfig): Promise<vo
   })
 
   await ctx.reply(
-    `@${opponent} wurde von @${challenger} zu Schere Stein Papier um ${amount} Punkte herausgefordert. Mit !ssp accept annehmen.`
+    ctx.text(
+      'challenge',
+      '@{opponent} wurde von @{challenger} zu Schere Stein Papier um {amount} Punkte herausgefordert. Mit !ssp accept annehmen.',
+      { opponent, challenger, amount }
+    )
   )
 }
 
@@ -107,7 +121,9 @@ async function accept(ctx: LoyaltyGameContext): Promise<void> {
   const pending = pendingMatches.get(opponent)
   if (!pending || pending.expiresAt < Date.now()) {
     pendingMatches.delete(opponent)
-    await ctx.reply(`@${opponent} Keine offene SSP-Herausforderung.`)
+    await ctx.reply(
+      ctx.text('noPending', '@{user} Keine offene SSP-Herausforderung.', { user: opponent })
+    )
     return
   }
 
@@ -115,7 +131,15 @@ async function accept(ctx: LoyaltyGameContext): Promise<void> {
   const opponentAccount = getOrCreateAccount(opponent)
   if (challengerAccount.balance < pending.amount || opponentAccount.balance < pending.amount) {
     pendingMatches.delete(opponent)
-    await ctx.reply(`@${opponent} SSP abgebrochen -- nicht genug Punkte bei einem Teilnehmer.`)
+    await ctx.reply(
+      ctx.text(
+        'insufficientFunds',
+        '@{user} SSP abgebrochen -- nicht genug Punkte bei einem Teilnehmer.',
+        {
+          user: opponent
+        }
+      )
+    )
     return
   }
 
@@ -133,14 +157,26 @@ async function accept(ctx: LoyaltyGameContext): Promise<void> {
 
   await ctx.whisper(
     pending.challenger,
-    `SSP gegen @${opponent}: Antworte mit !ssp 1, !ssp 2 oder !ssp 3. Deine Zuordnung: ${formatMapping(match.mappings[pending.challenger])}.`
+    ctx.text(
+      'privateOptions',
+      'SSP gegen @{opponent}: Antworte mit !ssp 1, !ssp 2 oder !ssp 3. Deine Zuordnung: {mapping}.',
+      { opponent, mapping: formatMapping(match.mappings[pending.challenger]) }
+    )
   )
   await ctx.whisper(
     opponent,
-    `SSP gegen @${pending.challenger}: Antworte mit !ssp 1, !ssp 2 oder !ssp 3. Deine Zuordnung: ${formatMapping(match.mappings[opponent])}.`
+    ctx.text(
+      'privateOptions',
+      'SSP gegen @{opponent}: Antworte mit !ssp 1, !ssp 2 oder !ssp 3. Deine Zuordnung: {mapping}.',
+      { opponent: pending.challenger, mapping: formatMapping(match.mappings[opponent]) }
+    )
   )
   await ctx.reply(
-    `SSP zwischen @${pending.challenger} und @${opponent} wurde angenommen. Beide haben ihre Optionen privat erhalten.`
+    ctx.text(
+      'accepted',
+      'SSP zwischen @{challenger} und @{opponent} wurde angenommen. Beide haben ihre Optionen privat erhalten.',
+      { challenger: pending.challenger, opponent }
+    )
   )
 }
 
@@ -151,17 +187,25 @@ async function choose(ctx: LoyaltyGameContext, config: SspConfig): Promise<void>
 
   const match = findActiveMatch(login)
   if (!match) {
-    await ctx.whisper(login, 'Du hast gerade kein aktives SSP-Spiel.')
+    await ctx.whisper(login, ctx.text('noActive', 'Du hast gerade kein aktives SSP-Spiel.'))
     return
   }
   if (match.choices.has(login)) {
-    await ctx.whisper(login, 'Deine SSP-Auswahl wurde bereits gespeichert.')
+    await ctx.whisper(
+      login,
+      ctx.text('alreadyChosen', 'Deine SSP-Auswahl wurde bereits gespeichert.')
+    )
     return
   }
 
   const move = match.mappings[login][choice]
   match.choices.set(login, move)
-  await ctx.whisper(login, `Auswahl gespeichert: ${choice}. Warte auf den anderen Spieler.`)
+  await ctx.whisper(
+    login,
+    ctx.text('choiceSaved', 'Auswahl gespeichert: {choice}. Warte auf den anderen Spieler.', {
+      choice
+    })
+  )
 
   if (match.choices.size === 2 && !match.resolving) {
     match.resolving = true
@@ -178,7 +222,16 @@ async function finishMatch(ctx: LoyaltyGameContext, match: ActiveSspMatch): Prom
 
   if (!winner) {
     await ctx.reply(
-      `SSP endet unentschieden: @${match.challenger} (${challengerMove}) gegen @${match.opponent} (${opponentMove}).`
+      ctx.text(
+        'draw',
+        'SSP endet unentschieden: @{challenger} ({challengerMove}) gegen @{opponent} ({opponentMove}).',
+        {
+          challenger: match.challenger,
+          challengerMove,
+          opponent: match.opponent,
+          opponentMove
+        }
+      )
     )
     return
   }
@@ -188,12 +241,28 @@ async function finishMatch(ctx: LoyaltyGameContext, match: ActiveSspMatch): Prom
     debitLoyalty(loser, match.amount, 'game_loss', 'ssp')
     creditLoyalty(winner, match.amount, 'game_win', 'ssp')
   } catch {
-    await ctx.reply('SSP abgebrochen -- Punkte konnten beim Abschluss nicht gebucht werden.')
+    await ctx.reply(
+      ctx.text(
+        'payoutFailed',
+        'SSP abgebrochen -- Punkte konnten beim Abschluss nicht gebucht werden.'
+      )
+    )
     return
   }
 
   await ctx.reply(
-    `SSP entschieden: @${winner} gewinnt ${match.amount} Punkte! @${match.challenger} (${challengerMove}) gegen @${match.opponent} (${opponentMove}).`
+    ctx.text(
+      'result',
+      'SSP entschieden: @{winner} gewinnt {amount} Punkte! @{challenger} ({challengerMove}) gegen @{opponent} ({opponentMove}).',
+      {
+        winner,
+        amount: match.amount,
+        challenger: match.challenger,
+        challengerMove,
+        opponent: match.opponent,
+        opponentMove
+      }
+    )
   )
 }
 
@@ -219,5 +288,31 @@ export const sspGame: LoyaltyGame = {
     minBet: 10,
     maxBet: 1000
   } satisfies SspConfig,
+  defaultTexts: {
+    usage: ['@{user} Nutzung: !ssp @user <Punkte|all|xx%>'],
+    selfChallenge: ['@{user} Du kannst nicht gegen dich selbst spielen.'],
+    alreadyPlaying: ['@{user} Einer von euch spielt bereits Schere Stein Papier.'],
+    challenge: [
+      '@{opponent} wurde von @{challenger} zu Schere Stein Papier um {amount} Punkte herausgefordert. Mit !ssp accept annehmen.'
+    ],
+    noPending: ['@{user} Keine offene SSP-Herausforderung.'],
+    insufficientFunds: ['@{user} SSP abgebrochen -- nicht genug Punkte bei einem Teilnehmer.'],
+    privateOptions: [
+      'SSP gegen @{opponent}: Antworte mit !ssp 1, !ssp 2 oder !ssp 3. Deine Zuordnung: {mapping}.'
+    ],
+    accepted: [
+      'SSP zwischen @{challenger} und @{opponent} wurde angenommen. Beide haben ihre Optionen privat erhalten.'
+    ],
+    noActive: ['Du hast gerade kein aktives SSP-Spiel.'],
+    alreadyChosen: ['Deine SSP-Auswahl wurde bereits gespeichert.'],
+    choiceSaved: ['Auswahl gespeichert: {choice}. Warte auf den anderen Spieler.'],
+    draw: [
+      'SSP endet unentschieden: @{challenger} ({challengerMove}) gegen @{opponent} ({opponentMove}).'
+    ],
+    payoutFailed: ['SSP abgebrochen -- Punkte konnten beim Abschluss nicht gebucht werden.'],
+    result: [
+      'SSP entschieden: @{winner} gewinnt {amount} Punkte! @{challenger} ({challengerMove}) gegen @{opponent} ({opponentMove}).'
+    ]
+  },
   commands: [{ key: 'play', defaultTrigger: '!ssp', handleCommand: handleSsp }]
 }

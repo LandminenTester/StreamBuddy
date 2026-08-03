@@ -14,6 +14,7 @@ import {
   deleteTwitchReward,
   updateTwitchReward
 } from '../twitch/helix/channelPoints.api'
+import { processPendingRedemptionActions } from '../twitch/eventsub/handlers/onRedemption'
 import { getUserIdByLogin } from '../twitch/helix/users.api'
 import { getSetting } from '../db/repositories/appSettings.repo'
 import { logger } from '../logger'
@@ -27,7 +28,10 @@ async function resolveBroadcasterId(): Promise<string | null> {
 export function registerChannelPointsIpc(): void {
   handleTyped(IpcChannels.channelPoints.list, () => listRewards())
 
-  handleTyped(IpcChannels.channelPoints.listRedemptions, () => listRecentRedemptions())
+  handleTyped(IpcChannels.channelPoints.listRedemptions, async () => {
+    await processPendingRedemptionActions()
+    return listRecentRedemptions()
+  })
 
   handleTyped(IpcChannels.channelPoints.create, async (input) => {
     const created = createReward(input)
