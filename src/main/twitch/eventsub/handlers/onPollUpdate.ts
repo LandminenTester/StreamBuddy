@@ -13,7 +13,9 @@ interface PollProgressEvent {
   choices: { title: string; votes: number }[]
 }
 
-interface PollEndEvent extends PollProgressEvent {
+interface PollEndEvent {
+  id: string
+  choices: { title: string; votes: number }[] | null
   status: string
 }
 
@@ -30,9 +32,10 @@ function parseProgressEvent(event: Record<string, unknown>): PollProgressEvent |
 }
 
 function parseEndEvent(event: Record<string, unknown>): PollEndEvent | null {
-  const progress = parseProgressEvent(event)
-  if (!progress || typeof event.status !== 'string') return null
-  return { ...progress, status: event.status }
+  if (typeof event.id !== 'string' || typeof event.status !== 'string') return null
+  const choices =
+    Array.isArray(event.choices) && event.choices.every(isPollChoice) ? event.choices : null
+  return { id: event.id, choices, status: event.status }
 }
 
 function toChoices(rawChoices: { title: string; votes: number }[]): PollChoice[] {
@@ -94,7 +97,7 @@ export function handlePollEndEvent(event: Record<string, unknown>): void {
     return
   }
 
-  const choices = toChoices(payload.choices)
+  const choices = payload.choices ? toChoices(payload.choices) : existingPoll.choices
   // Falls der manuelle "Beenden"-Handler bereits einen Gewinner gesetzt hat (siehe
   // polls.ipc.ts), nicht überschreiben -- sonst würde dieser spätere Webhook die
   // manuelle Auswahl mit einem Auto-Ergebnis wieder verwerfen.

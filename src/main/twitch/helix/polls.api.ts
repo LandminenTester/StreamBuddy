@@ -60,6 +60,8 @@ export async function getTwitchPoll(
     `/polls?broadcaster_id=${broadcasterId}&id=${encodeURIComponent(twitchPollId)}`
   )
 
+  if (response.status === 404) return null
+
   if (!response.ok) {
     throw new Error(`Poll-Abruf fehlgeschlagen: ${response.status} ${await response.text()}`)
   }

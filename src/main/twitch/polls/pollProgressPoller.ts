@@ -1,5 +1,6 @@
 import type { Poll, PollChoice } from '@shared/types/poll'
 import {
+  forceResetPoll,
   getActivePoll,
   getPollByTwitchId,
   markPollEnded,
@@ -44,10 +45,14 @@ function highestVoteChoiceIndex(choices: PollChoice[]): number | null {
   return bestIndex
 }
 
+function broadcastPoll(poll: Poll): void {
+  getMainWindow()?.webContents.send(IpcChannels.polls.onUpdate, poll)
+}
+
 function broadcastPollUpdate(twitchPollId: string): void {
   const poll = getPollByTwitchId(twitchPollId)
   if (poll) {
-    getMainWindow()?.webContents.send(IpcChannels.polls.onUpdate, poll)
+    broadcastPoll(poll)
   }
 }
 
@@ -85,8 +90,11 @@ async function pollOnce(): Promise<void> {
 
     const twitchPoll = await getTwitchPoll(resolvedBroadcasterId, activePoll.twitchPollId)
     if (!twitchPoll) {
-      logger.warn(`Aktiver Poll "${activePoll.twitchPollId}" wurde bei Twitch nicht gefunden`)
-      scheduleNext()
+      logger.warn(
+        `Aktiver Poll "${activePoll.twitchPollId}" wurde bei Twitch nicht gefunden und lokal archiviert`
+      )
+      broadcastPoll(forceResetPoll(activePoll.id))
+      stopActivePollProgressPoller()
       return
     }
 
