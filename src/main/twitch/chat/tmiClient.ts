@@ -20,7 +20,7 @@ import { startViewerCountPoller, stopViewerCountPoller } from '../../stats/viewe
 import { startAdSchedulePoller, stopAdSchedulePoller } from '../ads/adSchedulePoller'
 import { connectModChatClient, disconnectModChatClient } from './modTmiClient'
 import { setBroadcasterClientRef } from './chatClientAccessor'
-import { clearGreetingSession } from '../../loyalty/greetings'
+import { clearGreetingSession, startGreetingChecker } from '../../loyalty/greetings'
 import { getMainWindow } from '../../window'
 import { IpcChannels } from '@shared/ipc/channels'
 import { logger } from '../../logger'
@@ -107,6 +107,7 @@ export async function connectChatClient(options: { manual?: boolean } = {}): Pro
       startViewerCountPoller()
       startRouletteScheduler(targetChannel)
       startAdSchedulePoller()
+      startGreetingChecker()
       void connectModChatClient(targetChannel)
     }
   })

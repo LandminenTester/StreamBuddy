@@ -1,6 +1,7 @@
 import type { LoyaltyGreetingSettings, LoyaltyPersonalGreeting } from '@shared/types/loyalty'
 import { getSetting, setSetting } from '../db/repositories/appSettings.repo'
 import { getActiveChatClient } from '../twitch/chat/chatClientAccessor'
+import { getPresentUsers } from '../twitch/chat/presenceTracker'
 import { logger } from '../logger'
 
 const GREETING_SETTINGS_KEY = 'loyalty_greetings'
@@ -12,6 +13,7 @@ const DEFAULT_SETTINGS: LoyaltyGreetingSettings = {
 }
 
 const greetedUsers = new Set<string>()
+let greetingTimer: NodeJS.Timeout | null = null
 
 function cleanTexts(texts: string[]): string[] {
   return texts.map((text) => text.trim()).filter((text) => text.length > 0)
@@ -108,6 +110,24 @@ export async function handleViewerGreeting(userLogin: string): Promise<void> {
   }
 }
 
+async function greetPresentUsers(): Promise<void> {
+  for (const userLogin of getPresentUsers()) {
+    await handleViewerGreeting(userLogin)
+  }
+}
+
+export function startGreetingChecker(): void {
+  stopGreetingChecker()
+  void greetPresentUsers()
+  greetingTimer = setInterval(() => void greetPresentUsers(), 20_000)
+}
+
+export function stopGreetingChecker(): void {
+  if (greetingTimer) clearInterval(greetingTimer)
+  greetingTimer = null
+}
+
 export function clearGreetingSession(): void {
+  stopGreetingChecker()
   greetedUsers.clear()
 }

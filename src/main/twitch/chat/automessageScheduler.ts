@@ -1,4 +1,5 @@
 import { listAutomessages, touchAutomessageLastSent } from '../../db/repositories/automessages.repo'
+import { listCommands } from '../../db/repositories/commands.repo'
 import { getActiveChatClient } from './chatClientAccessor'
 import { logger } from '../../logger'
 
@@ -8,6 +9,8 @@ const intervalTimers = new Map<number, NodeJS.Timeout>()
 const rotationIndex = new Map<number, number>()
 /** Chat-Zeilen seit der letzten Sendung, pro Automessage -- Basis für beide Modi. */
 const linesSinceLastSent = new Map<number, number>()
+const COMMAND_PLACEHOLDER_PATTERN = /\{command:([^}]+)\}/gi
+const MAX_AUTOMESSAGE_LENGTH = 450
 
 function nextRotationMessage(automessageId: number, messages: string[]): string {
   const index = rotationIndex.get(automessageId) ?? 0
@@ -16,11 +19,27 @@ function nextRotationMessage(automessageId: number, messages: string[]): string 
   return message
 }
 
+function resolveCommandPlaceholders(message: string): string {
+  const commands = listCommands()
+  return message
+    .replace(COMMAND_PLACEHOLDER_PATTERN, (placeholder, rawTrigger: string) => {
+      const trigger = rawTrigger.trim().toLowerCase()
+      const command = commands.find(
+        (candidate) =>
+          candidate.enabled &&
+          (candidate.trigger.toLowerCase() === trigger ||
+            candidate.aliases.some((alias) => alias.toLowerCase() === trigger))
+      )
+      return command ? command.response : placeholder
+    })
+    .slice(0, MAX_AUTOMESSAGE_LENGTH)
+}
+
 async function sendAutomessage(id: number, messages: string[]): Promise<void> {
   const sender = getActiveChatClient()
   if (!sender || !activeChannel || messages.length === 0) return
 
-  const message = nextRotationMessage(id, messages)
+  const message = resolveCommandPlaceholders(nextRotationMessage(id, messages))
 
   try {
     await sender.say(activeChannel, message)
