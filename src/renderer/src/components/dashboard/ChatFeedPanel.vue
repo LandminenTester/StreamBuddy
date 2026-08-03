@@ -4,18 +4,37 @@ import { MessagesSquare } from 'lucide-vue-next'
 import AppBadge from '@renderer/components/ui/AppBadge.vue'
 import EmptyState from '@renderer/components/ui/EmptyState.vue'
 import { useChatStore } from '@renderer/stores/chat.store'
+import AppButton from '@renderer/components/ui/AppButton.vue'
 
 const store = useChatStore()
 const scrollContainer = ref<HTMLElement | null>(null)
+const isPinnedToBottom = ref(true)
+const hasNewMessages = ref(false)
+
+function updatePinnedState(): void {
+  const el = scrollContainer.value
+  if (!el) return
+  isPinnedToBottom.value = el.scrollHeight - el.scrollTop - el.clientHeight < 80
+  if (isPinnedToBottom.value) hasNewMessages.value = false
+}
+
+async function scrollToLatest(): Promise<void> {
+  await nextTick()
+  const el = scrollContainer.value
+  if (!el) return
+  el.scrollTop = el.scrollHeight
+  isPinnedToBottom.value = true
+  hasNewMessages.value = false
+}
 
 watch(
   () => store.messages.length,
   async () => {
-    await nextTick()
-    const el = scrollContainer.value
-    if (!el) return
-    const isNearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 80
-    if (isNearBottom) el.scrollTop = el.scrollHeight
+    if (isPinnedToBottom.value) {
+      await scrollToLatest()
+    } else {
+      hasNewMessages.value = true
+    }
   }
 )
 </script>
@@ -37,7 +56,11 @@ watch(
       </AppBadge>
     </div>
 
-    <div ref="scrollContainer" class="custom-scrollbar min-h-0 flex-1 overflow-y-auto px-4 py-3">
+    <div
+      ref="scrollContainer"
+      class="custom-scrollbar min-h-0 flex-1 overflow-y-auto px-4 py-3"
+      @scroll="updatePinnedState"
+    >
       <EmptyState
         v-if="store.messages.length === 0"
         :title="$t('dashboard.chat.empty')"
@@ -52,6 +75,12 @@ watch(
         </span>
         <span class="text-fg">: {{ msg.message }}</span>
       </p>
+    </div>
+
+    <div v-if="hasNewMessages" class="border-t border-line px-4 py-2">
+      <AppButton size="sm" class="w-full" @click="scrollToLatest">
+        {{ $t('dashboard.chat.newMessages') }}
+      </AppButton>
     </div>
   </div>
 </template>

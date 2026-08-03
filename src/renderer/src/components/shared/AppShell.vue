@@ -77,6 +77,7 @@ const isAboutOpen = ref(false)
 
 let unsubscribeUpdateStatus: (() => void) | null = null
 let unsubscribeChatStatus: (() => void) | null = null
+let unsubscribeChatMessages: (() => void) | null = null
 let unsubscribePollUpdates: (() => void) | null = null
 
 onMounted(async () => {
@@ -88,12 +89,14 @@ onMounted(async () => {
   ])
   unsubscribeUpdateStatus = appInfoStore.subscribeToUpdateStatus()
   unsubscribeChatStatus = chatStore.subscribeToStatusChanges()
+  unsubscribeChatMessages = chatStore.subscribeToMessages()
   unsubscribePollUpdates = pollsStore.subscribeToUpdates()
 })
 
 onUnmounted(() => {
   unsubscribeUpdateStatus?.()
   unsubscribeChatStatus?.()
+  unsubscribeChatMessages?.()
   unsubscribePollUpdates?.()
 })
 

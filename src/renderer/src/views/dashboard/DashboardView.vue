@@ -19,13 +19,11 @@ const followersStore = useFollowersStore()
 const viewersStore = useViewersStore()
 
 let unsubscribe: (() => void) | null = null
-let unsubscribeChatFeed: (() => void) | null = null
 let unsubscribeSync: (() => void) | null = null
 let unsubscribePresence: (() => void) | null = null
 
 onMounted(async () => {
   unsubscribe = await initDashboard(statsStore)
-  unsubscribeChatFeed = chatStore.subscribeToMessages()
   unsubscribeSync = followersStore.subscribeToSyncComplete()
   unsubscribePresence = viewersStore.subscribeToPresenceUpdates()
   await Promise.all([
@@ -37,7 +35,6 @@ onMounted(async () => {
 
 onUnmounted(() => {
   unsubscribe?.()
-  unsubscribeChatFeed?.()
   unsubscribeSync?.()
   unsubscribePresence?.()
 })
@@ -64,9 +61,10 @@ const stats = computed<StatItem[]>(() => [
   {
     key: 'followers',
     label: t('dashboard.stats.followers'),
-    value: followersStore.syncStatus.totalCount > 0
-      ? followersStore.syncStatus.totalCount.toString()
-      : '–'
+    value:
+      followersStore.syncStatus.totalCount > 0
+        ? followersStore.syncStatus.totalCount.toString()
+        : '–'
   }
 ])
 </script>
@@ -95,7 +93,11 @@ const stats = computed<StatItem[]>(() => [
       <section class="border-t border-line pt-6">
         <h2 class="mb-3 text-base font-semibold text-fg">{{ $t('dashboard.viewers.title') }}</h2>
         <p v-if="viewersStore.presentUsers.length === 0" class="text-sm text-fg-muted">
-          {{ statsStore.live.isLive ? $t('dashboard.viewers.empty') : $t('dashboard.viewers.emptyOffline') }}
+          {{
+            statsStore.live.isLive
+              ? $t('dashboard.viewers.empty')
+              : $t('dashboard.viewers.emptyOffline')
+          }}
         </p>
         <div v-else class="flex flex-wrap gap-1.5">
           <span

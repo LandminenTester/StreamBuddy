@@ -696,7 +696,8 @@
     "chat": {
       "title": "Twitch-Chat",
       "empty": "Noch keine Nachrichten empfangen.",
-      "emptyHint": "Sobald der Bot mit dem Kanal verbunden ist, laufen die Nachrichten hier ein."
+      "emptyHint": "Sobald der Bot mit dem Kanal verbunden ist, laufen die Nachrichten hier ein.",
+      "newMessages": "Neue Nachrichten anzeigen"
     },
     "viewers": {
       "title": "Zuschauer im Chat",
