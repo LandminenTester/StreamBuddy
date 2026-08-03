@@ -6,10 +6,17 @@ export const useActivityStore = defineStore('activity', () => {
   const events = ref<ActivityEvent[]>([])
   const isLoading = ref(false)
 
+  function toPlainRequest(request: ActivityListRequest): ActivityListRequest {
+    return {
+      ...request,
+      eventTypes: request.eventTypes ? [...request.eventTypes] : undefined
+    }
+  }
+
   async function fetchEvents(request: ActivityListRequest = {}): Promise<void> {
     isLoading.value = true
     try {
-      events.value = await window.api.invoke('activity:list', request)
+      events.value = await window.api.invoke('activity:list', toPlainRequest(request))
     } finally {
       isLoading.value = false
     }

@@ -1,6 +1,8 @@
 import { getUserIdByLogin } from '../helix/users.api'
+import { listTwitchRewards } from '../helix/channelPoints.api'
 import { getSetting } from '../../db/repositories/appSettings.repo'
 import { listFeatureScopes } from '../../db/repositories/authTokens.repo'
+import { listRewards, setRewardTwitchSync } from '../../db/repositories/channelPoints.repo'
 import { readTokens } from '../oauth/tokenStore'
 import {
   subscribeToChannelPointRedemptions,
@@ -52,6 +54,38 @@ let keepaliveTimer: NodeJS.Timeout | null = null
 let intentionalClose = false
 let oldWsForReconnect: WebSocket | null = null
 
+async function syncMissingChannelPointRewardIds(targetBroadcasterId: string): Promise<void> {
+  const unsyncedRewards = listRewards().filter((reward) => !reward.twitchRewardId)
+  if (unsyncedRewards.length === 0) return
+
+  try {
+    const twitchRewards = await listTwitchRewards(targetBroadcasterId)
+    const rewardsByTitle = new Map<string, typeof twitchRewards>()
+
+    for (const twitchReward of twitchRewards) {
+      rewardsByTitle.set(twitchReward.title, [
+        ...(rewardsByTitle.get(twitchReward.title) ?? []),
+        twitchReward
+      ])
+    }
+
+    for (const localReward of unsyncedRewards) {
+      const matches = rewardsByTitle.get(localReward.title) ?? []
+      if (matches.length !== 1) continue
+
+      setRewardTwitchSync(localReward.id, matches[0].id, Date.now())
+      logger.info(
+        `Lokaler Reward "${localReward.title}" mit Twitch-Reward-ID "${matches[0].id}" synchronisiert`
+      )
+    }
+  } catch (error) {
+    logger.error(
+      'Konnte lokale Channel-Point-Rewards nicht mit Twitch synchronisieren. Pruefe, ob der verbundene Broadcaster-Account zum Zielkanal passt und channel:read:redemptions gewaehlt wurde.',
+      error
+    )
+  }
+}
+
 function clearKeepaliveWatchdog(): void {
   if (keepaliveTimer) clearTimeout(keepaliveTimer)
   keepaliveTimer = null
@@ -84,12 +118,33 @@ async function onSessionWelcome(session: {
 
   if (!broadcasterId) return
 
+  const tokens = readTokens()
   const activityFeedEnabled = isActivityFeedFeatureEnabled()
+  const channelPointsEnabled = isChannelPointsFeatureEnabled()
   const loyaltyFollowSubEnabled = isLoyaltyFollowSubFeatureEnabled()
-  const moderatorId = readTokens()?.twitchUserId
+  const moderatorId = tokens?.twitchUserId
 
-  if (isChannelPointsFeatureEnabled() || activityFeedEnabled) {
-    await subscribeToChannelPointRedemptions(sessionId, broadcasterId)
+  if (tokens && tokens.twitchUserId !== broadcasterId) {
+    logger.warn(
+      `EventSub-Zielkanal (${broadcasterId}) unterscheidet sich vom verbundenen Broadcaster-Token (${tokens.twitchUserId}). Channel-Point- und Sub-Events koennen von Twitch abgelehnt werden.`
+    )
+  }
+
+  if (channelPointsEnabled) {
+    await syncMissingChannelPointRewardIds(broadcasterId)
+  }
+
+  if (channelPointsEnabled || activityFeedEnabled) {
+    const channelPointSubscriptionsOk = await subscribeToChannelPointRedemptions(
+      sessionId,
+      broadcasterId,
+      activityFeedEnabled
+    )
+    if (!channelPointSubscriptionsOk) {
+      logger.error(
+        'Mindestens eine Channel-Point-EventSub-Subscription wurde von Twitch abgelehnt. Redemptions koennen dadurch keine Commands oder Loyalty-Aktionen ausloesen.'
+      )
+    }
   }
   if (isPollsFeatureEnabled()) {
     await subscribeToPollEvents(sessionId, broadcasterId)

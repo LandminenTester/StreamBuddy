@@ -20,7 +20,7 @@ interface SubscriptionSpec {
   condition: Record<string, string>
 }
 
-async function createSubscription(sessionId: string, spec: SubscriptionSpec): Promise<void> {
+async function createSubscription(sessionId: string, spec: SubscriptionSpec): Promise<boolean> {
   const response = await helixFetch('/eventsub/subscriptions', {
     method: 'POST',
     body: JSON.stringify({
@@ -35,15 +35,20 @@ async function createSubscription(sessionId: string, spec: SubscriptionSpec): Pr
     logger.error(
       `EventSub-Subscription "${spec.type}" fehlgeschlagen: ${response.status} ${await response.text()}`
     )
+    return false
   }
+
+  logger.info(`EventSub-Subscription "${spec.type}" registriert`)
+  return true
 }
 
 /** Registriert die Channel-Points-Redemption-Subscription für eine neue EventSub-Session. */
 export async function subscribeToChannelPointRedemptions(
   sessionId: string,
-  broadcasterId: string
-): Promise<void> {
-  const customRewardSubscriptions: SubscriptionSpec[] = [
+  broadcasterId: string,
+  includeAutomaticRewards = false
+): Promise<boolean> {
+  const subscriptions: SubscriptionSpec[] = [
     {
       type: 'channel.channel_points_custom_reward_redemption.add',
       version: '1',
@@ -53,17 +58,22 @@ export async function subscribeToChannelPointRedemptions(
       type: 'channel.channel_points_custom_reward_redemption.update',
       version: '1',
       condition: { broadcaster_user_id: broadcasterId }
-    },
-    {
-      type: 'channel.channel_points_automatic_reward_redemption.add',
-      version: '2',
-      condition: { broadcaster_user_id: broadcasterId }
     }
   ]
 
-  for (const spec of customRewardSubscriptions) {
-    await createSubscription(sessionId, spec)
+  if (includeAutomaticRewards) {
+    subscriptions.push({
+      type: 'channel.channel_points_automatic_reward_redemption.add',
+      version: '2',
+      condition: { broadcaster_user_id: broadcasterId }
+    })
   }
+
+  const results: boolean[] = []
+  for (const spec of subscriptions) {
+    results.push(await createSubscription(sessionId, spec))
+  }
+  return results.every(Boolean)
 }
 
 export async function subscribeToPollEvents(
