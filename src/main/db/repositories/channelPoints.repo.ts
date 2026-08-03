@@ -31,6 +31,7 @@ interface RedemptionRow {
   user_input: string | null
   status: RedemptionLogEntry['status']
   redeemed_at: number
+  action_processed_at?: number | null
 }
 
 function toDomain(row: RewardRow): ChannelPointReward {
@@ -61,11 +62,12 @@ function redemptionToDomain(row: RedemptionRow): RedemptionLogEntry {
     userLogin: row.user_login,
     userInput: row.user_input,
     status: row.status,
-    redeemedAt: row.redeemed_at
+    redeemedAt: row.redeemed_at,
+    actionProcessedAt: row.action_processed_at ?? null
   }
 }
 
-function getRedemptionByTwitchId(twitchRedemptionId: string): RedemptionLogEntry | null {
+export function getRedemptionByTwitchId(twitchRedemptionId: string): RedemptionLogEntry | null {
   const row = getDb()
     .prepare<[string], RedemptionRow>(
       `SELECT redemption_log.*, channel_point_rewards.title AS reward_title
@@ -209,6 +211,21 @@ export function updateRedemptionLogStatus(
   getDb()
     .prepare('UPDATE redemption_log SET status = ? WHERE twitch_redemption_id = ?')
     .run(status, twitchRedemptionId)
+
+  return getRedemptionByTwitchId(twitchRedemptionId)
+}
+
+export function markRedemptionActionProcessed(twitchRedemptionId: string): RedemptionLogEntry | null {
+  const existing = getRedemptionByTwitchId(twitchRedemptionId)
+  if (!existing || existing.actionProcessedAt) return existing
+
+  getDb()
+    .prepare(
+      `UPDATE redemption_log
+       SET action_processed_at = ?
+       WHERE twitch_redemption_id = ? AND action_processed_at IS NULL`
+    )
+    .run(Date.now(), twitchRedemptionId)
 
   return getRedemptionByTwitchId(twitchRedemptionId)
 }

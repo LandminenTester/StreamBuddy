@@ -339,7 +339,12 @@
     "emptyHint": "Create a reward viewers can redeem with channel points.",
     "redemptions": {
       "title": "Recent redemptions",
-      "empty": "No redemptions yet."
+      "empty": "No redemptions yet.",
+      "status": {
+        "unfulfilled": "Open",
+        "fulfilled": "Fulfilled",
+        "canceled": "Canceled"
+      }
     },
     "form": {
       "title": "Title",

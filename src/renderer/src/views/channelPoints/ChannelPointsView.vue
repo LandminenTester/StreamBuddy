@@ -13,7 +13,7 @@ import { useAuthStore } from '@renderer/stores/auth.store'
 import RewardFormModal from '@renderer/components/channelPoints/RewardFormModal.vue'
 import type { RewardFormState } from './types'
 import { emptyRewardForm } from './types'
-import { actionTypeLabel, rewardToFormState } from './utils'
+import { actionTypeLabel, redemptionStatusLabel, rewardToFormState } from './utils'
 import { deleteRewardById, submitRewardForm } from './functions'
 import type { ChannelPointReward } from '@shared/types/channelPointReward'
 
@@ -161,7 +161,9 @@ async function handleSubmit(form: RewardFormState): Promise<void> {
             </span>
             <span v-if="entry.userInput" class="text-fg-muted">— „{{ entry.userInput }}“</span>
           </span>
-          <span class="shrink-0 text-xs text-fg-subtle">{{ entry.status }}</span>
+          <AppBadge class="shrink-0">
+            {{ redemptionStatusLabel(entry.status) }}
+          </AppBadge>
         </li>
       </ul>
     </PageSection>

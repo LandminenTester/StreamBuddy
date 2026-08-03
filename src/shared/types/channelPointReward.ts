@@ -38,4 +38,5 @@ export interface RedemptionLogEntry {
   userInput: string | null
   status: RedemptionStatus
   redeemedAt: number
+  actionProcessedAt?: number | null
 }

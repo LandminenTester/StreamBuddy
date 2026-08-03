@@ -1,4 +1,8 @@
-import type { ChannelPointReward, RewardActionType } from '@shared/types/channelPointReward'
+import type {
+  ChannelPointReward,
+  RedemptionStatus,
+  RewardActionType
+} from '@shared/types/channelPointReward'
 import type { SelectOption } from '@renderer/components/ui/AppSelect.vue'
 import { t } from '@renderer/i18n'
 import type { RewardFormState } from './types'
@@ -11,6 +15,10 @@ export function actionTypeLabel(type: RewardActionType): string {
 
 export function actionTypeOptions(): SelectOption[] {
   return ACTION_TYPES.map((value) => ({ value, label: actionTypeLabel(value) }))
+}
+
+export function redemptionStatusLabel(status: RedemptionStatus): string {
+  return t(`channelPoints.redemptions.status.${status}`)
 }
 
 export function rewardToFormState(reward: ChannelPointReward): RewardFormState {

@@ -339,7 +339,12 @@
     "emptyHint": "Lege einen Reward an, den Zuschauer mit Kanalpunkten einlösen können.",
     "redemptions": {
       "title": "Letzte Einlösungen",
-      "empty": "Noch keine Einlösungen."
+      "empty": "Noch keine Einlösungen.",
+      "status": {
+        "unfulfilled": "Offen",
+        "fulfilled": "Erledigt",
+        "canceled": "Abgebrochen"
+      }
     },
     "form": {
       "title": "Titel",

@@ -1,10 +1,13 @@
 import {
+  getRedemptionByTwitchId,
   getRewardByTwitchId,
   getUniqueRewardByTitle,
   logRedemption,
+  markRedemptionActionProcessed,
   setRewardTwitchSync,
   updateRedemptionLogStatus
 } from '../../../db/repositories/channelPoints.repo'
+import type { RedemptionLogEntry } from '@shared/types/channelPointReward'
 import type { ChannelPointReward, RedemptionStatus } from '@shared/types/channelPointReward'
 import { updateRedemptionStatus } from '../../helix/channelPoints.api'
 import { runRedemptionAction } from '../../redemptionActions'
@@ -89,6 +92,26 @@ function recordCustomRedemptionActivity(
   })
 }
 
+async function processRedemptionActionOnce(
+  redemption: RedemptionAddEvent,
+  localReward: ChannelPointReward,
+  logEntry: RedemptionLogEntry
+): Promise<RedemptionLogEntry> {
+  if (logEntry.actionProcessedAt) return logEntry
+
+  const actionSucceeded = await runRedemptionAction(localReward, redemption.user_login)
+  if (!actionSucceeded) return logEntry
+
+  return markRedemptionActionProcessed(redemption.id) ?? logEntry
+}
+
+function setLocalFulfilled(twitchRedemptionId: string, fallback: RedemptionLogEntry): RedemptionLogEntry {
+  return updateRedemptionLogStatus(twitchRedemptionId, 'fulfilled') ?? {
+    ...fallback,
+    status: 'fulfilled'
+  }
+}
+
 /** Verarbeitet eine `channel.channel_points_custom_reward_redemption.add`-Notification. */
 export async function handleRedemptionAddEvent(
   event: Record<string, unknown>,
@@ -107,7 +130,7 @@ export async function handleRedemptionAddEvent(
     `Redemption "${localReward.title}" von ${redemption.user_login} empfangen (actionType=${localReward.actionType})`
   )
 
-  const logEntry = logRedemption({
+  let logEntry = logRedemption({
     rewardId: localReward.id,
     twitchRedemptionId: redemption.id,
     userLogin: redemption.user_login,
@@ -116,23 +139,22 @@ export async function handleRedemptionAddEvent(
     redeemedAt: Date.parse(redemption.redeemed_at)
   })
 
-  await runRedemptionAction(localReward, redemption.user_login)
+  logEntry = await processRedemptionActionOnce(redemption, localReward, logEntry)
 
   if (localReward.autoFulfill && logEntry.status !== 'fulfilled') {
     try {
       await updateRedemptionStatus(broadcasterId, redemption.reward.id, redemption.id, 'FULFILLED')
-      logEntry.status = 'fulfilled'
-      updateRedemptionLogStatus(redemption.id, 'fulfilled')
     } catch (error) {
       logger.error('Konnte Redemption nicht als fulfilled markieren', error)
     }
+    logEntry = setLocalFulfilled(redemption.id, logEntry)
   }
 
   getMainWindow()?.webContents.send(IpcChannels.channelPoints.onRedemption, logEntry)
 }
 
 /** Verarbeitet Statuswechsel von Custom-Reward-Redemptions aus Twitch. */
-export function handleRedemptionUpdateEvent(event: Record<string, unknown>): void {
+export async function handleRedemptionUpdateEvent(event: Record<string, unknown>): Promise<void> {
   const redemption = event as unknown as RedemptionUpdateEvent
   const status = mapRedemptionStatus(redemption.status)
 
@@ -144,9 +166,13 @@ export function handleRedemptionUpdateEvent(event: Record<string, unknown>): voi
   const localReward = resolveLocalReward(redemption)
   recordCustomRedemptionActivity(redemption, localReward, 'update', status)
 
-  const updatedEntry = updateRedemptionLogStatus(redemption.id, status)
-  if (updatedEntry) {
-    getMainWindow()?.webContents.send(IpcChannels.channelPoints.onRedemption, updatedEntry)
+  const existingEntry = getRedemptionByTwitchId(redemption.id)
+  if (existingEntry) {
+    const updatedEntry = updateRedemptionLogStatus(redemption.id, status) ?? existingEntry
+    const processedEntry = localReward
+      ? await processRedemptionActionOnce(redemption, localReward, updatedEntry)
+      : updatedEntry
+    getMainWindow()?.webContents.send(IpcChannels.channelPoints.onRedemption, processedEntry)
     return
   }
 
@@ -164,7 +190,8 @@ export function handleRedemptionUpdateEvent(event: Record<string, unknown>): voi
     redeemedAt: Date.parse(redemption.redeemed_at)
   })
 
-  getMainWindow()?.webContents.send(IpcChannels.channelPoints.onRedemption, logEntry)
+  const processedEntry = await processRedemptionActionOnce(redemption, localReward, logEntry)
+  getMainWindow()?.webContents.send(IpcChannels.channelPoints.onRedemption, processedEntry)
 }
 
 /** Verarbeitet automatische Channel-Points-Rewards fuer den Aktivitaetenfeed. */

@@ -201,7 +201,9 @@ function handleMessage(raw: string): void {
         logger.error('Verarbeitung der Channel-Points-Redemption fehlgeschlagen', error)
       })
     } else if (eventType === 'channel.channel_points_custom_reward_redemption.update') {
-      handleRedemptionUpdateEvent(eventData)
+      handleRedemptionUpdateEvent(eventData).catch((error) => {
+        logger.error('Verarbeitung des Channel-Points-Redemption-Updates fehlgeschlagen', error)
+      })
     } else if (eventType === 'channel.channel_points_automatic_reward_redemption.add') {
       if (isActivityFeedFeatureEnabled()) handleAutomaticRedemptionAddEvent(eventData)
     } else if (eventType === 'channel.poll.progress') {

@@ -88,11 +88,11 @@ async function runCommandRewardAction(command: Command, userLogin: string): Prom
 export async function runRedemptionAction(
   reward: ChannelPointReward,
   userLogin: string
-): Promise<void> {
+): Promise<boolean> {
   if (reward.actionType === 'chat_message' && reward.actionPayload?.message) {
     await sendChatMessage(reward.actionPayload.message)
     logger.info(`Redemption-Aktion: Chatnachricht fuer Reward "${reward.title}" gesendet`)
-    return
+    return true
   }
 
   if (reward.actionType === 'trigger_command' && reward.actionPayload?.commandId) {
@@ -100,10 +100,11 @@ export async function runRedemptionAction(
       const command = getCommandById(reward.actionPayload.commandId)
       await runCommandRewardAction(command, userLogin)
       logger.info(`Redemption-Aktion: Command fuer Reward "${reward.title}" ausgeloest`)
+      return true
     } catch (error) {
       logger.error(`Redemption-Aktion: Command nicht gefunden fuer Reward "${reward.title}"`, error)
+      return false
     }
-    return
   }
 
   if (reward.actionType === 'loyalty_exchange') {
@@ -117,7 +118,7 @@ export async function runRedemptionAction(
       logger.warn(
         `Redemption-Aktion: loyalty_exchange fuer Reward "${reward.title}" ohne gueltige payload`
       )
-      return
+      return false
     }
 
     const points =
@@ -127,7 +128,7 @@ export async function runRedemptionAction(
 
     if (points <= 0) {
       logger.warn(`Redemption-Aktion: loyalty_exchange fuer Reward "${reward.title}" ergibt 0 Punkte`)
-      return
+      return false
     }
 
     const transaction = creditLoyalty(userLogin, points, 'channel_point_exchange')
@@ -135,18 +136,21 @@ export async function runRedemptionAction(
       logger.warn(
         `Redemption-Aktion: Loyalty-Punkte fuer "${userLogin}" uebersprungen, Konto ist geblacklistet`
       )
-      return
+      return false
     }
 
     logger.info(
       `Redemption-Aktion: ${points} Loyalty-Punkte fuer "${userLogin}" via Reward "${reward.title}" gutgeschrieben`
     )
-    return
+    return true
   }
 
   if (reward.actionType !== 'none') {
     logger.warn(
       `Redemption-Aktion fuer Reward "${reward.title}" uebersprungen: actionType=${reward.actionType}, aber keine gueltige actionPayload konfiguriert`
     )
+    return false
   }
+
+  return true
 }
