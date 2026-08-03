@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.8.1](https://github.com/LandminenTester/StreamingBot/compare/v2.8.0...v2.8.1) (2026-08-03)
+
+
+### Bug Fixes
+
+* **games:** show duel matches as single history rows ([1988766](https://github.com/LandminenTester/StreamingBot/commit/19887668c699d8a4d094e1b788551607cc9d2fc0))
+
 ## [2.8.0](https://github.com/LandminenTester/StreamingBot/compare/v2.7.0...v2.8.0) (2026-08-03)
 
 
