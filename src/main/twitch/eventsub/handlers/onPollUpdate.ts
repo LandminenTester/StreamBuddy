@@ -46,6 +46,8 @@ function broadcastPollUpdate(twitchPollId: string): void {
   const poll = getPollByTwitchId(twitchPollId)
   if (poll) {
     getMainWindow()?.webContents.send(IpcChannels.polls.onUpdate, poll)
+  } else {
+    logger.warn(`Poll-Update fuer unbekannte Poll-ID "${twitchPollId}" ignoriert`)
   }
 }
 

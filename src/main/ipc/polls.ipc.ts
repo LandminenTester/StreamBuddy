@@ -14,6 +14,10 @@ import {
 import { createTwitchPoll, endTwitchPoll } from '../twitch/helix/polls.api'
 import { getUserIdByLogin } from '../twitch/helix/users.api'
 import { getSetting } from '../db/repositories/appSettings.repo'
+import {
+  startActivePollProgressPoller,
+  stopActivePollProgressPoller
+} from '../twitch/polls/pollProgressPoller'
 
 const END_STATUS_MAP: Record<
   string,
@@ -38,6 +42,8 @@ async function resolveBroadcasterId(): Promise<string> {
 }
 
 export function registerPollsIpc(): void {
+  startActivePollProgressPoller()
+
   handleTyped(IpcChannels.polls.list, () => listPolls())
 
   handleTyped(IpcChannels.polls.getActive, () => getActivePoll())
@@ -54,7 +60,9 @@ export function registerPollsIpc(): void {
         channelPointsVotingEnabled: input.channelPointsVotingEnabled,
         channelPointsPerVote: input.channelPointsPerVote
       })
-      return markPollActive(draft.id, twitchPoll.id)
+      const activePoll = markPollActive(draft.id, twitchPoll.id)
+      startActivePollProgressPoller()
+      return activePoll
     } catch (error) {
       deletePoll(draft.id)
       throw error
@@ -78,9 +86,14 @@ export function registerPollsIpc(): void {
       votes: choice.votes
     }))
     markPollEnded(poll.twitchPollId, status, choices, winnerChoiceIndex ?? null)
+    stopActivePollProgressPoller()
 
     return getPollById(id)
   })
 
-  handleTyped(IpcChannels.polls.reset, ({ id }) => forceResetPoll(id))
+  handleTyped(IpcChannels.polls.reset, ({ id }) => {
+    const poll = forceResetPoll(id)
+    stopActivePollProgressPoller()
+    return poll
+  })
 }

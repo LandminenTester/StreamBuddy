@@ -51,6 +51,22 @@ export async function createTwitchPoll(
   return data.data[0]
 }
 
+/** Holt eine Twitch-Umfrage samt aktuellem Stimmenstand. */
+export async function getTwitchPoll(
+  broadcasterId: string,
+  twitchPollId: string
+): Promise<TwitchPoll | null> {
+  const response = await helixFetch(
+    `/polls?broadcaster_id=${broadcasterId}&id=${encodeURIComponent(twitchPollId)}`
+  )
+
+  if (!response.ok) {
+    throw new Error(`Poll-Abruf fehlgeschlagen: ${response.status} ${await response.text()}`)
+  }
+  const data = (await response.json()) as PollsResponse
+  return data.data[0] ?? null
+}
+
 /** Beendet eine laufende Umfrage vorzeitig. */
 export async function endTwitchPoll(
   broadcasterId: string,
