@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.10.1](https://github.com/LandminenTester/StreamingBot/compare/v2.10.0...v2.10.1) (2026-08-03)
+
+
+### Bug Fixes
+
+* **update:** load changelog from github ([bb05cd3](https://github.com/LandminenTester/StreamingBot/commit/bb05cd31070db99acf8eeddfa181d6063284515e))
+
 ## [2.10.0](https://github.com/LandminenTester/StreamingBot/compare/v2.9.1...v2.10.0) (2026-08-03)
 
 
