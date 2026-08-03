@@ -4,6 +4,9 @@ import { app } from 'electron'
 import type { ChangelogEntry, ChangelogItem, ChangelogSection } from '@shared/types/appInfo'
 import { logger } from './logger'
 
+const REMOTE_CHANGELOG_URL =
+  'https://raw.githubusercontent.com/LandminenTester/StreamBuddy/main/CHANGELOG.md'
+const REMOTE_CHANGELOG_TIMEOUT_MS = 5_000
 const VERSION_HEADER = /^##\s+(?:\[([^\]]+)]\([^)]*\)|(\S+))\s*(?:\(([^)]+)\))?\s*$/
 const SECTION_HEADER = /^###\s+(.+)$/
 const BULLET_LINE = /^\*\s+(.+)$/
@@ -61,8 +64,7 @@ export function parseChangelog(raw: string): ChangelogEntry[] {
   return entries
 }
 
-/** Liest und parsed die mitgelieferte CHANGELOG.md (Dev und gepackt: beide im App-Root). */
-export function getChangelog(): ChangelogEntry[] {
+function getBundledChangelog(): ChangelogEntry[] {
   try {
     const path = join(app.getAppPath(), 'CHANGELOG.md')
     return parseChangelog(readFileSync(path, 'utf-8'))
@@ -70,4 +72,37 @@ export function getChangelog(): ChangelogEntry[] {
     logger.warn('Konnte CHANGELOG.md nicht lesen/parsen', error)
     return []
   }
+}
+
+async function fetchRemoteChangelog(): Promise<ChangelogEntry[] | null> {
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), REMOTE_CHANGELOG_TIMEOUT_MS)
+
+  try {
+    const response = await fetch(REMOTE_CHANGELOG_URL, {
+      cache: 'no-store',
+      signal: controller.signal
+    })
+    if (!response.ok) {
+      logger.warn(`Remote-CHANGELOG.md konnte nicht geladen werden: HTTP ${response.status}`)
+      return null
+    }
+
+    const entries = parseChangelog(await response.text())
+    return entries.length > 0 ? entries : null
+  } catch (error) {
+    logger.warn('Remote-CHANGELOG.md konnte nicht geladen werden', error)
+    return null
+  } finally {
+    clearTimeout(timeout)
+  }
+}
+
+/**
+ * Laedt bevorzugt die aktuelle CHANGELOG.md von GitHub, damit installierte aeltere
+ * Versionen im About-Dialog neue Releases sehen. Offline/Fehler fallen auf die
+ * mitgelieferte Datei zurueck.
+ */
+export async function getChangelog(): Promise<ChangelogEntry[]> {
+  return (await fetchRemoteChangelog()) ?? getBundledChangelog()
 }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAppInfoStore } from '@renderer/stores/appInfo.store'
 import AppButton from '@renderer/components/ui/AppButton.vue'
@@ -28,6 +28,10 @@ const metadataItems = computed<DefinitionItem[]>(() => {
 const state = computed(() => appInfoStore.updateStatus.state)
 const downloadPercent = computed(() => appInfoStore.updateStatus.percent ?? 0)
 const updateVersion = computed(() => appInfoStore.updateStatus.version ?? '')
+
+onMounted(() => {
+  void appInfoStore.fetchChangelog()
+})
 </script>
 
 <template>
