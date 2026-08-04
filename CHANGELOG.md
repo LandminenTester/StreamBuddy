@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.10.25](https://github.com/LandminenTester/StreamingBot/compare/v2.10.24...v2.10.25) (2026-08-04)
+
+
+### Features
+
+* auto shoutout on raid and reusable text placeholders ([e3274c1](https://github.com/LandminenTester/StreamingBot/commit/e3274c1077081c8ae7b0c236bb9eec0d2f41db4c))
+
+### Bug Fixes
+
+* stop the document itself from scrolling behind the app shell ([bca0c7e](https://github.com/LandminenTester/StreamingBot/commit/bca0c7edd8d8387cc720d7422090862da63249e7))
+
 ## [2.10.24](https://github.com/LandminenTester/StreamingBot/compare/v2.10.23...v2.10.24) (2026-08-04)
 
 
