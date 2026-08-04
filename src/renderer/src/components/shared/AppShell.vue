@@ -118,7 +118,12 @@ const hasUpdateNotice = computed(() => {
       <div class="px-5 pb-4 pt-5 mx-auto">
         <img class="w-32 pb-5" src="../../assets/img/logo.png" />
         <!-- <p class="text-base font-semibold tracking-tight text-fg">{{ $t('app.name') }}</p> -->
-        <AppBadge class="mt-2" :variant="chatStore.status.connected ? 'success' : 'neutral'" dot>
+        <AppBadge
+          class="mt-2"
+          :variant="chatStore.status.connected ? 'success' : 'neutral'"
+          dot
+          :title="!chatStore.status.connected ? (chatStore.status.lastError ?? undefined) : undefined"
+        >
           {{ connectionLabel }}
         </AppBadge>
       </div>

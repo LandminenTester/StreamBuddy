@@ -293,13 +293,22 @@ async function copyModCode(code: string): Promise<void> {
         </template>
 
         <template #status>
-          <AppBadge :variant="chatStore.status.connected ? 'success' : 'neutral'" dot>
-            {{
-              chatStore.status.connected
-                ? $t('settings.connection.connectedTo', { channel: chatStore.status.channel })
-                : $t('settings.connection.disconnected')
-            }}
-          </AppBadge>
+          <div class="space-y-1">
+            <AppBadge :variant="chatStore.status.connected ? 'success' : 'neutral'" dot>
+              {{
+                chatStore.status.connected
+                  ? $t('settings.connection.connectedTo', { channel: chatStore.status.channel })
+                  : $t('settings.connection.disconnected')
+              }}
+            </AppBadge>
+            <p
+              v-if="!chatStore.status.connected && chatStore.status.lastError"
+              class="flex items-start gap-1.5 text-xs text-danger"
+            >
+              <AlertCircle class="mt-0.5 h-3.5 w-3.5 shrink-0" />
+              {{ chatStore.status.lastError }}
+            </p>
+          </div>
         </template>
 
         <template #autoConnect>
