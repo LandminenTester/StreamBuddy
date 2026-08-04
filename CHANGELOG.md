@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.10.30](https://github.com/LandminenTester/StreamingBot/compare/v2.10.29...v2.10.30) (2026-08-04)
+
+
+### Bug Fixes
+
+* allow emote/badge images through the content security policy ([c63e09a](https://github.com/LandminenTester/StreamingBot/commit/c63e09abe66219b273551bfab1142f67f59381b4))
+
 ## [2.10.29](https://github.com/LandminenTester/StreamingBot/compare/v2.10.28...v2.10.29) (2026-08-04)
 
 
