@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.10.29](https://github.com/LandminenTester/StreamingBot/compare/v2.10.28...v2.10.29) (2026-08-04)
+
+
+### Bug Fixes
+
+* chat popover keyed to wrong user, broken emote images, add BTTV emotes ([9f07048](https://github.com/LandminenTester/StreamingBot/commit/9f0704888f3996a167078bde77c40c67c9662fb6))
+
 ## [2.10.28](https://github.com/LandminenTester/StreamingBot/compare/v2.10.27...v2.10.28) (2026-08-04)
 
 
