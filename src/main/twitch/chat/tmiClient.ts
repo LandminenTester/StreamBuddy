@@ -1,7 +1,7 @@
 import tmi from 'tmi.js'
 import type { ChatConnectionStatus } from '@shared/types/chat'
 import { readTokens } from '../oauth/tokenStore'
-import { getValidAccessToken } from '../oauth/tokenRefresher'
+import { getValidAccessToken, forceRefresh } from '../oauth/tokenRefresher'
 import { getSetting, setSetting } from '../../db/repositories/appSettings.repo'
 import { handleChatMessage } from './commandRouter'
 import {
@@ -108,33 +108,84 @@ export async function connectChatClient(options: { manual?: boolean } = {}): Pro
     await disconnectChatClient()
   }
 
-  const accessToken = (await getValidAccessToken()).accessToken
+  let accessToken: string
+  try {
+    accessToken = (await getValidAccessToken()).accessToken
+  } catch (error) {
+    setStatus({ connected: false, channel: null, lastError: (error as Error).message })
+    logger.error('Token-Abruf vor Chat-Verbindung fehlgeschlagen', error)
+    return
+  }
 
-  client = new tmi.Client({
+  try {
+    await attemptConnect(accessToken, tokens.twitchLogin, targetChannel)
+    return
+  } catch (error) {
+    const message = (error as Error).message
+
+    // "Login authentication failed" o.ae. deutet auf ein zwischenzeitlich ungueltig
+    // gewordenes Access-Token hin (z.B. durch einen Refresh-Race mehrerer gleichzeitiger
+    // Twitch-Aufrufe). Ein erzwungener Refresh + einmaliger Retry loest das automatisch,
+    // ohne dass ein manueller Reauth durch den Nutzer noetig ist.
+    if (!/auth/i.test(message)) {
+      setStatus({ connected: false, lastError: message })
+      logger.error('tmi.js-Verbindung fehlgeschlagen', error)
+      return
+    }
+
+    logger.warn(`Chat-Verbindung mit Auth-Fehler fehlgeschlagen ("${message}"), erzwinge Token-Refresh und versuche erneut`)
+
+    let refreshedToken: string
+    try {
+      refreshedToken = (await forceRefresh()).accessToken
+    } catch (refreshError) {
+      setStatus({ connected: false, lastError: (refreshError as Error).message })
+      logger.error('Token-Refresh nach Auth-Fehler fehlgeschlagen', refreshError)
+      return
+    }
+
+    try {
+      await attemptConnect(refreshedToken, tokens.twitchLogin, targetChannel)
+    } catch (retryError) {
+      setStatus({ connected: false, lastError: (retryError as Error).message })
+      logger.error('tmi.js-Verbindung nach Token-Refresh erneut fehlgeschlagen', retryError)
+    }
+  }
+}
+
+/**
+ * Baut einen tmi.js-Client auf und verbindet ihn. Wirft bei einem Fehlschlag (inkl.
+ * Timeout), nachdem der halb offene Client best-effort aufgeraeumt wurde, damit ein
+ * Folgeversuch nicht auf demselben kaputten Client scheitert.
+ */
+async function attemptConnect(
+  accessToken: string,
+  twitchLogin: string,
+  targetChannel: string
+): Promise<void> {
+  const newClient = new tmi.Client({
     connection: { reconnect: true, secure: true },
-    identity: { username: tokens.twitchLogin, password: `oauth:${accessToken}` },
+    identity: { username: twitchLogin, password: `oauth:${accessToken}` },
     channels: [targetChannel]
   })
 
-  client.on('connected', () => {
+  newClient.on('connected', () => {
     setStatus({ connected: true, channel: targetChannel, lastError: null })
     logger.info(`Chat verbunden mit Kanal #${targetChannel}`)
-    if (client) {
-      setBroadcasterClientRef(client)
-      markPresent(targetChannel)
-      startAutomessageScheduler(targetChannel)
-      attachPresenceTracking(client)
-      startViewTimeTicker()
-      startViewerCountPoller()
-      startRouletteScheduler(targetChannel)
-      startAdSchedulePoller()
-      startGreetingChecker()
-      void prepareChatBadges(targetChannel)
-      void connectModChatClient(targetChannel)
-    }
+    setBroadcasterClientRef(newClient)
+    markPresent(targetChannel)
+    startAutomessageScheduler(targetChannel)
+    attachPresenceTracking(newClient)
+    startViewTimeTicker()
+    startViewerCountPoller()
+    startRouletteScheduler(targetChannel)
+    startAdSchedulePoller()
+    startGreetingChecker()
+    void prepareChatBadges(targetChannel)
+    void connectModChatClient(targetChannel)
   })
 
-  client.on('disconnected', (reason) => {
+  newClient.on('disconnected', (reason) => {
     setStatus({ connected: false, lastError: reason })
     setBroadcasterClientRef(null)
     stopAutomessageScheduler()
@@ -146,7 +197,7 @@ export async function connectChatClient(options: { manual?: boolean } = {}): Pro
     clearGreetingSession()
   })
 
-  client.on('message', (channel, tags, message, self) => {
+  newClient.on('message', (channel, tags, message, self) => {
     if (self || !client) return
     markPresent(tags.username ?? '')
     recordChatLineForAutomessages()
@@ -164,26 +215,28 @@ export async function connectChatClient(options: { manual?: boolean } = {}): Pro
     void handleChatMessage(channel, tags, message)
   })
 
+  client = newClient
+
   try {
     await withTimeout(
-      client.connect(),
+      newClient.connect(),
       CONNECT_TIMEOUT_MS,
       'Zeitüberschreitung beim Verbindungsaufbau'
     )
   } catch (error) {
-    setStatus({ connected: false, lastError: (error as Error).message })
-    logger.error('tmi.js-Verbindung fehlgeschlagen', error)
-
-    // Bei einem Timeout haengt der Client evtl. noch mitten im Handshake. Best-effort
-    // aufraeumen und zuruecksetzen, damit der naechste Versuch nicht auf demselben
+    // Bei einem Timeout oder Auth-Fehler haengt der Client evtl. noch mitten im
+    // Handshake. Best-effort aufraeumen, damit ein Folgeversuch nicht auf demselben
     // kaputten Client scheitert (siehe disconnectChatClient fuer den gleichen Grund).
     try {
-      await client?.disconnect()
+      await newClient.disconnect()
     } catch {
       // ignorieren -- der Socket war ohnehin nie sauber offen
     }
-    client = null
-    setBroadcasterClientRef(null)
+    if (client === newClient) {
+      client = null
+      setBroadcasterClientRef(null)
+    }
+    throw error
   }
 }
 

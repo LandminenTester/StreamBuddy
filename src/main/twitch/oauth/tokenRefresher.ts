@@ -14,7 +14,16 @@ interface TokenResponse {
   scope: string[]
 }
 
-async function refreshAccessToken(current: DecryptedTokens): Promise<DecryptedTokens> {
+/**
+ * Laufender Refresh-Request, falls einer im Gang ist. Twitch rotiert den Refresh-Token
+ * bei jeder Nutzung -- ohne diese Deduplizierung wuerden mehrere gleichzeitige Aufrufer
+ * (Chat, Helix-Calls, Shoutouts, ...) mit demselben, noch nicht aktualisierten Refresh-
+ * Token um die Wette laufen. Der Verlierer dieses Rennens bekaeme einen Fehler statt
+ * eines gueltigen Tokens, obwohl der Account eigentlich vollkommen in Ordnung ist.
+ */
+let inFlightRefresh: Promise<DecryptedTokens> | null = null
+
+async function performRefresh(current: DecryptedTokens): Promise<DecryptedTokens> {
   const clientId = requireTwitchClientId()
 
   const body = new URLSearchParams({
@@ -47,6 +56,16 @@ async function refreshAccessToken(current: DecryptedTokens): Promise<DecryptedTo
   logger.info('Twitch-Token erfolgreich erneuert')
 
   return updated
+}
+
+async function refreshAccessToken(current: DecryptedTokens): Promise<DecryptedTokens> {
+  if (inFlightRefresh) return inFlightRefresh
+
+  inFlightRefresh = performRefresh(current).finally(() => {
+    inFlightRefresh = null
+  })
+
+  return inFlightRefresh
 }
 
 /**
