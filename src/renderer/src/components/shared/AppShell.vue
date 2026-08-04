@@ -160,7 +160,7 @@ const hasUpdateNotice = computed(() => {
       </footer>
     </aside>
 
-    <main class="custom-scrollbar flex-1 overflow-y-auto p-8">
+    <main class="custom-scrollbar flex-1 overflow-y-auto overscroll-contain p-8">
       <slot />
     </main>
 
