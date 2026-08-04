@@ -3,7 +3,12 @@ import type { LoyaltyGame, LoyaltyGameCommand, LoyaltyGameContext } from './Loya
 import { getOrCreateAccount } from '../../db/repositories/loyalty.repo'
 import { listRecentRouletteColors } from '../../db/repositories/rouletteRounds.repo'
 import { parseBetAmount } from './betParser'
-import { placeBet, placeNumberBet, COLOR_EMOJI } from './rouletteScheduler'
+import {
+  getCurrentRouletteBetAmount,
+  placeBet,
+  placeNumberBet,
+  COLOR_EMOJI
+} from './rouletteScheduler'
 import { BOT_TEXTS } from '../botTexts'
 
 interface RouletteConfig {
@@ -20,12 +25,13 @@ interface RouletteConfig {
 async function placeColorBet(ctx: LoyaltyGameContext, color: RouletteColor): Promise<void> {
   const config = ctx.config as unknown as RouletteConfig
   const account = getOrCreateAccount(ctx.userLogin)
-  const amount = parseBetAmount(ctx.args[0], account.balance, config.minBet, config.maxBet)
+  const availableBalance = Math.max(0, account.balance - getCurrentRouletteBetAmount(ctx.userLogin))
+  const amount = parseBetAmount(ctx.args[0], availableBalance, config.minBet, config.maxBet)
 
   if (amount === null) {
     const limit = config.maxBet > 0 ? `${config.minBet}-${config.maxBet}` : `ab ${config.minBet}`
     await ctx.reply(
-      `@${ctx.userLogin} Nutzung: !${color} <Einsatz|all|xx%> (${limit}, max. Kontostand: ${account.balance})`
+      `@${ctx.userLogin} Nutzung: !${color} <Einsatz|all|xx%> (${limit}, verfuegbar: ${availableBalance})`
     )
     return
   }
@@ -45,12 +51,13 @@ async function handleNumberBet(ctx: LoyaltyGameContext): Promise<void> {
   const config = ctx.config as unknown as RouletteConfig
   const account = getOrCreateAccount(ctx.userLogin)
   const number = Number(ctx.args[0])
-  const amount = parseBetAmount(ctx.args[1], account.balance, config.minBet, config.maxBet)
+  const availableBalance = Math.max(0, account.balance - getCurrentRouletteBetAmount(ctx.userLogin))
+  const amount = parseBetAmount(ctx.args[1], availableBalance, config.minBet, config.maxBet)
 
   if (!Number.isInteger(number) || number < 0 || number > 36 || amount === null) {
     const limit = config.maxBet > 0 ? `${config.minBet}-${config.maxBet}` : `ab ${config.minBet}`
     await ctx.reply(
-      `@${ctx.userLogin} Nutzung: !number <0-36> <Einsatz|all|xx%> (${limit}, max. Kontostand: ${account.balance})`
+      `@${ctx.userLogin} Nutzung: !number <0-36> <Einsatz|all|xx%> (${limit}, verfuegbar: ${availableBalance})`
     )
     return
   }

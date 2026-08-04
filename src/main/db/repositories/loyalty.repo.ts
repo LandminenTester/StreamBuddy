@@ -105,6 +105,37 @@ export function applyTransaction(
   })()
 }
 
+export interface LoyaltyAccountTransferResult {
+  fromBalance: number
+  toBalance: number
+}
+
+export function applyAccountTransfer(
+  fromAccountId: number,
+  toAccountId: number,
+  amount: number,
+  reason: LoyaltyTransactionReason
+): LoyaltyAccountTransferResult {
+  const db = getDb()
+
+  return db.transaction(() => {
+    applyTransaction(fromAccountId, -amount, reason, null)
+    applyTransaction(toAccountId, amount, reason, null)
+
+    const fromRow = db
+      .prepare<[number], AccountRow>('SELECT * FROM loyalty_accounts WHERE id = ?')
+      .get(fromAccountId)!
+    const toRow = db
+      .prepare<[number], AccountRow>('SELECT * FROM loyalty_accounts WHERE id = ?')
+      .get(toAccountId)!
+
+    return {
+      fromBalance: fromRow.balance,
+      toBalance: toRow.balance
+    }
+  })()
+}
+
 interface TransactionRow {
   id: number
   account_id: number

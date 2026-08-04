@@ -18,6 +18,7 @@ import GameTextsModal from '@renderer/components/games/GameTextsModal.vue'
 import { useLoyaltyStore } from '@renderer/stores/loyalty.store'
 import { activeLocaleTag } from '@renderer/i18n'
 import type { LoyaltyDuelMatch, LoyaltyGameHistoryEntry } from '@shared/types/loyalty'
+import { commandKeyLabel } from './commandMeta'
 import {
   gameDisplayName,
   gameLabel,
@@ -62,7 +63,7 @@ const commandItems = computed<DefinitionItem[]>(() =>
   game.value
     ? game.value.commands.map((command) => ({
         key: command.key,
-        label: command.key,
+        label: commandKeyLabel(command.key),
         value: command.trigger
       }))
     : []

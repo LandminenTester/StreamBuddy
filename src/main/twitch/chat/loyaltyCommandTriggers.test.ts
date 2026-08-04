@@ -7,10 +7,16 @@ describe('resolveBuiltInLoyaltyCommand', () => {
     ['!points', 'points'],
     ['!rang', 'rank'],
     ['!rank', 'rank'],
+    ['!givepoints', 'givePoints'],
+    ['!punktegeben', 'givePoints'],
     ['!punkteadmin', 'pointsAdmin'],
     ['!pointsadmin', 'pointsAdmin'],
     ['!cancel', 'cancelGames'],
-    ['!abbrechen', 'cancelGames']
+    ['!abbrechen', 'cancelGames'],
+    ['!commands', 'commandList'],
+    ['!befehle', 'commandList'],
+    ['!help', 'commandList'],
+    ['!hilfe', 'commandList']
   ] as const)('maps %s to %s', (trigger, command) => {
     expect(resolveBuiltInLoyaltyCommand(trigger)).toBe(command)
   })

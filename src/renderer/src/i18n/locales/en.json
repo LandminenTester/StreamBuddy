@@ -542,6 +542,17 @@
       "edit": "Edit commands",
       "trigger": "Command"
     },
+    "commandKeys": {
+      "bet": "Bet",
+      "challenge": "Challenge",
+      "accept": "Accept",
+      "play": "Play",
+      "red": "Red",
+      "black": "Black",
+      "green": "Green",
+      "number": "Number",
+      "stats": "Statistics"
+    },
     "texts": {
       "edit": "Edit announcements",
       "hint": "Several variants possible — one is picked at random.",

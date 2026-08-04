@@ -23,6 +23,7 @@ vi.mock('../loyaltyLedger', () => ({
 }))
 
 vi.mock('./rouletteScheduler', () => ({
+  getCurrentRouletteBetAmount: vi.fn(() => 0),
   placeBet: vi.fn(),
   placeNumberBet: vi.fn(),
   COLOR_EMOJI: { rot: '', schwarz: '', gruen: '' }

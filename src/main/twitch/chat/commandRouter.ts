@@ -21,13 +21,16 @@ import {
 import { pickRandomMessage } from '../../db/repositories/botMessages.repo'
 import {
   cancelPendingGameRequests,
+  getAllGames,
   getGameByTrigger,
   getGameRuntimeConfig,
   getGameRuntimeTexts,
-  isGameEnabled
+  isGameEnabled,
+  resolveCommandTrigger
 } from '../../loyalty/games/gameRegistry'
 import { getLoyaltyEnabled } from '../../loyalty/loyaltySettings'
-import { applyManualAdjustment } from '../../loyalty/loyaltyLedger'
+import { applyManualAdjustment, transferLoyaltyPoints } from '../../loyalty/loyaltyLedger'
+import { getCurrentRouletteBetAmount } from '../../loyalty/games/rouletteScheduler'
 import { LOYALTY_OFFLINE_MESSAGE_KEY } from '../../loyalty/offlineMessages'
 import { isStreamLive } from '../../stats/viewerCountPoller'
 import { getActiveChatClient } from './chatClientAccessor'
@@ -35,8 +38,7 @@ import { getLocale } from '../../locale'
 import { logger } from '../../logger'
 import { sendWhisper } from '../helix/whispers.api'
 import { resolveBuiltInLoyaltyCommand } from './loyaltyCommandTriggers'
-
-const PERMISSION_ORDER: PermissionLevel[] = ['everyone', 'subscriber', 'moderator', 'broadcaster']
+import { buildCommandListSections, canUseCommand, chunkCommandSection } from './commandList'
 
 /** Fixer, nicht umbenennbarer Trigger fuer den eingebauten Mod-Command. */
 const BLACKLIST_TRIGGER = '!blacklist'
@@ -51,17 +53,20 @@ function getUserPermissionLevel(tags: ChatUserstate): PermissionLevel {
   return 'everyone'
 }
 
-function hasRequiredPermission(userLevel: PermissionLevel, required: PermissionLevel): boolean {
-  return PERMISSION_ORDER.indexOf(userLevel) >= PERMISSION_ORDER.indexOf(required)
-}
-
 function chatText(
   key:
     | 'points'
+    | 'pointsWithPending'
     | 'pointsOther'
+    | 'pointsOtherWithPending'
     | 'pointsUnknown'
     | 'rank'
     | 'rankEmpty'
+    | 'giveUsage'
+    | 'giveInvalid'
+    | 'giveSelf'
+    | 'giveInsufficient'
+    | 'giveDone'
     | 'adminUsage'
     | 'adminDone'
     | 'adminInvalid'
@@ -72,10 +77,20 @@ function chatText(
   const texts = {
     de: {
       points: '@{user} du hast {points} Punkte.',
+      pointsWithPending:
+        '@{user} du hast {points} Punkte verfuegbar ({pending} in offenen Wetten).',
       pointsOther: '@{requester} @{target} hat {points} Punkte.',
+      pointsOtherWithPending:
+        '@{requester} @{target} hat {points} Punkte verfuegbar ({pending} in offenen Wetten).',
       pointsUnknown: '@{requester} fuer @{target} gibt es kein Loyalty-Konto.',
       rank: 'Top 10: {top}. @{user} dein Rang: #{rank} mit {points} Punkten.',
       rankEmpty: 'Es gibt noch keine Loyalty-Konten.',
+      giveUsage: 'Nutzung: !givepoints @nutzer <punkte>',
+      giveInvalid: '@{user} bitte gib eine positive ganze Punktzahl an.',
+      giveSelf: '@{user} du kannst dir nicht selbst Punkte geben.',
+      giveInsufficient: '@{user} du hast nicht genug Punkte fuer diesen Transfer.',
+      giveDone:
+        '@{from} hat @{to} {amount} Punkte gegeben. Neuer Stand: @{from} {fromPoints}, @{to} {toPoints}.',
       adminUsage: 'Nutzung: !punkteadmin <nutzer> <betrag>',
       adminDone: '@{target} wurde um {amount} Punkte angepasst. Neuer Stand: {points}.',
       adminInvalid: 'Betrag muss eine Zahl ungleich 0 sein.',
@@ -84,10 +99,20 @@ function chatText(
     },
     en: {
       points: '@{user} you have {points} points.',
+      pointsWithPending:
+        '@{user} you have {points} points available ({pending} in pending bets).',
       pointsOther: '@{requester} @{target} has {points} points.',
+      pointsOtherWithPending:
+        '@{requester} @{target} has {points} points available ({pending} in pending bets).',
       pointsUnknown: '@{requester} there is no loyalty account for @{target}.',
       rank: 'Top 10: {top}. @{user} your rank: #{rank} with {points} points.',
       rankEmpty: 'There are no loyalty accounts yet.',
+      giveUsage: 'Usage: !givepoints @user <points>',
+      giveInvalid: '@{user} please enter a positive whole number of points.',
+      giveSelf: '@{user} you cannot give points to yourself.',
+      giveInsufficient: '@{user} you do not have enough points for this transfer.',
+      giveDone:
+        '@{from} gave @{to} {amount} points. New balance: @{from} {fromPoints}, @{to} {toPoints}.',
       adminUsage: 'Usage: !pointsadmin <user> <amount>',
       adminDone: '@{target} was adjusted by {amount} points. New balance: {points}.',
       adminInvalid: 'Amount must be a non-zero number.',
@@ -114,6 +139,14 @@ function pickTextVariant(texts: Record<string, string[]>, slot: string): string 
 function getTagLogin(tags: ChatUserstate): string | null {
   const login = tags.username?.trim().toLowerCase()
   return login ? login : null
+}
+
+function getAvailablePoints(userLogin: string, balance: number): { available: number; pending: number } {
+  const pending = getCurrentRouletteBetAmount(userLogin)
+  return {
+    available: Math.max(0, balance - pending),
+    pending
+  }
 }
 
 /**
@@ -166,7 +199,7 @@ export async function handleChatMessage(
   // Eingebauter Mod-Command, ausserhalb des Game-/Custom-Command-Systems, damit er nie
   // durch einen umbenannten Custom-Command ueberschattet werden kann.
   if (trigger === BLACKLIST_TRIGGER) {
-    if (!hasRequiredPermission(getUserPermissionLevel(tags), 'moderator')) return
+    if (!canUseCommand(getUserPermissionLevel(tags), 'moderator')) return
     const targetLogin = parts[1]?.replace(/^@/, '').toLowerCase()
     if (!targetLogin) return
     getOrCreateAccount(targetLogin)
@@ -192,22 +225,29 @@ export async function handleChatMessage(
         )
         return
       }
+      const requestedPoints = getAvailablePoints(
+        requestedAccount.userLogin,
+        requestedAccount.balance
+      )
       await sender.say(
         channel,
-        fill(chatText('pointsOther'), {
+        fill(chatText(requestedPoints.pending > 0 ? 'pointsOtherWithPending' : 'pointsOther'), {
           requester,
           target: requestedAccount.userLogin,
-          points: requestedAccount.balance
+          points: requestedPoints.available,
+          pending: requestedPoints.pending
         })
       )
       return
     }
 
+    const requesterPoints = getAvailablePoints(requesterAccount.userLogin, requesterAccount.balance)
     await sender.say(
       channel,
-      fill(chatText('points'), {
+      fill(chatText(requesterPoints.pending > 0 ? 'pointsWithPending' : 'points'), {
         user: requesterAccount.userLogin,
-        points: requesterAccount.balance
+        points: requesterPoints.available,
+        pending: requesterPoints.pending
       })
     )
     return
@@ -240,8 +280,52 @@ export async function handleChatMessage(
     return
   }
 
+  if (loyaltyCommand === 'givePoints') {
+    if (!getLoyaltyEnabled()) return
+    const requester = getTagLogin(tags)
+    if (!requester) return
+    const requesterAccount = getOrCreateAccount(requester)
+    if (requesterAccount.isBlacklisted) return
+
+    const targetLogin = parts[1]?.replace(/^@/, '').toLowerCase()
+    const amount = Number(parts[2])
+    if (!targetLogin || parts[2] === undefined) {
+      await sender.say(channel, chatText('giveUsage'))
+      return
+    }
+    if (!Number.isInteger(amount) || amount <= 0) {
+      await sender.say(channel, fill(chatText('giveInvalid'), { user: requester }))
+      return
+    }
+    if (targetLogin === requester) {
+      await sender.say(channel, fill(chatText('giveSelf'), { user: requester }))
+      return
+    }
+
+    const targetAccount = getOrCreateAccount(targetLogin)
+    if (targetAccount.isBlacklisted) return
+    const requesterPoints = getAvailablePoints(requesterAccount.userLogin, requesterAccount.balance)
+    if (requesterPoints.available < amount) {
+      await sender.say(channel, fill(chatText('giveInsufficient'), { user: requester }))
+      return
+    }
+
+    const transfer = transferLoyaltyPoints(requester, targetAccount.userLogin, amount)
+    await sender.say(
+      channel,
+      fill(chatText('giveDone'), {
+        from: requesterAccount.userLogin,
+        to: targetAccount.userLogin,
+        amount,
+        fromPoints: transfer.fromBalance,
+        toPoints: transfer.toBalance
+      })
+    )
+    return
+  }
+
   if (loyaltyCommand === 'pointsAdmin') {
-    if (!hasRequiredPermission(getUserPermissionLevel(tags), 'moderator')) return
+    if (!canUseCommand(getUserPermissionLevel(tags), 'moderator')) return
     const targetLogin = parts[1]?.replace(/^@/, '').toLowerCase()
     const amount = Number(parts[2])
     if (!targetLogin) {
@@ -278,6 +362,32 @@ export async function handleChatMessage(
       .map((request) => `${request.gameId} @${request.opponent}`)
       .join(', ')
     await sender.say(channel, fill(chatText('cancelDone'), { user: login, requests }))
+    return
+  }
+
+  if (loyaltyCommand === 'commandList') {
+    const login = getTagLogin(tags)
+    if (!login) return
+    const loyaltyEnabled = getLoyaltyEnabled()
+    const gameTriggers = loyaltyEnabled
+      ? getAllGames()
+          .filter((game) => isGameEnabled(game.id))
+          .flatMap((game) =>
+            game.commands.map((command) => resolveCommandTrigger(game.id, command))
+          )
+      : []
+    const sections = buildCommandListSections({
+      locale: getLocale(),
+      userLevel: getUserPermissionLevel(tags),
+      loyaltyEnabled,
+      gameTriggers,
+      customCommands: listCommands()
+    })
+    for (const section of sections) {
+      for (const text of chunkCommandSection(login, section)) {
+        await sender.say(channel, text)
+      }
+    }
     return
   }
 
@@ -318,7 +428,7 @@ export async function handleChatMessage(
   if (!command) return
 
   const userLevel = getUserPermissionLevel(tags)
-  if (!hasRequiredPermission(userLevel, command.permissionLevel)) return
+  if (!canUseCommand(userLevel, command.permissionLevel)) return
 
   const now = Date.now()
   if (userLevel !== 'broadcaster') {

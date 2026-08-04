@@ -542,6 +542,17 @@
       "edit": "Befehle bearbeiten",
       "trigger": "Befehl"
     },
+    "commandKeys": {
+      "bet": "Einsatz",
+      "challenge": "Herausfordern",
+      "accept": "Annehmen",
+      "play": "Spielen",
+      "red": "Rot",
+      "black": "Schwarz",
+      "green": "Grün",
+      "number": "Zahl",
+      "stats": "Statistik"
+    },
     "texts": {
       "edit": "Ansagetexte bearbeiten",
       "hint": "Mehrere Varianten möglich — es wird zufällig eine ausgewählt.",

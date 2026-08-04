@@ -84,6 +84,10 @@ function isSameBetValue(existing: RouletteBet, next: RouletteBetValue): boolean 
   return false
 }
 
+export function getCurrentRouletteBetAmount(userLogin: string): number {
+  return currentRoundBets.get(userLogin.toLowerCase())?.amount ?? 0
+}
+
 function placeRoundBet(
   userLogin: string,
   amount: number,

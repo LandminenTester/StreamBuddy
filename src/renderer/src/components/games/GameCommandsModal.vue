@@ -4,6 +4,7 @@ import AppButton from '@renderer/components/ui/AppButton.vue'
 import AppInput from '@renderer/components/ui/AppInput.vue'
 import BaseModal from '@renderer/components/ui/BaseModal.vue'
 import type { LoyaltyGameInfo } from '@shared/types/loyalty'
+import { commandKeyLabel } from '@renderer/views/games/commandMeta'
 
 const props = defineProps<{ game: LoyaltyGameInfo }>()
 const emit = defineEmits<{ close: []; submit: [triggers: Record<string, string>] }>()
@@ -31,7 +32,7 @@ function submit(): void {
         v-for="command in game.commands"
         :key="command.key"
         v-model="draft[command.key]"
-        :label="command.key"
+        :label="commandKeyLabel(command.key)"
         :placeholder="command.defaultTrigger"
       />
     </div>
