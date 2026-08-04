@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.10.23](https://github.com/LandminenTester/StreamingBot/compare/v2.10.22...v2.10.23) (2026-08-04)
+
+
+### Bug Fixes
+
+* remove nested scroll container from loyalty leaderboard list ([4d9bbed](https://github.com/LandminenTester/StreamingBot/commit/4d9bbeda3bb54e3fb0dba220b8ba6b79ef1e0b04))
+
 ## [2.10.22](https://github.com/LandminenTester/StreamingBot/compare/v2.10.21...v2.10.22) (2026-08-04)
 
 
