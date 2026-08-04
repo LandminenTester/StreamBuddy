@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.10.24](https://github.com/LandminenTester/StreamingBot/compare/v2.10.23...v2.10.24) (2026-08-04)
+
+
+### Bug Fixes
+
+* prevent inner scroll from chaining to the whole app shell ([08ef26a](https://github.com/LandminenTester/StreamingBot/commit/08ef26a6fa4d03d8e8a4dfc7ba79e29997e10915))
+
 ## [2.10.23](https://github.com/LandminenTester/StreamingBot/compare/v2.10.22...v2.10.23) (2026-08-04)
 
 
