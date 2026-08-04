@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.10.27](https://github.com/LandminenTester/StreamingBot/compare/v2.10.26...v2.10.27) (2026-08-04)
+
+
+### Features
+
+* surface the chat connection error reason in the UI ([dcf0cf4](https://github.com/LandminenTester/StreamingBot/commit/dcf0cf48effab311484d408abecd29d58b79429b))
+
 ## [2.10.26](https://github.com/LandminenTester/StreamingBot/compare/v2.10.25...v2.10.26) (2026-08-04)
 
 
