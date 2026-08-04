@@ -10,7 +10,9 @@ const store = useChatStore()
 const scrollContainer = ref<HTMLElement | null>(null)
 const isPinnedToBottom = ref(true)
 const hasNewMessages = ref(false)
-const activeUser = ref<string | null>(null)
+/** Welche einzelne Nachricht das Aktions-Popover zeigt -- nicht nach Username schluesseln,
+ *  sonst oeffnet sich das Popover bei jeder Nachricht desselben Users gleichzeitig. */
+const activeMessageId = ref<string | null>(null)
 
 function updatePinnedState(): void {
   const el = scrollContainer.value
@@ -34,12 +36,12 @@ async function moderate(
   durationSeconds?: number
 ): Promise<void> {
   await window.api.invoke('chat:moderate', { action, targetLogin, durationSeconds })
-  activeUser.value = null
+  activeMessageId.value = null
 }
 
 function openProfile(username: string): void {
   window.open(`https://www.twitch.tv/${encodeURIComponent(username)}`, '_blank', 'noopener')
-  activeUser.value = null
+  activeMessageId.value = null
 }
 
 watch(
@@ -100,7 +102,7 @@ watch(
           type="button"
           class="font-semibold hover:underline"
           :style="msg.color ? { color: msg.color } : undefined"
-          @click="activeUser = activeUser === msg.username ? null : msg.username"
+          @click="activeMessageId = activeMessageId === msg.id ? null : msg.id"
         >
           {{ msg.displayName }}
         </button>
@@ -117,7 +119,7 @@ watch(
         </template>
 
         <div
-          v-if="activeUser === msg.username"
+          v-if="activeMessageId === msg.id"
           class="absolute left-0 top-7 z-10 w-56 rounded-md border border-line bg-surface p-1.5 shadow-lg"
         >
           <button

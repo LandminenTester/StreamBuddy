@@ -22,6 +22,7 @@ import { connectModChatClient, disconnectModChatClient } from './modTmiClient'
 import { setBroadcasterClientRef } from './chatClientAccessor'
 import { clearGreetingSession, startGreetingChecker } from '../../loyalty/greetings'
 import { prepareChatBadges, resolveChatBadges } from './chatBadges'
+import { prepareThirdPartyEmotes, applyThirdPartyEmotes } from './thirdPartyEmotes'
 import { formatChatSegments } from './chatMessageFormatter'
 import { getMainWindow } from '../../window'
 import { IpcChannels } from '@shared/ipc/channels'
@@ -182,6 +183,7 @@ async function attemptConnect(
     startAdSchedulePoller()
     startGreetingChecker()
     void prepareChatBadges(targetChannel)
+    void prepareThirdPartyEmotes(targetChannel)
     void connectModChatClient(targetChannel)
   })
 
@@ -208,7 +210,9 @@ async function attemptConnect(
       displayName: tags['display-name'] ?? tags.username ?? '',
       color: tags.color ?? null,
       message,
-      segments: formatChatSegments(message, tags.emotes as Record<string, string[]> | undefined),
+      segments: applyThirdPartyEmotes(
+        formatChatSegments(message, tags.emotes as Record<string, string[]> | undefined)
+      ),
       badges: resolveChatBadges(tags.badges as Record<string, string> | undefined),
       timestamp: Date.now()
     })

@@ -7,7 +7,9 @@ interface EmoteRange {
 }
 
 function emoteUrl(id: string): string {
-  return `https://static-cdn.jtvnw.net/emoticons/v2/${id}/default/dark/1.0`
+  // "default" ist kein gueltiger Format-Wert der v2-CDN -- das 404et und zeigt das
+  // kaputte-Bild-Icon, obwohl alt/title (der Tooltip) weiterhin den echten Text zeigen.
+  return `https://static-cdn.jtvnw.net/emoticons/v2/${id}/static/dark/3.0`
 }
 
 export function formatChatSegments(
