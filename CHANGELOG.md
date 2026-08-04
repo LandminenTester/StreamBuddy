@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.10.28](https://github.com/LandminenTester/StreamingBot/compare/v2.10.27...v2.10.28) (2026-08-04)
+
+
+### Bug Fixes
+
+* dedupe concurrent token refreshes and self-heal auth-failed chat connects ([fdef6fd](https://github.com/LandminenTester/StreamingBot/commit/fdef6fd24644454610a8823bf7de11a0cd00cae3))
+
 ## [2.10.27](https://github.com/LandminenTester/StreamingBot/compare/v2.10.26...v2.10.27) (2026-08-04)
 
 
