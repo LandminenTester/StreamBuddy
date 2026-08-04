@@ -30,6 +30,25 @@ import { logger } from '../../logger'
 let client: tmi.Client | null = null
 let status: ChatConnectionStatus = { connected: false, channel: null, lastError: null }
 
+/** tmi.js' connect() hat keinen eingebauten Timeout und kann bei Netzwerkproblemen ewig haengen. */
+const CONNECT_TIMEOUT_MS = 15_000
+
+function withTimeout<T>(promise: Promise<T>, ms: number, timeoutMessage: string): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error(timeoutMessage)), ms)
+    promise.then(
+      (value) => {
+        clearTimeout(timer)
+        resolve(value)
+      },
+      (error) => {
+        clearTimeout(timer)
+        reject(error)
+      }
+    )
+  })
+}
+
 function setStatus(patch: Partial<ChatConnectionStatus>): void {
   status = { ...status, ...patch }
   const window = getMainWindow()
@@ -146,10 +165,25 @@ export async function connectChatClient(options: { manual?: boolean } = {}): Pro
   })
 
   try {
-    await client.connect()
+    await withTimeout(
+      client.connect(),
+      CONNECT_TIMEOUT_MS,
+      'Zeitüberschreitung beim Verbindungsaufbau'
+    )
   } catch (error) {
     setStatus({ connected: false, lastError: (error as Error).message })
     logger.error('tmi.js-Verbindung fehlgeschlagen', error)
+
+    // Bei einem Timeout haengt der Client evtl. noch mitten im Handshake. Best-effort
+    // aufraeumen und zuruecksetzen, damit der naechste Versuch nicht auf demselben
+    // kaputten Client scheitert (siehe disconnectChatClient fuer den gleichen Grund).
+    try {
+      await client?.disconnect()
+    } catch {
+      // ignorieren -- der Socket war ohnehin nie sauber offen
+    }
+    client = null
+    setBroadcasterClientRef(null)
   }
 }
 
@@ -184,7 +218,14 @@ export function restartAutomessageSchedulerIfConnected(): void {
 export async function disconnectChatClient(): Promise<void> {
   if (!client) return
   await disconnectModChatClient()
-  await client.disconnect()
+  try {
+    await client.disconnect()
+  } catch (error) {
+    // Socket kann bereits geschlossen/am Schliessen sein (z.B. nach einem Absturz
+    // oder Netzwerkfehler, bevor tmi.js selbst das 'disconnected'-Event feuert).
+    // Ein Fehler hier darf den Reconnect nicht blockieren.
+    logger.warn('client.disconnect() fehlgeschlagen, Verbindung war bereits inaktiv', error)
+  }
   client = null
   setBroadcasterClientRef(null)
   stopAutomessageScheduler()
