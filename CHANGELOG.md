@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.10.21](https://github.com/LandminenTester/StreamingBot/compare/v2.10.20...v2.10.21) (2026-08-04)
+
+
+### Features
+
+* enhance game cancellation and command routing ([f48ad99](https://github.com/LandminenTester/StreamingBot/commit/f48ad995ddea0eea6018c918456ba96b1c8b5db1))
+
 ## [2.10.20](https://github.com/LandminenTester/StreamingBot/compare/v2.10.19...v2.10.20) (2026-08-03)
 
 
