@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.10.22](https://github.com/LandminenTester/StreamingBot/compare/v2.10.21...v2.10.22) (2026-08-04)
+
+
+### Features
+
+* dashboard stream info, greeting session tracking, roulette/ad countdowns ([d0a8a65](https://github.com/LandminenTester/StreamingBot/commit/d0a8a651a55f9ffbd14b142b5a17080e3289f71b))
+
 ## [2.10.21](https://github.com/LandminenTester/StreamingBot/compare/v2.10.20...v2.10.21) (2026-08-04)
 
 
