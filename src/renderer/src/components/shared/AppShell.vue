@@ -113,7 +113,7 @@ const hasUpdateNotice = computed(() => {
 </script>
 
 <template>
-  <div class="flex h-screen w-screen overflow-hidden bg-surface text-fg">
+  <div class="flex h-full w-full overflow-hidden bg-surface text-fg">
     <aside class="flex w-60 shrink-0 flex-col border-r border-line">
       <div class="px-5 pb-4 pt-5 mx-auto">
         <img class="w-32 pb-5" src="../../assets/img/logo.png" />
@@ -160,7 +160,7 @@ const hasUpdateNotice = computed(() => {
       </footer>
     </aside>
 
-    <main class="custom-scrollbar flex-1 overflow-y-auto overscroll-contain p-8">
+    <main class="custom-scrollbar min-w-0 flex-1 overflow-y-auto overscroll-contain p-8">
       <slot />
     </main>
 

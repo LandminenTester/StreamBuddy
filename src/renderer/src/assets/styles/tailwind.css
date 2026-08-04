@@ -4,6 +4,22 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  /*
+   * Die App ist eine Desktop-Shell: gescrollt wird ausschliesslich innerhalb der
+   * Panels, niemals das Dokument selbst. Ohne das kann eine einmal entstandene
+   * Dokument-Scrollbar sich selbst am Leben halten -- 100vw enthaelt die Breite
+   * der vertikalen Scrollbar, erzeugt dadurch eine horizontale Scrollbar, die
+   * wiederum vertikalen Platz kostet und die vertikale Scrollbar bestehen laesst.
+   */
+  html,
+  body,
+  #app {
+    height: 100%;
+    overflow: hidden;
+  }
+}
+
 @layer utilities {
   .custom-scrollbar {
     scrollbar-width: thin;
