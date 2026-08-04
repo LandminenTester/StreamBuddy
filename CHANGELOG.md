@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.10.26](https://github.com/LandminenTester/StreamingBot/compare/v2.10.25...v2.10.26) (2026-08-04)
+
+
+### Bug Fixes
+
+* recover chat connection after a stuck or crashed handshake ([c434bfa](https://github.com/LandminenTester/StreamingBot/commit/c434bfab568b1f2b7435db797fbc4ed2e0994630))
+
 ## [2.10.25](https://github.com/LandminenTester/StreamingBot/compare/v2.10.24...v2.10.25) (2026-08-04)
 
 
