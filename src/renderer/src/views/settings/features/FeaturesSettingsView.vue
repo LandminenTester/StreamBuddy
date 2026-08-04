@@ -1,10 +1,17 @@
 <script setup lang="ts">
 import AppToggle from '@renderer/components/ui/AppToggle.vue'
 import PageSection from '@renderer/components/ui/PageSection.vue'
+import KnownBotsBlacklistCard from '@renderer/components/shared/KnownBotsBlacklistCard.vue'
 import { useAuthStore } from '@renderer/stores/auth.store'
+import { useLoyaltyStore } from '@renderer/stores/loyalty.store'
+import { useGreetingsStore } from '@renderer/stores/greetings.store'
+import { useI18n } from 'vue-i18n'
 import { labelForFeature } from '../utils'
 
+const { t } = useI18n()
 const authStore = useAuthStore()
+const loyaltyStore = useLoyaltyStore()
+const greetingsStore = useGreetingsStore()
 </script>
 
 <template>
@@ -25,6 +32,22 @@ const authStore = useAuthStore()
           {{ $t('settings.features.requiredScopes', { scopes: feature.requiredScopes.join(', ') }) }}
         </p>
       </div>
+    </div>
+  </PageSection>
+
+  <PageSection
+    :title="$t('settings.knownBots.title')"
+    :description="$t('settings.knownBots.description')"
+  >
+    <div class="grid gap-4 md:grid-cols-2">
+      <KnownBotsBlacklistCard
+        :title="t('settings.knownBots.loyaltyTitle')"
+        :store="loyaltyStore"
+      />
+      <KnownBotsBlacklistCard
+        :title="t('settings.knownBots.greetingsTitle')"
+        :store="greetingsStore"
+      />
     </div>
   </PageSection>
 </template>

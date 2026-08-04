@@ -63,7 +63,8 @@ export const IpcChannels = {
     delete: 'automessages:delete',
     getAdMessageSettings: 'automessages:getAdMessageSettings',
     setAdMessageSettings: 'automessages:setAdMessageSettings',
-    getAdScheduleStatus: 'automessages:getAdScheduleStatus'
+    getAdScheduleStatus: 'automessages:getAdScheduleStatus',
+    onAdScheduleUpdate: 'automessages:onAdScheduleUpdate'
   },
   channelPoints: {
     list: 'channelPoints:list',
@@ -115,6 +116,8 @@ export const IpcChannels = {
     listDuelMatches: 'loyalty:listDuelMatches',
     getGameStats: 'loyalty:getGameStats',
     listRouletteColors: 'loyalty:listRouletteColors',
+    getRouletteState: 'loyalty:getRouletteState',
+    onRouletteUpdate: 'loyalty:onRouletteUpdate',
     getOfflineMessages: 'loyalty:getOfflineMessages',
     setOfflineMessages: 'loyalty:setOfflineMessages',
     getEnabled: 'loyalty:getEnabled',
@@ -123,6 +126,12 @@ export const IpcChannels = {
     setPointName: 'loyalty:setPointName',
     getGreetingSettings: 'loyalty:getGreetingSettings',
     setGreetingSettings: 'loyalty:setGreetingSettings'
+  },
+  greetings: {
+    listBlacklist: 'greetings:listBlacklist',
+    setBlacklisted: 'greetings:setBlacklisted',
+    listKnownBots: 'greetings:listKnownBots',
+    blacklistKnownBots: 'greetings:blacklistKnownBots'
   },
   trackers: {
     list: 'trackers:list',
@@ -150,5 +159,8 @@ export const IpcChannels = {
     getStreamViewers: 'viewers:getStreamViewers',
     getStreamStats: 'viewers:getStreamStats',
     onPresenceUpdate: 'viewers:onPresenceUpdate'
+  },
+  stream: {
+    updateInfo: 'stream:updateInfo'
   }
 } as const

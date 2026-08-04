@@ -22,6 +22,7 @@ let pollTimer: NodeJS.Timeout | null = null
 let isCurrentlyLive = false
 let lastStreamId: string | null = null
 let lastGameName: string | null = null
+let lastStreamTitle: string | null = null
 
 function messagesInLastHour(): number {
   const buckets = getMessagesPerHour(Date.now() - 60 * 60 * 1000)
@@ -32,7 +33,9 @@ function broadcastLiveUpdate(isLive: boolean, viewerCount: number | null): void 
   getMainWindow()?.webContents.send(IpcChannels.stats.onLiveUpdate, {
     isLive,
     currentViewerCount: viewerCount,
-    messagesLastHour: messagesInLastHour()
+    messagesLastHour: messagesInLastHour(),
+    streamTitle: isLive ? lastStreamTitle : null,
+    gameName: isLive ? lastGameName : null
   })
 }
 
@@ -59,6 +62,7 @@ async function pollOnce(): Promise<void> {
         startStream(stream.id, stream.game_name || null, stream.title || null)
         lastStreamId = stream.id
         lastGameName = stream.game_name || null
+        lastStreamTitle = stream.title || null
       }
 
       // Spielwechsel
@@ -68,12 +72,15 @@ async function pollOnce(): Promise<void> {
         lastGameName = newGame
       }
 
+      lastStreamTitle = stream.title || null
+
       updatePeakViewers(stream.viewer_count)
     } else if (isCurrentlyLive) {
       // Stream-Ende
       trackerEndStream()
       lastStreamId = null
       lastGameName = null
+      lastStreamTitle = null
     }
 
     isCurrentlyLive = nowLive

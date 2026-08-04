@@ -11,7 +11,12 @@ import { getAdMessageSettings, setAdMessageSettings } from '../twitch/ads/adMess
 import { getAdSchedule, normalizeAdSchedule } from '../twitch/helix/adSchedule.api'
 import { getUserIdByLogin } from '../twitch/helix/users.api'
 import { getSetting } from '../db/repositories/appSettings.repo'
+import { getAuthStatus } from '../twitch/oauth/authStatus'
 import { logger } from '../logger'
+
+function hasAdScheduleScope(): boolean {
+  return getAuthStatus().grantedScopes.includes('channel:read:ads')
+}
 
 export function registerAutomessagesIpc(): void {
   handleTyped(IpcChannels.automessages.list, () => listAutomessages())
@@ -42,6 +47,9 @@ export function registerAutomessagesIpc(): void {
   handleTyped(IpcChannels.automessages.getAdScheduleStatus, async () => {
     const targetChannel = getSetting('target_channel')
     if (!targetChannel) return null
+    if (!hasAdScheduleScope()) {
+      return { nextAdAt: null, lastAdAt: null, durationSeconds: null, scopeMissing: true }
+    }
     try {
       const broadcasterId = await getUserIdByLogin(targetChannel)
       if (!broadcasterId) return null
@@ -50,7 +58,8 @@ export function registerAutomessagesIpc(): void {
       return {
         nextAdAt: schedule.nextAdAt,
         lastAdAt: schedule.lastAdAt,
-        durationSeconds: schedule.durationSeconds
+        durationSeconds: schedule.durationSeconds,
+        scopeMissing: false
       }
     } catch (error) {
       logger.error('Ad-Schedule-Status-Abruf fehlgeschlagen', error)

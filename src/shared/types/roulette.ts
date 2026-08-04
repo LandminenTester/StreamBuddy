@@ -12,3 +12,11 @@ export function colorForNumber(n: number): RouletteColor {
   if (n === 0) return 'gruen'
   return RED_NUMBERS.has(n) ? 'rot' : 'schwarz'
 }
+
+export type RoulettePhase = 'closed' | 'betting' | 'spinning' | 'cooldown'
+
+export interface RouletteState {
+  phase: RoulettePhase
+  /** Zeitstempel (ms), zu dem die aktuelle Phase endet, oder null wenn nicht aktiv/unbekannt. */
+  phaseEndsAt: number | null
+}

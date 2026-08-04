@@ -19,6 +19,7 @@ import {
   upsertGameConfig
 } from '../db/repositories/loyalty.repo'
 import { listRecentRouletteColors } from '../db/repositories/rouletteRounds.repo'
+import { getRouletteState } from '../loyalty/games/rouletteScheduler'
 import { getMessageSet, setMessageSet } from '../db/repositories/botMessages.repo'
 import { startViewTimeTicker } from '../loyalty/earnRules/onViewTimeTick'
 import {
@@ -35,7 +36,7 @@ import {
 } from '../loyalty/loyaltySettings'
 import { LOYALTY_OFFLINE_MESSAGE_KEY } from '../loyalty/offlineMessages'
 import { getGreetingSettings, setGreetingSettings } from '../loyalty/greetings'
-import { KNOWN_STREAMER_BOTS } from '../loyalty/knownStreamerBots'
+import { KNOWN_STREAMER_BOTS } from '@shared/knownStreamerBots'
 import { parseLoyaltyCsv, serializeLoyaltyCsv } from '../loyalty/csv'
 import { getChatStatus } from '../twitch/chat/tmiClient'
 import { getMainWindow } from '../window'
@@ -266,6 +267,8 @@ export function registerLoyaltyIpc(): void {
   handleTyped(IpcChannels.loyalty.listRouletteColors, ({ limit }) =>
     listRecentRouletteColors(limit ?? 20)
   )
+
+  handleTyped(IpcChannels.loyalty.getRouletteState, () => getRouletteState())
 
   handleTyped(IpcChannels.loyalty.getOfflineMessages, () =>
     getMessageSet(LOYALTY_OFFLINE_MESSAGE_KEY)

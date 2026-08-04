@@ -126,6 +126,14 @@
       "title": "Features",
       "description": "Each feature only requests the permissions it needs when connecting.",
       "requiredScopes": "Requires: {scopes}"
+    },
+    "knownBots": {
+      "title": "Blacklist known bots",
+      "description": "Exclude known streamer bots (Nightbot, StreamElements, ...) in one go -- separately for loyalty points and greetings.",
+      "loyaltyTitle": "Loyalty points",
+      "greetingsTitle": "Greetings",
+      "preview": "{count} known bots, including: {bots}",
+      "apply": "Blacklist known bots"
     }
   },
   "features": {
@@ -148,6 +156,10 @@
     "activity_feed": {
       "title": "Activity feed",
       "description": "Shows follows, subs, bits, raids and channel point redemptions live on the dashboard."
+    },
+    "stream_info": {
+      "title": "Edit stream title & category",
+      "description": "Allows changing the stream title and game category directly from the dashboard. Note: Twitch strictly requires a token from the broadcaster account itself for this."
     }
   },
   "commands": {
@@ -255,11 +267,13 @@
       "texts": "Texts",
       "edit": "Edit ad break message",
       "schedule": "Ad schedule",
+      "nextAdCountdown": "Time until next ad",
       "nextAd": "Next ad",
       "duration": "Duration",
       "preroll": "Preroll free time",
       "snoozeCount": "Snoozes available",
-      "noSchedule": "No ad schedule available."
+      "noSchedule": "No ad schedule available.",
+      "scopeMissing": "Permission \"channel:read:ads\" is missing -- please enable the feature in settings and reauthorize the bot account."
     }
   },
   "polls": {
@@ -488,6 +502,26 @@
     },
     "editAccount": "Edit account"
   },
+  "greetings": {
+    "tabs": {
+      "settings": "Settings",
+      "blacklist": "Blacklist"
+    },
+    "editModal": {
+      "createTitle": "Add greeting",
+      "editTitle": "Edit greeting: {user}"
+    },
+    "blacklist": {
+      "title": "Blacklist",
+      "description": "Blacklisted users are not greeted automatically. Independent from the loyalty blacklist.",
+      "empty": "No users blacklisted.",
+      "manualLabel": "Add user manually",
+      "manualPlaceholder": "twitch_name",
+      "addManual": "Blacklist",
+      "addKnownBots": "Blacklist known bots",
+      "remove": "Remove"
+    }
+  },
   "games": {
     "name": {
       "gamble": "Gamble",
@@ -528,6 +562,15 @@
       "recentRounds": "Recent rounds",
       "stats": "Statistics",
       "history": "History"
+    },
+    "roulette": {
+      "timerTitle": "Round timer",
+      "phase": {
+        "betting": "Time until bets close",
+        "spinning": "Time until result",
+        "cooldown": "Time until next round",
+        "closed": "Waiting for stream..."
+      }
     },
     "general": {
       "displayName": "Display name",
@@ -773,6 +816,15 @@
       "title": "Viewers in chat",
       "empty": "Nobody in chat right now.",
       "emptyOffline": "Bot is not connected."
+    },
+    "streamInfo": {
+      "editTitle": "Edit stream title & category",
+      "streamTitleLabel": "Stream title",
+      "streamTitlePlaceholder": "Title of the stream",
+      "gameLabel": "Category / game",
+      "gamePlaceholder": "e.g. Just Chatting",
+      "noTitle": "No title set",
+      "noGame": "No category set"
     },
     "activity": {
       "title": "Activity feed",

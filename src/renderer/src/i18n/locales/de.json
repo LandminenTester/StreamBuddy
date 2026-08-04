@@ -126,6 +126,14 @@
       "title": "Features",
       "description": "Jedes Feature fordert bei der Verbindung nur die Berechtigungen an, die es braucht.",
       "requiredScopes": "Benötigt: {scopes}"
+    },
+    "knownBots": {
+      "title": "Bekannte Bots blacklisten",
+      "description": "Bekannte Streamer-Bots (Nightbot, StreamElements, ...) auf einen Schlag ausschließen -- getrennt für Loyalty-Punkte und Begrüßungen.",
+      "loyaltyTitle": "Loyalty-Punkte",
+      "greetingsTitle": "Begrüßungen",
+      "preview": "{count} bekannte Bots, u.a.: {bots}",
+      "apply": "Bekannte Bots blacklisten"
     }
   },
   "features": {
@@ -148,6 +156,10 @@
     "activity_feed": {
       "title": "Aktivitaetenfeed",
       "description": "Zeigt Follows, Subs, Bits, Raids und Kanalpunkte-Einloesungen live auf dem Dashboard."
+    },
+    "stream_info": {
+      "title": "Stream-Titel & Kategorie bearbeiten",
+      "description": "Erlaubt das Ändern von Stream-Titel und Spiel-Kategorie direkt aus dem Dashboard. Achtung: Twitch verlangt hierfür zwingend ein Token des Broadcaster-Accounts selbst."
     }
   },
   "commands": {
@@ -255,11 +267,13 @@
       "texts": "Texte",
       "edit": "Werbungsnachricht bearbeiten",
       "schedule": "Werbeplan",
+      "nextAdCountdown": "Zeit bis nächste Werbung",
       "nextAd": "Nächste Werbung",
       "duration": "Dauer",
       "preroll": "Preroll-Freiminuten",
       "snoozeCount": "Verfügbare Snoozes",
-      "noSchedule": "Kein Werbeplan verfügbar."
+      "noSchedule": "Kein Werbeplan verfügbar.",
+      "scopeMissing": "Berechtigung „channel:read:ads“ fehlt -- bitte das Feature in den Einstellungen aktivieren und den Bot-Account neu autorisieren."
     }
   },
   "polls": {
@@ -488,6 +502,26 @@
     },
     "editAccount": "Konto bearbeiten"
   },
+  "greetings": {
+    "tabs": {
+      "settings": "Einstellungen",
+      "blacklist": "Blacklist"
+    },
+    "editModal": {
+      "createTitle": "Begrüßung hinzufügen",
+      "editTitle": "Begrüßung bearbeiten: {user}"
+    },
+    "blacklist": {
+      "title": "Blacklist",
+      "description": "Geblacklistete Nutzer werden nicht automatisch begrüßt. Unabhängig von der Loyalty-Blacklist.",
+      "empty": "Keine Nutzer geblacklistet.",
+      "manualLabel": "Nutzer manuell hinzufügen",
+      "manualPlaceholder": "twitch_name",
+      "addManual": "Blacklisten",
+      "addKnownBots": "Bekannte Bots blacklisten",
+      "remove": "Entfernen"
+    }
+  },
   "games": {
     "name": {
       "gamble": "Gamble",
@@ -528,6 +562,15 @@
       "recentRounds": "Letzte Runden",
       "stats": "Statistik",
       "history": "Verlauf"
+    },
+    "roulette": {
+      "timerTitle": "Rundentimer",
+      "phase": {
+        "betting": "Zeit bis Wetten schließen",
+        "spinning": "Zeit bis Ergebnis",
+        "cooldown": "Zeit bis nächste Runde",
+        "closed": "Wartet auf Stream..."
+      }
     },
     "general": {
       "displayName": "Anzeigename",
@@ -773,6 +816,15 @@
       "title": "Zuschauer im Chat",
       "empty": "Aktuell niemand im Chat.",
       "emptyOffline": "Bot ist nicht verbunden."
+    },
+    "streamInfo": {
+      "editTitle": "Stream-Titel & Kategorie bearbeiten",
+      "streamTitleLabel": "Stream-Titel",
+      "streamTitlePlaceholder": "Titel des Streams",
+      "gameLabel": "Kategorie / Spiel",
+      "gamePlaceholder": "z.B. Just Chatting",
+      "noTitle": "Kein Titel gesetzt",
+      "noGame": "Keine Kategorie gesetzt"
     },
     "activity": {
       "title": "Aktivitaetenfeed",

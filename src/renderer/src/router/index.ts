@@ -91,7 +91,7 @@ export const router = createRouter({
         },
         {
           path: 'greetings',
-          redirect: { name: 'greetings' }
+          redirect: { name: 'greetings-settings' }
         }
       ]
     },
@@ -102,8 +102,22 @@ export const router = createRouter({
     },
     {
       path: '/greetings',
-      name: 'greetings',
-      component: () => import('@renderer/views/loyalty/greetings/GreetingsView.vue')
+      component: () => import('@renderer/views/loyalty/greetings/GreetingsView.vue'),
+      children: [
+        { path: '', redirect: { name: 'greetings-settings' } },
+        {
+          path: 'settings',
+          name: 'greetings-settings',
+          component: () =>
+            import('@renderer/views/loyalty/greetings/GreetingsSettingsView.vue')
+        },
+        {
+          path: 'blacklist',
+          name: 'greetings-blacklist',
+          component: () =>
+            import('@renderer/views/loyalty/greetings/GreetingsBlacklistView.vue')
+        }
+      ]
     },
     {
       path: '/games/:gameId',

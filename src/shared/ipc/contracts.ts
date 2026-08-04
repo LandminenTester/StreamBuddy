@@ -30,6 +30,7 @@ import type {
 } from '../types/channelPointReward'
 import type { Poll, PollCreateInput, PollTemplate, PollTemplateInput } from '../types/poll'
 import type {
+  GreetingBlacklistEntry,
   LoyaltyAccount,
   LoyaltyEarnRule,
   LoyaltyDuelMatch,
@@ -39,7 +40,7 @@ import type {
   LoyaltyGreetingSettings,
   LoyaltyLeaderboardEntry
 } from '../types/loyalty'
-import type { RouletteRoundResult } from '../types/roulette'
+import type { RouletteRoundResult, RouletteState } from '../types/roulette'
 import type { ChatMessageStatsBucket, LiveStatsUpdate, ViewerCountSample } from '../types/stats'
 import type {
   FollowerEntry,
@@ -136,6 +137,10 @@ export interface IpcContracts {
     response: void
   }
   [IpcChannels.automessages.getAdScheduleStatus]: {
+    request: void
+    response: AdScheduleStatus | null
+  }
+  [IpcChannels.automessages.onAdScheduleUpdate]: {
     request: void
     response: AdScheduleStatus | null
   }
@@ -239,6 +244,8 @@ export interface IpcContracts {
     request: { limit?: number }
     response: RouletteRoundResult[]
   }
+  [IpcChannels.loyalty.getRouletteState]: { request: void; response: RouletteState }
+  [IpcChannels.loyalty.onRouletteUpdate]: { request: void; response: RouletteState }
   [IpcChannels.loyalty.getOfflineMessages]: { request: void; response: string[] }
   [IpcChannels.loyalty.setOfflineMessages]: { request: { messages: string[] }; response: string[] }
   [IpcChannels.loyalty.getEnabled]: { request: void; response: boolean }
@@ -253,6 +260,14 @@ export interface IpcContracts {
     request: LoyaltyGreetingSettings
     response: LoyaltyGreetingSettings
   }
+
+  [IpcChannels.greetings.listBlacklist]: { request: void; response: GreetingBlacklistEntry[] }
+  [IpcChannels.greetings.setBlacklisted]: {
+    request: { userLogin: string; blacklisted: boolean }
+    response: GreetingBlacklistEntry[]
+  }
+  [IpcChannels.greetings.listKnownBots]: { request: void; response: string[] }
+  [IpcChannels.greetings.blacklistKnownBots]: { request: void; response: GreetingBlacklistEntry[] }
 
   [IpcChannels.trackers.list]: { request: void; response: CommandTracker[] }
   [IpcChannels.trackers.create]: { request: TrackerInput; response: CommandTracker }
@@ -300,4 +315,9 @@ export interface IpcContracts {
   }
   [IpcChannels.viewers.getStreamStats]: { request: { streamId: string }; response: StreamStats }
   [IpcChannels.viewers.onPresenceUpdate]: { request: void; response: string[] }
+
+  [IpcChannels.stream.updateInfo]: {
+    request: { title?: string; gameName?: string }
+    response: { success: boolean }
+  }
 }

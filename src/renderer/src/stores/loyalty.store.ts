@@ -10,7 +10,7 @@ import type {
   LoyaltyGreetingSettings,
   LoyaltyLeaderboardEntry
 } from '@shared/types/loyalty'
-import type { RouletteRoundResult } from '@shared/types/roulette'
+import type { RouletteRoundResult, RouletteState } from '@shared/types/roulette'
 import type { CsvDelimiter, LoyaltyCsvMapping } from '@shared/utils/loyaltyCsv'
 import { translateError } from '@renderer/i18n/errors'
 
@@ -25,6 +25,7 @@ export const useLoyaltyStore = defineStore('loyalty', () => {
   const gameStats = ref<LoyaltyGameStats | null>(null)
   const duelMatches = ref<LoyaltyDuelMatch[]>([])
   const rouletteColors = ref<RouletteRoundResult[]>([])
+  const rouletteState = ref<RouletteState>({ phase: 'closed', phaseEndsAt: null })
   const offlineMessages = ref<string[]>([])
   const greetingSettings = ref<LoyaltyGreetingSettings>({
     greetNewViewers: false,
@@ -174,6 +175,16 @@ export const useLoyaltyStore = defineStore('loyalty', () => {
     rouletteColors.value = await window.api.invoke('loyalty:listRouletteColors', { limit })
   }
 
+  async function fetchRouletteState(): Promise<void> {
+    rouletteState.value = await window.api.invoke('loyalty:getRouletteState', undefined)
+  }
+
+  function subscribeToRouletteUpdates(): () => void {
+    return window.api.on('loyalty:onRouletteUpdate', (updatedState) => {
+      rouletteState.value = updatedState
+    })
+  }
+
   async function fetchOfflineMessages(): Promise<void> {
     offlineMessages.value = await window.api.invoke('loyalty:getOfflineMessages', undefined)
   }
@@ -223,6 +234,7 @@ export const useLoyaltyStore = defineStore('loyalty', () => {
     gameStats,
     duelMatches,
     rouletteColors,
+    rouletteState,
     offlineMessages,
     greetingSettings,
     isEnabled,
@@ -249,6 +261,8 @@ export const useLoyaltyStore = defineStore('loyalty', () => {
     fetchDuelMatches,
     fetchGameStats,
     fetchRouletteColors,
+    fetchRouletteState,
+    subscribeToRouletteUpdates,
     fetchOfflineMessages,
     setOfflineMessages,
     fetchGreetingSettings,

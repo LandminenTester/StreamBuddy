@@ -298,35 +298,39 @@ function formatBalance(balance: number): string {
       :title="$t('loyalty.leaderboard.noMatches', { query: searchQuery })"
     />
 
-    <ol v-else class="mt-4 divide-y divide-line border-t border-line">
-      <li
-        v-for="entry in filtered"
-        :key="entry.userLogin"
-        class="flex items-center justify-between gap-4 py-2 text-sm"
-      >
-        <div class="flex min-w-0 items-center gap-3">
-          <AppCheckbox
-            :checked="selectedLogins.has(entry.userLogin)"
-            @change="(checked) => toggleSelection(entry.userLogin, checked)"
-          />
-          <span class="w-8 shrink-0 text-right tabular-nums text-fg-subtle">#{{ entry.rank }}</span>
-          <span class="truncate text-fg">{{ entry.userLogin }}</span>
-        </div>
-        <span class="flex shrink-0 items-center gap-2">
-          <span class="font-medium tabular-nums text-fg">{{ formatBalance(entry.balance) }}</span>
-          <AppButton
-            size="sm"
-            variant="ghost"
-            @click="openEditModal(entry.userLogin, entry.balance)"
-          >
-            {{ $t('common.edit') }}
-          </AppButton>
-          <AppButton size="sm" variant="ghost" @click="blacklist(entry.userLogin)">
-            {{ $t('loyalty.leaderboard.blacklistUser') }}
-          </AppButton>
-        </span>
-      </li>
-    </ol>
+    <div v-else class="custom-scrollbar mt-4 max-h-[32rem] overflow-y-auto border-t border-line">
+      <ol class="divide-y divide-line">
+        <li
+          v-for="entry in filtered"
+          :key="entry.userLogin"
+          class="flex items-center justify-between gap-4 py-2 text-sm"
+        >
+          <div class="flex min-w-0 items-center gap-3">
+            <AppCheckbox
+              :checked="selectedLogins.has(entry.userLogin)"
+              @change="(checked) => toggleSelection(entry.userLogin, checked)"
+            />
+            <span class="w-8 shrink-0 text-right tabular-nums text-fg-subtle"
+              >#{{ entry.rank }}</span
+            >
+            <span class="truncate text-fg">{{ entry.userLogin }}</span>
+          </div>
+          <span class="flex shrink-0 items-center gap-2">
+            <span class="font-medium tabular-nums text-fg">{{ formatBalance(entry.balance) }}</span>
+            <AppButton
+              size="sm"
+              variant="ghost"
+              @click="openEditModal(entry.userLogin, entry.balance)"
+            >
+              {{ $t('common.edit') }}
+            </AppButton>
+            <AppButton size="sm" variant="ghost" @click="blacklist(entry.userLogin)">
+              {{ $t('loyalty.leaderboard.blacklistUser') }}
+            </AppButton>
+          </span>
+        </li>
+      </ol>
+    </div>
 
     <AccountEditModal
       v-if="isEditModalOpen"

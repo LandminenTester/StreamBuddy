@@ -54,6 +54,12 @@ export const useAutomessagesStore = defineStore('automessages', () => {
     adScheduleStatus.value = await window.api.invoke('automessages:getAdScheduleStatus', undefined)
   }
 
+  function subscribeToAdScheduleUpdates(): () => void {
+    return window.api.on('automessages:onAdScheduleUpdate', (status) => {
+      adScheduleStatus.value = status
+    })
+  }
+
   return {
     automessages,
     isLoading,
@@ -65,6 +71,7 @@ export const useAutomessagesStore = defineStore('automessages', () => {
     deleteAutomessage,
     fetchAdMessageSettings,
     saveAdMessageSettings,
-    fetchAdScheduleStatus
+    fetchAdScheduleStatus,
+    subscribeToAdScheduleUpdates
   }
 })

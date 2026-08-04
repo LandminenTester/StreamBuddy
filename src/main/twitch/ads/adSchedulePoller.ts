@@ -3,12 +3,20 @@ import { getUserIdByLogin } from '../helix/users.api'
 import { getSetting } from '../../db/repositories/appSettings.repo'
 import { getAdMessageSettings, getLastSentFor, setLastSentFor } from './adMessageSettings'
 import { sendChatMessage } from '../chat/tmiClient'
+import { getAuthStatus } from '../oauth/authStatus'
+import { getMainWindow } from '../../window'
+import { IpcChannels } from '@shared/ipc/channels'
+import type { AdScheduleStatus } from '@shared/types/automessage'
 import { logger } from '../../logger'
 
 const POLL_INTERVAL_MS = 60_000
 
 let pollTimer: NodeJS.Timeout | null = null
 let broadcasterId: string | null = null
+
+function broadcastAdScheduleStatus(status: AdScheduleStatus | null): void {
+  getMainWindow()?.webContents.send(IpcChannels.automessages.onAdScheduleUpdate, status)
+}
 
 function pickRandom(texts: string[]): string | null {
   if (texts.length === 0) return null
@@ -18,6 +26,18 @@ function pickRandom(texts: string[]): string | null {
 async function pollOnce(): Promise<void> {
   const settings = getAdMessageSettings()
   if (!settings.enabled) {
+    broadcastAdScheduleStatus(null)
+    scheduleNext()
+    return
+  }
+
+  if (!getAuthStatus().grantedScopes.includes('channel:read:ads')) {
+    broadcastAdScheduleStatus({
+      nextAdAt: null,
+      lastAdAt: null,
+      durationSeconds: null,
+      scopeMissing: true
+    })
     scheduleNext()
     return
   }
@@ -26,12 +46,14 @@ async function pollOnce(): Promise<void> {
     if (!broadcasterId) {
       const targetChannel = getSetting('target_channel')
       if (!targetChannel) {
+        broadcastAdScheduleStatus(null)
         scheduleNext()
         return
       }
       broadcasterId = await getUserIdByLogin(targetChannel)
     }
     if (!broadcasterId) {
+      broadcastAdScheduleStatus(null)
       scheduleNext()
       return
     }
@@ -39,9 +61,18 @@ async function pollOnce(): Promise<void> {
     const schedule = normalizeAdSchedule(await getAdSchedule(broadcasterId))
     if (!schedule) {
       logger.info('Ad-Schedule: Kein Zeitplan von Twitch erhalten')
+      broadcastAdScheduleStatus(null)
       scheduleNext()
       return
     }
+
+    broadcastAdScheduleStatus({
+      nextAdAt: schedule.nextAdAt,
+      lastAdAt: schedule.lastAdAt,
+      durationSeconds: schedule.durationSeconds,
+      scopeMissing: false
+    })
+
     if (!schedule.nextAdAt) {
       scheduleNext()
       return

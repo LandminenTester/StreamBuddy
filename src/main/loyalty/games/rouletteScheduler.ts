@@ -1,4 +1,4 @@
-import type { RouletteColor } from '@shared/types/roulette'
+import type { RouletteColor, RoulettePhase, RouletteState } from '@shared/types/roulette'
 import { colorForNumber } from '@shared/types/roulette'
 import { getOrCreateAccount } from '../../db/repositories/loyalty.repo'
 import { creditLoyalty, debitLoyalty } from '../loyaltyLedger'
@@ -6,6 +6,8 @@ import { getGameRuntimeConfig, isGameEnabled, pickGameText } from './gameRegistr
 import { logRouletteRound } from '../../db/repositories/rouletteRounds.repo'
 import { isStreamLive } from '../../stats/viewerCountPoller'
 import { getActiveChatClient } from '../../twitch/chat/chatClientAccessor'
+import { getMainWindow } from '../../window'
+import { IpcChannels } from '@shared/ipc/channels'
 import { logger } from '../../logger'
 
 interface RouletteConfig {
@@ -19,7 +21,6 @@ interface RouletteConfig {
   numberPayoutMultiplier: number
 }
 
-type RoulettePhase = 'closed' | 'betting' | 'spinning' | 'cooldown'
 type RouletteBetValue = { kind: 'color'; color: RouletteColor } | { kind: 'number'; number: number }
 type RouletteBet = RouletteBetValue & { userLogin: string; amount: number }
 
@@ -40,6 +41,24 @@ const currentRoundBets = new Map<string, RouletteBet>()
 let activeChannel: string | null = null
 let phaseTimer: NodeJS.Timeout | null = null
 let phase: RoulettePhase = 'closed'
+/** Zeitstempel (ms), zu dem die aktuelle Phase endet -- fuer den Live-Countdown im Renderer. */
+let phaseEndsAt: number | null = null
+
+/** Aktueller Scheduler-Zustand, z.B. fuer den Countdown in der Games-Detailansicht. */
+export function getRouletteState(): RouletteState {
+  return { phase, phaseEndsAt }
+}
+
+function broadcastRouletteState(): void {
+  getMainWindow()?.webContents.send(IpcChannels.loyalty.onRouletteUpdate, getRouletteState())
+}
+
+function setPhaseTimer(callback: () => void, delayMs: number): void {
+  clearPhaseTimer()
+  phaseEndsAt = Date.now() + delayMs
+  phaseTimer = setTimeout(callback, delayMs)
+  broadcastRouletteState()
+}
 
 function getConfig(): RouletteConfig {
   return getGameRuntimeConfig('roulette') as unknown as RouletteConfig
@@ -75,6 +94,7 @@ async function announce(message: string): Promise<void> {
 function clearPhaseTimer(): void {
   if (phaseTimer) clearTimeout(phaseTimer)
   phaseTimer = null
+  phaseEndsAt = null
 }
 
 function isSameBetValue(existing: RouletteBet, next: RouletteBetValue): boolean {
@@ -151,8 +171,7 @@ function startBettingWindow(): void {
   const text = pickGameText('roulette', 'roundStart')
   void announce(fillPlaceholders(text, { seconds: config.bettingWindowSeconds }))
 
-  clearPhaseTimer()
-  phaseTimer = setTimeout(() => closeBettingAndSpin(), config.bettingWindowSeconds * 1000)
+  setPhaseTimer(() => closeBettingAndSpin(), config.bettingWindowSeconds * 1000)
 }
 
 function closeBettingAndSpin(): void {
@@ -162,9 +181,8 @@ function closeBettingAndSpin(): void {
   const text = pickGameText('roulette', 'spinning')
   void announce(text)
 
-  clearPhaseTimer()
   const delaySeconds = randomBetween(config.spinDelayMinSeconds, config.spinDelayMaxSeconds)
-  phaseTimer = setTimeout(() => void resolveRound(), delaySeconds * 1000)
+  setPhaseTimer(() => void resolveRound(), delaySeconds * 1000)
 }
 
 function payoutMultiplier(
@@ -222,15 +240,13 @@ async function resolveRound(): Promise<void> {
 
 function startCooldown(): void {
   phase = 'cooldown'
-  clearPhaseTimer()
   const cooldownSeconds = Math.max(0, getConfig().roundCooldownSeconds)
-  phaseTimer = setTimeout(() => startBettingWindow(), cooldownSeconds * 1000)
+  setPhaseTimer(() => startBettingWindow(), cooldownSeconds * 1000)
 }
 
 function scheduleLiveRetry(): void {
   phase = 'closed'
-  clearPhaseTimer()
-  phaseTimer = setTimeout(() => startBettingWindow(), 30_000)
+  setPhaseTimer(() => startBettingWindow(), 30_000)
 }
 
 export function startRouletteScheduler(channel: string): void {
@@ -243,4 +259,5 @@ export function stopRouletteScheduler(): void {
   currentRoundBets.clear()
   phase = 'closed'
   activeChannel = null
+  broadcastRouletteState()
 }

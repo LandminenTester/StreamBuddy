@@ -1,42 +1,55 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { UserX } from 'lucide-vue-next'
 import AppButton from '@renderer/components/ui/AppButton.vue'
 import AppInput from '@renderer/components/ui/AppInput.vue'
 import EmptyState from '@renderer/components/ui/EmptyState.vue'
 import PageSection from '@renderer/components/ui/PageSection.vue'
 import { useLoyaltyStore } from '@renderer/stores/loyalty.store'
+import { useGreetingsStore } from '@renderer/stores/greetings.store'
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     divided?: boolean
+    /** Welche Blacklist bearbeitet wird -- Loyalty-Punkte oder Begrüßungen (eigenständige Listen). */
+    namespace?: 'loyalty' | 'greetings'
   }>(),
-  { divided: false }
+  { divided: false, namespace: 'loyalty' }
 )
 
-const store = useLoyaltyStore()
+const loyaltyStore = useLoyaltyStore()
+const greetingsStore = useGreetingsStore()
+const store = computed(() => (props.namespace === 'greetings' ? greetingsStore : loyaltyStore))
+const titleKey = computed(() =>
+  props.namespace === 'greetings' ? 'greetings.blacklist.title' : 'loyalty.blacklist.title'
+)
+const descriptionKey = computed(() =>
+  props.namespace === 'greetings'
+    ? 'greetings.blacklist.description'
+    : 'loyalty.blacklist.description'
+)
 const manualUserLogin = ref('')
 
 onMounted(() => {
-  void Promise.all([store.fetchBlacklist(), store.fetchKnownBots()])
+  void Promise.all([store.value.fetchBlacklist(), store.value.fetchKnownBots()])
 })
 
 async function addManualBlacklist(): Promise<void> {
   const login = manualUserLogin.value.trim().replace(/^@/, '').toLowerCase()
   if (!login) return
-  await store.setBlacklisted(login, true)
+  await store.value.setBlacklisted(login, true)
   manualUserLogin.value = ''
 }
 
 async function addKnownBots(): Promise<void> {
-  await store.blacklistKnownBots()
+  await store.value.blacklistKnownBots()
 }
 </script>
 
 <template>
   <PageSection
-    :title="`${$t('loyalty.blacklist.title')} (${store.blacklist.length})`"
-    :description="$t('loyalty.blacklist.description')"
+    :title="`${$t(titleKey)} (${store.blacklist.length})`"
+    :description="$t(descriptionKey)"
     :divided="divided"
   >
     <form class="mb-4 flex flex-wrap items-end gap-2" @submit.prevent="addManualBlacklist">

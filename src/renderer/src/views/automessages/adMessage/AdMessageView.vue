@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AppBadge from '@renderer/components/ui/AppBadge.vue'
 import AppButton from '@renderer/components/ui/AppButton.vue'
@@ -20,9 +20,36 @@ const draftEnabled = ref(false)
 const draftLeadSeconds = ref(120)
 const draftTexts = ref<string[]>([])
 
+const now = ref(Date.now())
+let tickTimer: ReturnType<typeof setInterval> | null = null
+let unsubscribeSchedule: (() => void) | null = null
+
 onMounted(async () => {
   await Promise.all([store.fetchAdMessageSettings(), store.fetchAdScheduleStatus()])
+  tickTimer = setInterval(() => {
+    now.value = Date.now()
+  }, 1000)
+  unsubscribeSchedule = store.subscribeToAdScheduleUpdates()
 })
+
+onUnmounted(() => {
+  if (tickTimer) clearInterval(tickTimer)
+  unsubscribeSchedule?.()
+})
+
+const nextAdCountdownSeconds = computed(() => {
+  const iso = store.adScheduleStatus?.nextAdAt
+  if (!iso) return null
+  const target = Date.parse(iso)
+  if (!Number.isFinite(target)) return null
+  return Math.max(0, Math.round((target - now.value) / 1000))
+})
+
+function formatCountdown(totalSeconds: number): string {
+  const minutes = Math.floor(totalSeconds / 60)
+  const seconds = totalSeconds % 60
+  return `${minutes}:${String(seconds).padStart(2, '0')}`
+}
 
 const settingsItems = computed<DefinitionItem[]>(() => [
   { key: 'enabled', label: t('automessages.ad.enabled') },
@@ -41,6 +68,12 @@ const settingsItems = computed<DefinitionItem[]>(() => [
 const scheduleItems = computed<DefinitionItem[]>(() => [
   {
     key: 'nextAd',
+    label: t('automessages.ad.nextAdCountdown'),
+    value:
+      nextAdCountdownSeconds.value !== null ? formatCountdown(nextAdCountdownSeconds.value) : '--:--'
+  },
+  {
+    key: 'nextAdAt',
     label: t('automessages.ad.nextAd'),
     value: formatTimestamp(store.adScheduleStatus?.nextAdAt ?? null)
   },
@@ -102,7 +135,10 @@ async function save(): Promise<void> {
     </PageSection>
 
     <PageSection :title="$t('automessages.ad.schedule')">
-      <p v-if="!store.adScheduleStatus" class="text-sm text-fg-muted">
+      <p v-if="store.adScheduleStatus?.scopeMissing" class="text-sm text-warning">
+        {{ $t('automessages.ad.scopeMissing') }}
+      </p>
+      <p v-else-if="!store.adScheduleStatus" class="text-sm text-fg-muted">
         {{ $t('automessages.ad.noSchedule') }}
       </p>
       <DefinitionList v-else :items="scheduleItems" />

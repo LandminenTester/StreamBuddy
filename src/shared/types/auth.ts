@@ -5,6 +5,7 @@ export type FeatureKey =
   | 'loyalty_follow_sub'
   | 'ad_schedule'
   | 'activity_feed'
+  | 'stream_info'
 
 export interface FeatureScopeDefinition {
   featureKey: FeatureKey

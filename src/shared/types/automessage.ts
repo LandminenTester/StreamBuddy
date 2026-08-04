@@ -24,4 +24,6 @@ export interface AdScheduleStatus {
   nextAdAt: string | null
   lastAdAt: string | null
   durationSeconds: number | null
+  /** True, wenn der Scope `channel:read:ads` fehlt -- UI zeigt dann einen Reauth-Hinweis statt "kein Zeitplan". */
+  scopeMissing: boolean
 }

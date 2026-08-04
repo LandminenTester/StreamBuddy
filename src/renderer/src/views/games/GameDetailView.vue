@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { ArrowLeft } from 'lucide-vue-next'
@@ -39,14 +39,55 @@ const openModal = ref<'general' | 'config' | 'commands' | 'texts' | null>(null)
 const gameId = computed(() => route.params.gameId as string)
 const game = computed(() => store.games.find((entry) => entry.gameId === gameId.value) ?? null)
 
+const now = ref(Date.now())
+let tickTimer: ReturnType<typeof setInterval> | null = null
+let unsubscribeRoulette: (() => void) | null = null
+
 onMounted(async () => {
   if (store.games.length === 0) await store.fetchGames()
   await selectGame(store, gameId.value)
+  if (gameId.value === 'roulette') await store.fetchRouletteState()
+
+  tickTimer = setInterval(() => {
+    now.value = Date.now()
+  }, 1000)
+  unsubscribeRoulette = store.subscribeToRouletteUpdates()
+})
+
+onUnmounted(() => {
+  if (tickTimer) clearInterval(tickTimer)
+  unsubscribeRoulette?.()
 })
 
 watch(gameId, async (id) => {
   await selectGame(store, id)
+  if (id === 'roulette') await store.fetchRouletteState()
 })
+
+const rouletteCountdownSeconds = computed(() => {
+  const endsAt = store.rouletteState.phaseEndsAt
+  if (endsAt === null) return null
+  return Math.max(0, Math.round((endsAt - now.value) / 1000))
+})
+
+const roulettePhaseLabelKey = computed(() => {
+  switch (store.rouletteState.phase) {
+    case 'betting':
+      return 'games.roulette.phase.betting'
+    case 'spinning':
+      return 'games.roulette.phase.spinning'
+    case 'cooldown':
+      return 'games.roulette.phase.cooldown'
+    default:
+      return 'games.roulette.phase.closed'
+  }
+})
+
+function formatCountdown(totalSeconds: number): string {
+  const minutes = Math.floor(totalSeconds / 60)
+  const seconds = totalSeconds % 60
+  return `${minutes}:${String(seconds).padStart(2, '0')}`
+}
 
 const configItems = computed<DefinitionItem[]>(() =>
   game.value
@@ -195,6 +236,13 @@ async function saveTexts(texts: Record<string, string[]>): Promise<void> {
         <AppButton size="sm" @click="openModal = 'texts'">{{ $t('common.edit') }}</AppButton>
       </template>
       <DefinitionList :items="textItems" />
+    </PageSection>
+
+    <PageSection v-if="game.gameId === 'roulette'" :title="$t('games.roulette.timerTitle')">
+      <p class="text-2xl font-semibold tabular-nums text-fg">
+        {{ rouletteCountdownSeconds !== null ? formatCountdown(rouletteCountdownSeconds) : '--:--' }}
+      </p>
+      <p class="mt-1 text-sm text-fg-muted">{{ $t(roulettePhaseLabelKey) }}</p>
     </PageSection>
 
     <PageSection

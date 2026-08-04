@@ -99,3 +99,8 @@ export interface LoyaltyGreetingSettings {
   newViewerTexts: string[]
   personalGreetings: LoyaltyPersonalGreeting[]
 }
+
+/** Eintrag der von der Loyalty-Blacklist unabhängigen Begrüßungs-Blacklist. */
+export interface GreetingBlacklistEntry {
+  userLogin: string
+}

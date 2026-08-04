@@ -1,10 +1,12 @@
 import type { LoyaltyGreetingSettings, LoyaltyPersonalGreeting } from '@shared/types/loyalty'
-import { isAccountBlacklisted } from '../db/repositories/loyalty.repo'
+import { isGreetingBlacklisted } from '../db/repositories/greetingBlacklist.repo'
 import { getSetting, setSetting } from '../db/repositories/appSettings.repo'
+import { markGreeted, listGreetedLogins } from '../db/repositories/greetedUsers.repo'
 import { getActiveChatClient } from '../twitch/chat/chatClientAccessor'
 import { getPresentUsers } from '../twitch/chat/presenceTracker'
+import { getCurrentStreamId } from '../twitch/viewers/viewerSessionTracker'
 import { logger } from '../logger'
-import { isKnownStreamerBot } from './knownStreamerBots'
+import { isKnownStreamerBot } from '@shared/knownStreamerBots'
 
 const GREETING_SETTINGS_KEY = 'loyalty_greetings'
 
@@ -14,8 +16,20 @@ const DEFAULT_SETTINGS: LoyaltyGreetingSettings = {
   personalGreetings: []
 }
 
-const greetedUsers = new Set<string>()
+let greetedUsers = new Set<string>()
+/** Stream-ID, für die `greetedUsers` zuletzt aus der DB befüllt wurde. */
+let seededStreamId: string | null = null
 let greetingTimer: NodeJS.Timeout | null = null
+
+/**
+ * Lädt bereits begrüßte Logins aus der DB, sobald eine (neue) Stream-ID bekannt wird.
+ * Verhindert, dass ein Bot-Neustart mitten im laufenden Stream alle Anwesenden erneut begrüßt.
+ */
+function ensureSeededForStream(streamId: string): void {
+  if (seededStreamId === streamId) return
+  seededStreamId = streamId
+  greetedUsers = new Set(listGreetedLogins(streamId))
+}
 
 function cleanTexts(texts: string[]): string[] {
   return texts.map((text) => text.trim()).filter((text) => text.length > 0)
@@ -87,12 +101,16 @@ function personalize(text: string, userLogin: string): string {
 
 export async function handleViewerGreeting(userLogin: string): Promise<void> {
   const login = cleanLogin(userLogin)
-  if (!login || greetedUsers.has(login)) return
+  if (!login) return
+
+  const streamId = getCurrentStreamId()
+  if (streamId) ensureSeededForStream(streamId)
+  if (greetedUsers.has(login)) return
 
   const sender = getActiveChatClient()
   const channel = getSetting('target_channel')
   if (!channel || !sender) return
-  if (login === cleanLogin(channel) || isKnownStreamerBot(login) || isAccountBlacklisted(login))
+  if (login === cleanLogin(channel) || isKnownStreamerBot(login) || isGreetingBlacklisted(login))
     return
 
   const settings = getGreetingSettings()
@@ -106,6 +124,7 @@ export async function handleViewerGreeting(userLogin: string): Promise<void> {
   if (!text) return
 
   greetedUsers.add(login)
+  if (streamId) markGreeted(streamId, login)
   try {
     await sender.say(channel, personalize(text, login))
   } catch (error) {
@@ -134,4 +153,5 @@ export function stopGreetingChecker(): void {
 export function clearGreetingSession(): void {
   stopGreetingChecker()
   greetedUsers.clear()
+  seededStreamId = null
 }

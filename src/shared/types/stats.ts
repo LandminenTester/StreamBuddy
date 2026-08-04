@@ -14,4 +14,6 @@ export interface LiveStatsUpdate {
   currentViewerCount: number | null
   messagesLastHour: number
   isLive: boolean
+  streamTitle: string | null
+  gameName: string | null
 }

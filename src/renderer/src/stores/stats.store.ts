@@ -14,7 +14,9 @@ export const useStatsStore = defineStore('stats', () => {
   const live = ref<LiveStatsUpdate>({
     currentViewerCount: null,
     messagesLastHour: 0,
-    isLive: false
+    isLive: false,
+    streamTitle: null,
+    gameName: null
   })
 
   async function fetchMessagesPerHour(): Promise<void> {
@@ -41,12 +43,19 @@ export const useStatsStore = defineStore('stats', () => {
     })
   }
 
+  async function updateStreamInfo(title?: string, gameName?: string): Promise<void> {
+    await window.api.invoke('stream:updateInfo', { title, gameName })
+    if (title !== undefined) live.value = { ...live.value, streamTitle: title }
+    if (gameName !== undefined) live.value = { ...live.value, gameName }
+  }
+
   return {
     messageBuckets,
     viewerSamples,
     live,
     fetchMessagesPerHour,
     fetchViewerCountSeries,
-    subscribeToLiveUpdates
+    subscribeToLiveUpdates,
+    updateStreamInfo
   }
 })

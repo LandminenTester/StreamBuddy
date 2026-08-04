@@ -1,12 +1,26 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import type { StreamSummary, ViewerSession, StreamStats } from '@shared/types/viewers'
+import { isKnownStreamerBot } from '@shared/knownStreamerBots'
+import { useChatStore } from './chat.store'
 
 export const useViewersStore = defineStore('viewers', () => {
   const presentUsers = ref<string[]>([])
   const streams = ref<StreamSummary[]>([])
   const selectedStreamViewers = ref<ViewerSession[]>([])
   const selectedStreamStats = ref<StreamStats | null>(null)
+
+  /**
+   * Fuer die Chat-Zuschauer-Anzeige: ohne bekannte Bots und ohne den Streamer selbst.
+   * Beeinflusst NICHT den numerischen Viewer-Count (der kommt separat aus stats.store).
+   */
+  const visiblePresentUsers = computed(() => {
+    const chatStore = useChatStore()
+    const channelLogin = chatStore.targetChannel.trim().toLowerCase()
+    return presentUsers.value.filter(
+      (login) => !isKnownStreamerBot(login) && login.toLowerCase() !== channelLogin
+    )
+  })
 
   async function fetchPresent(): Promise<void> {
     presentUsers.value = await window.api.invoke('viewers:getPresent', undefined)
@@ -29,6 +43,7 @@ export const useViewersStore = defineStore('viewers', () => {
 
   return {
     presentUsers,
+    visiblePresentUsers,
     streams,
     selectedStreamViewers,
     selectedStreamStats,

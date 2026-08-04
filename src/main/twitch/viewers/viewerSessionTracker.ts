@@ -12,6 +12,7 @@ import {
   endLatestGameSegment
 } from '../../db/repositories/streams.repo'
 import { getSetting } from '../../db/repositories/appSettings.repo'
+import { deleteForStream as deleteGreetedUsersForStream } from '../../db/repositories/greetedUsers.repo'
 import { getMainWindow } from '../../window'
 import { IpcChannels } from '@shared/ipc/channels'
 import { getPresentUsers } from '../chat/presenceTracker'
@@ -85,6 +86,7 @@ export function endStream(): void {
   closeAllOpenSessions(currentStreamId, now)
   endLatestGameSegment(currentStreamId, now)
   dbEndStream(currentStreamId, now)
+  deleteGreetedUsersForStream(currentStreamId)
 
   logger.info(`Stream-Tracking beendet: ${currentStreamId}`)
   currentStreamId = null

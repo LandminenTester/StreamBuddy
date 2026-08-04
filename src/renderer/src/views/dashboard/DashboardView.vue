@@ -1,15 +1,19 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { Pencil } from 'lucide-vue-next'
 import { useStatsStore } from '@renderer/stores/stats.store'
 import { useChatStore } from '@renderer/stores/chat.store'
 import { useFollowersStore } from '@renderer/stores/followers.store'
 import { useViewersStore } from '@renderer/stores/viewers.store'
+import { useAuthStore } from '@renderer/stores/auth.store'
 import StatRow, { type StatItem } from '@renderer/components/ui/StatRow.vue'
+import AppButton from '@renderer/components/ui/AppButton.vue'
 import LineChart from '@renderer/components/shared/LineChart.vue'
 import BarChart from '@renderer/components/shared/BarChart.vue'
 import ChatFeedPanel from '@renderer/components/dashboard/ChatFeedPanel.vue'
 import ActivityFeedPanel from '@renderer/components/dashboard/ActivityFeedPanel.vue'
+import StreamInfoEditModal from '@renderer/components/dashboard/StreamInfoEditModal.vue'
 import { initDashboard } from './functions'
 import { messageBucketsToChartData, viewerSamplesToChartData } from './utils'
 
@@ -18,10 +22,19 @@ const statsStore = useStatsStore()
 const chatStore = useChatStore()
 const followersStore = useFollowersStore()
 const viewersStore = useViewersStore()
+const authStore = useAuthStore()
 
 let unsubscribe: (() => void) | null = null
 let unsubscribeSync: (() => void) | null = null
 let unsubscribePresence: (() => void) | null = null
+
+const isStreamInfoEditOpen = ref(false)
+const isSavingStreamInfo = ref(false)
+const streamInfoError = ref<string | null>(null)
+
+const isStreamInfoFeatureEnabled = computed(() =>
+  authStore.features.some((feature) => feature.featureKey === 'stream_info' && feature.enabled)
+)
 
 onMounted(async () => {
   unsubscribe = await initDashboard(statsStore)
@@ -29,10 +42,25 @@ onMounted(async () => {
   unsubscribePresence = viewersStore.subscribeToPresenceUpdates()
   await Promise.all([
     chatStore.fetchStatus(),
+    chatStore.fetchTargetChannel(),
     followersStore.fetchSyncStatus(),
-    viewersStore.fetchPresent()
+    viewersStore.fetchPresent(),
+    authStore.fetchFeatures()
   ])
 })
+
+async function saveStreamInfo(payload: { title: string; gameName: string }): Promise<void> {
+  isSavingStreamInfo.value = true
+  streamInfoError.value = null
+  try {
+    await statsStore.updateStreamInfo(payload.title, payload.gameName)
+    isStreamInfoEditOpen.value = false
+  } catch (error) {
+    streamInfoError.value = error instanceof Error ? error.message : String(error)
+  } finally {
+    isSavingStreamInfo.value = false
+  }
+}
 
 onUnmounted(() => {
   unsubscribe?.()
@@ -78,8 +106,29 @@ const stats = computed<StatItem[]>(() => [
   <div class="flex h-full min-h-0 flex-col gap-6 lg:grid lg:grid-cols-[minmax(0,1fr)_360px]">
     <div class="custom-scrollbar flex min-h-0 flex-col gap-8 overflow-y-auto pr-1">
       <div>
-        <h1 class="text-2xl font-semibold tracking-tight text-fg">{{ $t('dashboard.title') }}</h1>
-        <p class="mt-1 text-sm text-fg-muted">{{ $t('dashboard.description') }}</p>
+        <div class="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h1 class="text-2xl font-semibold tracking-tight text-fg">{{ $t('dashboard.title') }}</h1>
+            <p class="mt-1 text-sm text-fg-muted">{{ $t('dashboard.description') }}</p>
+          </div>
+          <AppButton
+            v-if="isStreamInfoFeatureEnabled"
+            size="sm"
+            variant="ghost"
+            @click="isStreamInfoEditOpen = true"
+          >
+            <template #icon><Pencil class="h-3.5 w-3.5" /></template>
+            {{ $t('common.edit') }}
+          </AppButton>
+        </div>
+        <div v-if="statsStore.live.isLive" class="mt-3 space-y-0.5">
+          <p class="text-sm font-medium text-fg">
+            {{ statsStore.live.streamTitle ?? $t('dashboard.streamInfo.noTitle') }}
+          </p>
+          <p class="text-xs text-fg-muted">
+            {{ statsStore.live.gameName ?? $t('dashboard.streamInfo.noGame') }}
+          </p>
+        </div>
       </div>
 
       <StatRow :items="stats">
@@ -93,7 +142,7 @@ const stats = computed<StatItem[]>(() => [
       <!-- Aktuelle Chat-Zuschauer -->
       <section class="border-t border-line pt-6">
         <h2 class="mb-3 text-base font-semibold text-fg">{{ $t('dashboard.viewers.title') }}</h2>
-        <p v-if="viewersStore.presentUsers.length === 0" class="text-sm text-fg-muted">
+        <p v-if="viewersStore.visiblePresentUsers.length === 0" class="text-sm text-fg-muted">
           {{
             statsStore.live.isLive
               ? $t('dashboard.viewers.empty')
@@ -102,7 +151,7 @@ const stats = computed<StatItem[]>(() => [
         </p>
         <div v-else class="flex flex-wrap gap-1.5">
           <span
-            v-for="user in viewersStore.presentUsers"
+            v-for="user in viewersStore.visiblePresentUsers"
             :key="user"
             class="rounded-full bg-surface-subtle px-2.5 py-0.5 text-xs font-medium text-fg"
           >
@@ -139,5 +188,15 @@ const stats = computed<StatItem[]>(() => [
     <div class="h-80 min-h-0 lg:h-full">
       <ChatFeedPanel />
     </div>
+
+    <StreamInfoEditModal
+      v-if="isStreamInfoEditOpen"
+      :initial-title="statsStore.live.streamTitle ?? ''"
+      :initial-game-name="statsStore.live.gameName ?? ''"
+      :is-saving="isSavingStreamInfo"
+      :error="streamInfoError"
+      @close="isStreamInfoEditOpen = false"
+      @submit="saveStreamInfo"
+    />
   </div>
 </template>
