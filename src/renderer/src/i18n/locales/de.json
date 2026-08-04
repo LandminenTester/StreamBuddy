@@ -127,6 +127,13 @@
       "description": "Jedes Feature fordert bei der Verbindung nur die Berechtigungen an, die es braucht.",
       "requiredScopes": "Benötigt: {scopes}"
     },
+    "shoutout": {
+      "title": "Shoutouts",
+      "description": "Automatisch einen Twitch-Shoutout an Kanäle senden, die deinen Stream raiden.",
+      "autoLabel": "Shoutout bei Raid",
+      "autoHint": "Sendet direkt nach einem Raid einen Shoutout an den raidenden Kanal.",
+      "scopeHint": "Benötigt das aktivierte Feature „Shoutouts“ oben. Twitch erlaubt einen Shoutout alle 2 Minuten und pro Kanal alle 60 Minuten -- häufigere Raids werden übersprungen."
+    },
     "knownBots": {
       "title": "Bekannte Bots blacklisten",
       "description": "Bekannte Streamer-Bots (Nightbot, StreamElements, ...) auf einen Schlag ausschließen -- getrennt für Loyalty-Punkte und Begrüßungen.",
@@ -160,6 +167,10 @@
     "stream_info": {
       "title": "Stream-Titel & Kategorie bearbeiten",
       "description": "Erlaubt das Ändern von Stream-Titel und Spiel-Kategorie direkt aus dem Dashboard. Achtung: Twitch verlangt hierfür zwingend ein Token des Broadcaster-Accounts selbst."
+    },
+    "shoutout": {
+      "title": "Shoutouts",
+      "description": "Erlaubt das Senden von Twitch-Shoutouts, z.B. automatisch nach einem Raid. Nutzt den Mod-Account, falls verbunden, sonst den Broadcaster-Account."
     }
   },
   "commands": {
@@ -502,6 +513,13 @@
     },
     "editAccount": "Konto bearbeiten"
   },
+  "placeholders": {
+    "intro": "Platzhalter werden beim Senden ersetzt — so bleiben Texte korrekt, wenn du Namen oder Befehle später änderst.",
+    "pointName": "Name deiner Punkte aus den Loyalty-Einstellungen",
+    "command": "Aktueller Befehl, derzeit {trigger}",
+    "commandGeneric": "Die genauen Befehlsnamen eines Spiels findest du beim jeweiligen Spiel unter „Ansagetexte“.",
+    "commandExample": "Befehl des Spiels, z.B. Roulette-Rot"
+  },
   "greetings": {
     "tabs": {
       "settings": "Einstellungen",
@@ -759,6 +777,13 @@
       "toggleHint": "Die Liste wird lokal gepflegt und kann später in der Loyalty-Blacklist bearbeitet werden.",
       "preview": "{count} bekannte Bots, z.B. {bots}",
       "applyNow": "Jetzt anwenden"
+    },
+    "shoutout": {
+      "title": "Shoutout bei Raid",
+      "description": "Wenn ein anderer Kanal deinen Stream raidet, kann StreamBuddy automatisch einen Twitch-Shoutout an diesen Kanal senden.",
+      "toggle": "Automatischen Shoutout senden",
+      "toggleHint": "Deine Zuschauer sehen dabei einen Folgen-Button für den raidenden Kanal.",
+      "scopeHint": "Dafür muss das Feature „Shoutouts“ im vorherigen Schritt aktiviert sein. Twitch erlaubt einen Shoutout alle 2 Minuten und pro Kanal alle 60 Minuten."
     },
     "summary": {
       "title": "Alles bereit",

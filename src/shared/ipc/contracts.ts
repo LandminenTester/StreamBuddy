@@ -320,4 +320,7 @@ export interface IpcContracts {
     request: { title?: string; gameName?: string }
     response: { success: boolean }
   }
+
+  [IpcChannels.shoutout.getEnabled]: { request: void; response: boolean }
+  [IpcChannels.shoutout.setEnabled]: { request: { enabled: boolean }; response: boolean }
 }

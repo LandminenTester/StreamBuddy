@@ -26,7 +26,8 @@ import {
   getGameRuntimeConfig,
   getGameRuntimeTexts,
   isGameEnabled,
-  resolveCommandTrigger
+  resolveCommandTrigger,
+  resolveTextPlaceholders
 } from '../../loyalty/games/gameRegistry'
 import { getLoyaltyEnabled } from '../../loyalty/loyaltySettings'
 import { applyManualAdjustment, transferLoyaltyPoints } from '../../loyalty/loyaltyLedger'
@@ -76,51 +77,51 @@ function chatText(
   const locale = getLocale()
   const texts = {
     de: {
-      points: '@{user} du hast {points} Punkte.',
+      points: '@{user} du hast {points} {pointname}.',
       pointsWithPending:
-        '@{user} du hast {points} Punkte verfuegbar ({pending} in offenen Wetten).',
-      pointsOther: '@{requester} @{target} hat {points} Punkte.',
+        '@{user} du hast {points} {pointname} verfuegbar ({pending} in offenen Wetten).',
+      pointsOther: '@{requester} @{target} hat {points} {pointname}.',
       pointsOtherWithPending:
-        '@{requester} @{target} hat {points} Punkte verfuegbar ({pending} in offenen Wetten).',
+        '@{requester} @{target} hat {points} {pointname} verfuegbar ({pending} in offenen Wetten).',
       pointsUnknown: '@{requester} fuer @{target} gibt es kein Loyalty-Konto.',
-      rank: 'Top 10: {top}. @{user} dein Rang: #{rank} mit {points} Punkten.',
+      rank: 'Top 10: {top}. @{user} dein Rang: #{rank} mit {points} {pointname}.',
       rankEmpty: 'Es gibt noch keine Loyalty-Konten.',
       giveUsage: 'Nutzung: !givepoints @nutzer <punkte>',
       giveInvalid: '@{user} bitte gib eine positive ganze Punktzahl an.',
-      giveSelf: '@{user} du kannst dir nicht selbst Punkte geben.',
-      giveInsufficient: '@{user} du hast nicht genug Punkte fuer diesen Transfer.',
+      giveSelf: '@{user} du kannst dir nicht selbst {pointname} geben.',
+      giveInsufficient: '@{user} du hast nicht genug {pointname} fuer diesen Transfer.',
       giveDone:
-        '@{from} hat @{to} {amount} Punkte gegeben. Neuer Stand: @{from} {fromPoints}, @{to} {toPoints}.',
+        '@{from} hat @{to} {amount} {pointname} gegeben. Neuer Stand: @{from} {fromPoints}, @{to} {toPoints}.',
       adminUsage: 'Nutzung: !punkteadmin <nutzer> <betrag>',
-      adminDone: '@{target} wurde um {amount} Punkte angepasst. Neuer Stand: {points}.',
+      adminDone: '@{target} wurde um {amount} {pointname} angepasst. Neuer Stand: {points}.',
       adminInvalid: 'Betrag muss eine Zahl ungleich 0 sein.',
       cancelDone: '@{user} Spielanfragen abgebrochen: {requests}.',
       cancelNone: '@{user} du hast keine offene Spielanfrage.'
     },
     en: {
-      points: '@{user} you have {points} points.',
+      points: '@{user} you have {points} {pointname}.',
       pointsWithPending:
-        '@{user} you have {points} points available ({pending} in pending bets).',
-      pointsOther: '@{requester} @{target} has {points} points.',
+        '@{user} you have {points} {pointname} available ({pending} in pending bets).',
+      pointsOther: '@{requester} @{target} has {points} {pointname}.',
       pointsOtherWithPending:
-        '@{requester} @{target} has {points} points available ({pending} in pending bets).',
+        '@{requester} @{target} has {points} {pointname} available ({pending} in pending bets).',
       pointsUnknown: '@{requester} there is no loyalty account for @{target}.',
-      rank: 'Top 10: {top}. @{user} your rank: #{rank} with {points} points.',
+      rank: 'Top 10: {top}. @{user} your rank: #{rank} with {points} {pointname}.',
       rankEmpty: 'There are no loyalty accounts yet.',
       giveUsage: 'Usage: !givepoints @user <points>',
       giveInvalid: '@{user} please enter a positive whole number of points.',
-      giveSelf: '@{user} you cannot give points to yourself.',
-      giveInsufficient: '@{user} you do not have enough points for this transfer.',
+      giveSelf: '@{user} you cannot give {pointname} to yourself.',
+      giveInsufficient: '@{user} you do not have enough {pointname} for this transfer.',
       giveDone:
-        '@{from} gave @{to} {amount} points. New balance: @{from} {fromPoints}, @{to} {toPoints}.',
+        '@{from} gave @{to} {amount} {pointname}. New balance: @{from} {fromPoints}, @{to} {toPoints}.',
       adminUsage: 'Usage: !pointsadmin <user> <amount>',
-      adminDone: '@{target} was adjusted by {amount} points. New balance: {points}.',
+      adminDone: '@{target} was adjusted by {amount} {pointname}. New balance: {points}.',
       adminInvalid: 'Amount must be a non-zero number.',
       cancelDone: '@{user} game requests canceled: {requests}.',
       cancelNone: '@{user} you have no pending game request.'
     }
   } as const
-  return texts[locale][key]
+  return resolveTextPlaceholders(texts[locale][key])
 }
 
 function fill(template: string, values: Record<string, string | number>): string {
@@ -133,7 +134,7 @@ function fill(template: string, values: Record<string, string | number>): string
 function pickTextVariant(texts: Record<string, string[]>, slot: string): string {
   const variants = texts[slot] ?? []
   if (variants.length === 0) return ''
-  return variants[Math.floor(Math.random() * variants.length)]
+  return resolveTextPlaceholders(variants[Math.floor(Math.random() * variants.length)])
 }
 
 function getTagLogin(tags: ChatUserstate): string | null {
@@ -150,7 +151,8 @@ function getAvailablePoints(userLogin: string, balance: number): { available: nu
 }
 
 /**
- * Ersetzt {wert:ID}/{wert:label_id}-Platzhalter sowie {alter_wert}/{neuer_wert}.
+ * Ersetzt {wert:ID}/{wert:label_id}-Platzhalter sowie {alter_wert}/{neuer_wert},
+ * zusaetzlich {pointname} und {cmd:spiel.befehl}.
  * Nicht gefundene Werte werden durch einen leeren String ersetzt.
  */
 function resolveResponse(
@@ -158,7 +160,7 @@ function resolveResponse(
   oldValues: Record<number, string> = {},
   newValues: Record<number, string> = {}
 ): string {
-  let result = response
+  let result = resolveTextPlaceholders(response)
 
   const firstOldValue = Object.values(oldValues)[0]
   const firstNewValue = Object.values(newValues)[0]
@@ -399,7 +401,7 @@ export async function handleChatMessage(
     // stattdessen eine launige "geschlossen"-Meldung statt der Ausfuehrung.
     if (!isStreamLive()) {
       const offlineMessage = pickRandomMessage(LOYALTY_OFFLINE_MESSAGE_KEY)
-      if (offlineMessage) await sender.say(channel, offlineMessage)
+      if (offlineMessage) await sender.say(channel, resolveTextPlaceholders(offlineMessage))
       return
     }
     // Geblacklistete Konten (z.B. Bots) sind komplett von Loyalty-Games ausgeschlossen.

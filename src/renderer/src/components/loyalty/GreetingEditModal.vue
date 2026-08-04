@@ -6,6 +6,7 @@ import AppToggle from '@renderer/components/ui/AppToggle.vue'
 import BaseModal from '@renderer/components/ui/BaseModal.vue'
 import StringListInput from '@renderer/components/shared/StringListInput.vue'
 import UserSearchDropdown from '@renderer/components/shared/UserSearchDropdown.vue'
+import PlaceholderHint from '@renderer/components/shared/PlaceholderHint.vue'
 import type { LoyaltyPersonalGreeting } from '@shared/types/loyalty'
 
 const props = defineProps<{
@@ -60,6 +61,7 @@ function submit(): void {
           v-model="form.texts"
           :placeholder="$t('loyalty.greetings.personalTextPlaceholder')"
         />
+        <PlaceholderHint class="mt-3" />
       </div>
     </div>
 

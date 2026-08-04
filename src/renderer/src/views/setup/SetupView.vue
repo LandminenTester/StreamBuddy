@@ -13,6 +13,7 @@ import ModAccountStep from './steps/ModAccountStep.vue'
 import ChannelStep from './steps/ChannelStep.vue'
 import FeaturesStep from './steps/FeaturesStep.vue'
 import BotBlacklistStep from './steps/BotBlacklistStep.vue'
+import ShoutoutStep from './steps/ShoutoutStep.vue'
 import SummaryStep from './steps/SummaryStep.vue'
 
 const STEP_COMPONENTS: Record<SetupStep, unknown> = {
@@ -23,6 +24,7 @@ const STEP_COMPONENTS: Record<SetupStep, unknown> = {
   channel: ChannelStep,
   features: FeaturesStep,
   bot_blacklist: BotBlacklistStep,
+  shoutout: ShoutoutStep,
   summary: SummaryStep
 }
 
@@ -61,7 +63,7 @@ async function skip(): Promise<void> {
 </script>
 
 <template>
-  <div class="flex h-screen w-screen overflow-hidden bg-surface text-fg">
+  <div class="flex h-full w-full overflow-hidden bg-surface text-fg">
     <!-- Fortschrittsleiste: bewusst nur Marker und Typografie, kein Kasten. -->
     <aside class="hidden w-64 shrink-0 flex-col justify-between p-8 lg:flex">
       <div>

@@ -9,6 +9,7 @@ import AppTabs from '@renderer/components/ui/AppTabs.vue'
 import AppToggle from '@renderer/components/ui/AppToggle.vue'
 import BaseModal from '@renderer/components/ui/BaseModal.vue'
 import ResponseTextEditor from './ResponseTextEditor.vue'
+import PlaceholderHint from '@renderer/components/shared/PlaceholderHint.vue'
 import type { CommandFormState } from '@renderer/views/commands/types'
 import { deliveryModeOptions, permissionOptions } from '@renderer/views/commands/utils'
 import { useTrackersStore } from '@renderer/stores/trackers.store'
@@ -115,6 +116,7 @@ function removeTrackerAction(index: number): void {
             :trackers="trackersStore.trackers"
             :tracker-actions="form.trackerActions"
           />
+          <PlaceholderHint class="mt-3" />
         </div>
 
         <div class="space-y-4 lg:border-l lg:border-line lg:pl-6">

@@ -120,6 +120,18 @@ export async function subscribeToSubscriptionEvents(
   })
 }
 
+/** Raids werden sowohl vom Aktivitaetenfeed als auch vom Auto-Shoutout gebraucht. */
+export async function subscribeToRaidEvents(
+  sessionId: string,
+  broadcasterId: string
+): Promise<void> {
+  await createSubscription(sessionId, {
+    type: 'channel.raid',
+    version: '1',
+    condition: { to_broadcaster_user_id: broadcasterId }
+  })
+}
+
 export async function subscribeToActivityFeedEvents(
   sessionId: string,
   broadcasterId: string,
@@ -141,10 +153,5 @@ export async function subscribeToActivityFeedEvents(
     type: 'channel.cheer',
     version: '1',
     condition: { broadcaster_user_id: broadcasterId }
-  })
-  await createSubscription(sessionId, {
-    type: 'channel.raid',
-    version: '1',
-    condition: { to_broadcaster_user_id: broadcasterId }
   })
 }

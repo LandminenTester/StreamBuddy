@@ -6,6 +6,7 @@ export type FeatureKey =
   | 'ad_schedule'
   | 'activity_feed'
   | 'stream_info'
+  | 'shoutout'
 
 export interface FeatureScopeDefinition {
   featureKey: FeatureKey

@@ -5,6 +5,7 @@ import { markGreeted, listGreetedLogins } from '../db/repositories/greetedUsers.
 import { getActiveChatClient } from '../twitch/chat/chatClientAccessor'
 import { getPresentUsers } from '../twitch/chat/presenceTracker'
 import { getCurrentStreamId } from '../twitch/viewers/viewerSessionTracker'
+import { resolveTextPlaceholders } from './games/gameRegistry'
 import { logger } from '../logger'
 import { isKnownStreamerBot } from '@shared/knownStreamerBots'
 
@@ -96,7 +97,9 @@ function pickText(texts: string[]): string | null {
 }
 
 function personalize(text: string, userLogin: string): string {
-  return text.replaceAll('{user}', userLogin).replaceAll('{name}', userLogin)
+  return resolveTextPlaceholders(text)
+    .replaceAll('{user}', userLogin)
+    .replaceAll('{name}', userLogin)
 }
 
 export async function handleViewerGreeting(userLogin: string): Promise<void> {

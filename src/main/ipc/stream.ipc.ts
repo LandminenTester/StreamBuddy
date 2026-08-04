@@ -4,6 +4,8 @@ import { getSetting } from '../db/repositories/appSettings.repo'
 import { listFeatureScopes } from '../db/repositories/authTokens.repo'
 import { getUserIdByLogin } from '../twitch/helix/users.api'
 import { patchChannelInformation, searchCategories } from '../twitch/helix/channels.api'
+import { getAutoShoutoutEnabled, setAutoShoutoutEnabled } from '../twitch/shoutouts/autoShoutout'
+import { syncEventSubConnection } from '../twitch/eventsub/eventSubClient'
 import { logger } from '../logger'
 
 function isStreamInfoFeatureEnabled(): boolean {
@@ -37,5 +39,14 @@ export function registerStreamIpc(): void {
       logger.error('Stream-Info-Update fehlgeschlagen', error)
       throw error
     }
+  })
+
+  handleTyped(IpcChannels.shoutout.getEnabled, () => getAutoShoutoutEnabled())
+
+  handleTyped(IpcChannels.shoutout.setEnabled, async ({ enabled }) => {
+    setAutoShoutoutEnabled(enabled)
+    // Die Raid-Subscription haengt an dieser Einstellung -- EventSub muss nachziehen.
+    await syncEventSubConnection()
+    return getAutoShoutoutEnabled()
   })
 }

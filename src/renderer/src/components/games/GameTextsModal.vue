@@ -3,6 +3,7 @@ import { reactive } from 'vue'
 import AppButton from '@renderer/components/ui/AppButton.vue'
 import BaseModal from '@renderer/components/ui/BaseModal.vue'
 import StringListInput from '@renderer/components/shared/StringListInput.vue'
+import PlaceholderHint from '@renderer/components/shared/PlaceholderHint.vue'
 import type { LoyaltyGameInfo } from '@shared/types/loyalty'
 import { gameTextSlots, resolvedTextVariants, textSlotLabel } from '@renderer/views/loyalty/utils'
 
@@ -30,6 +31,8 @@ function submit(): void {
 <template>
   <BaseModal :title="$t('games.texts.edit')" max-width="max-w-2xl" @close="emit('close')">
     <p class="text-xs text-fg-muted">{{ $t('games.texts.hint') }}</p>
+
+    <PlaceholderHint class="mt-4 border-t border-line pt-4" :game="game" />
 
     <div class="mt-5 space-y-6">
       <div v-for="slot in slots" :key="slot">

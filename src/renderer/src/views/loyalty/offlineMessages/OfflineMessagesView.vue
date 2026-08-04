@@ -3,6 +3,7 @@ import { ref, watch } from 'vue'
 import AppButton from '@renderer/components/ui/AppButton.vue'
 import PageSection from '@renderer/components/ui/PageSection.vue'
 import StringListInput from '@renderer/components/shared/StringListInput.vue'
+import PlaceholderHint from '@renderer/components/shared/PlaceholderHint.vue'
 import { useLoyaltyStore } from '@renderer/stores/loyalty.store'
 import { saveOfflineMessages } from '../functions'
 
@@ -25,6 +26,7 @@ watch(
     :divided="false"
   >
     <StringListInput v-model="draft" />
+    <PlaceholderHint class="mt-4" />
     <AppButton class="mt-4" variant="primary" @click="saveOfflineMessages(store, draft)">
       {{ $t('common.save') }}
     </AppButton>

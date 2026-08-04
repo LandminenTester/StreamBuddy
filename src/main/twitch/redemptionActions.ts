@@ -9,6 +9,7 @@ import {
   WERT_PLACEHOLDER_PATTERN
 } from '@shared/utils/wertPlaceholders'
 import { creditLoyalty } from '../loyalty/loyaltyLedger'
+import { resolveTextPlaceholders } from '../loyalty/games/gameRegistry'
 import { getSetting } from '../db/repositories/appSettings.repo'
 import { getActiveChatClient } from './chat/chatClientAccessor'
 import { logger } from '../logger'
@@ -19,7 +20,7 @@ function resolveCommandResponse(
   oldValues: Record<number, string>,
   newValues: Record<number, string>
 ): string {
-  let result = response
+  let result = resolveTextPlaceholders(response)
 
   const firstOldValue = Object.values(oldValues)[0]
   const firstNewValue = Object.values(newValues)[0]
@@ -91,7 +92,7 @@ export async function runRedemptionAction(
   userLogin: string
 ): Promise<boolean> {
   if (reward.actionType === 'chat_message' && reward.actionPayload?.message) {
-    await sendChatMessage(reward.actionPayload.message)
+    await sendChatMessage(resolveTextPlaceholders(reward.actionPayload.message))
     logger.info(`Redemption-Aktion: Chatnachricht fuer Reward "${reward.title}" gesendet`)
     return true
   }

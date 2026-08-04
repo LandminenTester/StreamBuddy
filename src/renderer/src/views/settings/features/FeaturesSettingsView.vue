@@ -2,9 +2,11 @@
 import AppToggle from '@renderer/components/ui/AppToggle.vue'
 import PageSection from '@renderer/components/ui/PageSection.vue'
 import KnownBotsBlacklistCard from '@renderer/components/shared/KnownBotsBlacklistCard.vue'
+import { onMounted } from 'vue'
 import { useAuthStore } from '@renderer/stores/auth.store'
 import { useLoyaltyStore } from '@renderer/stores/loyalty.store'
 import { useGreetingsStore } from '@renderer/stores/greetings.store'
+import { useShoutoutStore } from '@renderer/stores/shoutout.store'
 import { useI18n } from 'vue-i18n'
 import { labelForFeature } from '../utils'
 
@@ -12,6 +14,11 @@ const { t } = useI18n()
 const authStore = useAuthStore()
 const loyaltyStore = useLoyaltyStore()
 const greetingsStore = useGreetingsStore()
+const shoutoutStore = useShoutoutStore()
+
+onMounted(() => {
+  void shoutoutStore.fetchEnabled()
+})
 </script>
 
 <template>
@@ -33,6 +40,21 @@ const greetingsStore = useGreetingsStore()
         </p>
       </div>
     </div>
+  </PageSection>
+
+  <PageSection
+    :title="$t('settings.shoutout.title')"
+    :description="$t('settings.shoutout.description')"
+  >
+    <AppToggle
+      :model-value="shoutoutStore.autoShoutoutEnabled"
+      :label="$t('settings.shoutout.autoLabel')"
+      :description="$t('settings.shoutout.autoHint')"
+      @update:model-value="shoutoutStore.setEnabled"
+    />
+    <p class="mt-3 text-xs leading-5 text-fg-subtle">
+      {{ $t('settings.shoutout.scopeHint') }}
+    </p>
   </PageSection>
 
   <PageSection

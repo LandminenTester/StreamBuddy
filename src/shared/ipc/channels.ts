@@ -162,5 +162,9 @@ export const IpcChannels = {
   },
   stream: {
     updateInfo: 'stream:updateInfo'
+  },
+  shoutout: {
+    getEnabled: 'shoutout:getEnabled',
+    setEnabled: 'shoutout:setEnabled'
   }
 } as const

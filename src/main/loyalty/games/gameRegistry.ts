@@ -4,6 +4,7 @@ import { duelGame } from './duelGame'
 import { rouletteGame } from './rouletteGame'
 import { sspGame } from './sspGame'
 import { listGameConfigs, seedDefaultGameConfig } from '../../db/repositories/loyalty.repo'
+import { getLoyaltyPointName } from '../loyaltySettings'
 
 const GAMES: readonly LoyaltyGame[] = [gambleGame, duelGame, rouletteGame, sspGame]
 
@@ -54,10 +55,38 @@ export function getGameRuntimeTexts(gameId: string): Record<string, string[]> {
   return { ...(game?.defaultTexts ?? {}), ...(stored?.texts ?? {}) }
 }
 
+/** Fallback, falls in den Loyalty-Einstellungen kein Punktename gesetzt wurde. */
+const POINT_NAME_FALLBACK = 'Punkte'
+
+const COMMAND_PLACEHOLDER_PATTERN = /\{cmd:([a-zA-Z0-9_]+)\.([a-zA-Z0-9_]+)\}/g
+
+/**
+ * Ersetzt die kanalweiten Platzhalter in einem Bot-Text:
+ * - `{pointname}` -> in den Loyalty-Einstellungen konfigurierter Name der Punkte
+ * - `{cmd:spielId.befehl}` -> aktuell wirksamer Trigger, z.B. `{cmd:roulette.red}` -> `!red`
+ *
+ * Unbekannte Befehls-Platzhalter bleiben unveraendert stehen, damit ein Tippfehler
+ * sichtbar wird statt still zu einem leeren String zu werden.
+ */
+export function resolveTextPlaceholders(text: string): string {
+  if (!text) return text
+
+  let result = text
+  if (result.includes('{pointname}')) {
+    result = result.replaceAll('{pointname}', getLoyaltyPointName() || POINT_NAME_FALLBACK)
+  }
+
+  return result.replace(COMMAND_PLACEHOLDER_PATTERN, (match, gameId: string, key: string) => {
+    const game = GAMES.find((entry) => entry.id === gameId)
+    const command = game?.commands.find((entry) => entry.key === key)
+    return command ? resolveCommandTrigger(gameId, command) : match
+  })
+}
+
 export function pickGameText(gameId: string, slot: string): string {
   const variants = getGameRuntimeTexts(gameId)[slot] ?? []
   if (variants.length === 0) return ''
-  return variants[Math.floor(Math.random() * variants.length)]
+  return resolveTextPlaceholders(variants[Math.floor(Math.random() * variants.length)])
 }
 
 /** Seedet Default-Configs fuer alle registrierten Spiele beim ersten Start. */

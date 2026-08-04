@@ -1,6 +1,7 @@
 import { listAutomessages, touchAutomessageLastSent } from '../../db/repositories/automessages.repo'
 import { listCommands } from '../../db/repositories/commands.repo'
 import { getActiveChatClient } from './chatClientAccessor'
+import { resolveTextPlaceholders } from '../../loyalty/games/gameRegistry'
 import { logger } from '../../logger'
 
 let activeChannel: string | null = null
@@ -21,7 +22,7 @@ function nextRotationMessage(automessageId: number, messages: string[]): string 
 
 function resolveCommandPlaceholders(message: string): string {
   const commands = listCommands()
-  return message
+  return resolveTextPlaceholders(message)
     .replace(COMMAND_PLACEHOLDER_PATTERN, (placeholder, rawTrigger: string) => {
       const trigger = rawTrigger.trim().toLowerCase()
       const command = commands.find(

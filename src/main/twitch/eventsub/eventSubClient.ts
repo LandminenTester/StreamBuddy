@@ -10,8 +10,10 @@ import {
   subscribeToPollEvents,
   subscribeToFollowEvents,
   subscribeToSubscriptionEvents,
-  subscribeToActivityFeedEvents
+  subscribeToActivityFeedEvents,
+  subscribeToRaidEvents
 } from './subscriptions'
+import { handleRaidShoutout, getAutoShoutoutEnabled } from '../shoutouts/autoShoutout'
 import {
   handleAutomaticRedemptionAddEvent,
   handleRedemptionAddEvent,
@@ -165,6 +167,10 @@ async function onSessionWelcome(session: {
       !loyaltyFollowSubEnabled
     )
   }
+  // Raids braucht der Aktivitaetenfeed ebenso wie der Auto-Shoutout -- nur einmal abonnieren.
+  if (activityFeedEnabled || isShoutoutFeatureEnabled()) {
+    await subscribeToRaidEvents(sessionId, broadcasterId)
+  }
   logger.info('EventSub verbunden und Subscriptions registriert')
 }
 
@@ -225,6 +231,13 @@ function handleMessage(raw: string): void {
       if (isActivityFeedFeatureEnabled()) handleCheerActivityEvent(eventData)
     } else if (eventType === 'channel.raid') {
       if (isActivityFeedFeatureEnabled()) handleRaidActivityEvent(eventData)
+      if (broadcasterId) {
+        const raiderId = String(eventData.from_broadcaster_user_id ?? '')
+        const raiderLogin = String(eventData.from_broadcaster_user_login ?? raiderId)
+        handleRaidShoutout(broadcasterId, raiderId, raiderLogin).catch((error) => {
+          logger.error('Auto-Shoutout nach Raid fehlgeschlagen', error)
+        })
+      }
     }
   }
 }
@@ -295,6 +308,14 @@ function isActivityFeedFeatureEnabled(): boolean {
   return listFeatureScopes().some((f) => f.featureKey === 'activity_feed' && f.enabled)
 }
 
+/** Auto-Shoutout braucht EventSub nur, wenn Feature-Scope UND Auto-Shoutout aktiv sind. */
+function isShoutoutFeatureEnabled(): boolean {
+  return (
+    listFeatureScopes().some((f) => f.featureKey === 'shoutout' && f.enabled) &&
+    getAutoShoutoutEnabled()
+  )
+}
+
 /**
  * Startet oder stoppt EventSub je nach aktuellem Zustand (Bot verbunden, Zielkanal gesetzt,
  * mind. ein EventSub-abhängiges Feature aktiviert). Zentrale Aufrufstelle für alle Trigger
@@ -307,7 +328,8 @@ export async function syncEventSubConnection(): Promise<void> {
     (isChannelPointsFeatureEnabled() ||
       isPollsFeatureEnabled() ||
       isLoyaltyFollowSubFeatureEnabled() ||
-      isActivityFeedFeatureEnabled())
+      isActivityFeedFeatureEnabled() ||
+      isShoutoutFeatureEnabled())
 
   if (shouldRun) {
     stopEventSub()

@@ -23,7 +23,8 @@ export const FEATURE_SCOPE_MAP: Record<FeatureKey, string[]> = {
     'bits:read',
     'channel:read:redemptions'
   ],
-  stream_info: ['channel:manage:broadcast']
+  stream_info: ['channel:manage:broadcast'],
+  shoutout: ['moderator:manage:shoutouts']
 }
 
 const OPTIONAL_FEATURES: FeatureKey[] = [
@@ -32,7 +33,8 @@ const OPTIONAL_FEATURES: FeatureKey[] = [
   'loyalty_follow_sub',
   'ad_schedule',
   'activity_feed',
-  'stream_info'
+  'stream_info',
+  'shoutout'
 ]
 
 /** Synchronisiert die Feature->Scope-Zuordnung in `feature_scopes`, ohne bestehende enabled-Flags zu überschreiben. */

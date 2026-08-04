@@ -6,6 +6,7 @@ import AppSelect from '@renderer/components/ui/AppSelect.vue'
 import AppToggle from '@renderer/components/ui/AppToggle.vue'
 import BaseModal from '@renderer/components/ui/BaseModal.vue'
 import StringListInput from '@renderer/components/shared/StringListInput.vue'
+import PlaceholderHint from '@renderer/components/shared/PlaceholderHint.vue'
 import type { AutomessageFormState } from '@renderer/views/automessages/types'
 import { modeOptions } from '@renderer/views/automessages/utils'
 
@@ -28,6 +29,7 @@ const form = reactive<AutomessageFormState>({
         <p class="mb-1 text-xs font-medium text-fg-muted">{{ $t('automessages.form.messages') }}</p>
         <StringListInput v-model="form.messages" />
         <p class="mt-1.5 text-xs text-fg-subtle">{{ $t('automessages.form.messagesHint') }}</p>
+        <PlaceholderHint class="mt-3" />
       </div>
 
       <AppSelect
