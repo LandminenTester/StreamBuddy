@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.10.31](https://github.com/LandminenTester/StreamingBot/compare/v2.10.30...v2.10.31) (2026-08-05)
+
+
+### Features
+
+* bot messages in feed, dashboard widgets, pagination, built-in command toggles, stream archive fix, Helix moderation ([cd0463d](https://github.com/LandminenTester/StreamingBot/commit/cd0463db588a9411720f16a78a21d24d1d5487ea))
+
 ## [2.10.30](https://github.com/LandminenTester/StreamingBot/compare/v2.10.29...v2.10.30) (2026-08-04)
 
 
