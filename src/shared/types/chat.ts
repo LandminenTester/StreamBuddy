@@ -26,4 +26,6 @@ export interface ChatFeedMessage {
   segments: ChatMessageSegment[]
   badges: ChatMessageBadge[]
   timestamp: number
+  /** True fuer vom Bot selbst gesendete Nachrichten (Command-/Game-Antworten). */
+  isBot: boolean
 }

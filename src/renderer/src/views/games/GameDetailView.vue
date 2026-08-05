@@ -29,6 +29,7 @@ import {
 } from '@renderer/views/loyalty/utils'
 import { selectGame } from '@renderer/views/loyalty/functions'
 import { fieldHint, fieldLabel, formatFieldValue } from './fieldMeta'
+import { isGameTemporarilyUnavailable } from '@shared/temporarilyUnavailable'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -205,7 +206,10 @@ async function saveTexts(texts: Record<string, string[]>): Promise<void> {
 
       <PageHeader class="mt-3" :title="gameDisplayName(game)" :description="gameLabel(game.gameId)">
         <template #actions>
-          <AppBadge :variant="game.enabled ? 'success' : 'neutral'" dot>
+          <AppBadge v-if="isGameTemporarilyUnavailable(game.gameId)" variant="warning" dot>
+            {{ $t('games.general.temporarilyUnavailableShort') }}
+          </AppBadge>
+          <AppBadge v-else :variant="game.enabled ? 'success' : 'neutral'" dot>
             {{ game.enabled ? $t('common.enabled') : $t('common.disabled') }}
           </AppBadge>
           <AppButton size="sm" @click="openModal = 'general'">{{ $t('common.edit') }}</AppButton>

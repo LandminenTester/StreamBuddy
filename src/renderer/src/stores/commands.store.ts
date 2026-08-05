@@ -1,10 +1,11 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import type { Command, CommandInput } from '@shared/types/command'
+import type { BuiltInCommandInfo, Command, CommandInput } from '@shared/types/command'
 
 export const useCommandsStore = defineStore('commands', () => {
   const commands = ref<Command[]>([])
   const isLoading = ref(false)
+  const builtInCommands = ref<BuiltInCommandInfo[]>([])
 
   async function fetchCommands(): Promise<void> {
     isLoading.value = true
@@ -53,5 +54,26 @@ export const useCommandsStore = defineStore('commands', () => {
     commands.value = commands.value.filter((c) => c.id !== id)
   }
 
-  return { commands, isLoading, fetchCommands, createCommand, updateCommand, deleteCommand }
+  async function fetchBuiltInCommands(): Promise<void> {
+    builtInCommands.value = await window.api.invoke('commands:listBuiltIn', undefined)
+  }
+
+  async function setBuiltInEnabled(key: string, enabled: boolean): Promise<void> {
+    builtInCommands.value = await window.api.invoke('commands:setBuiltInEnabled', {
+      key,
+      enabled
+    })
+  }
+
+  return {
+    commands,
+    isLoading,
+    builtInCommands,
+    fetchCommands,
+    createCommand,
+    updateCommand,
+    deleteCommand,
+    fetchBuiltInCommands,
+    setBuiltInEnabled
+  }
 })

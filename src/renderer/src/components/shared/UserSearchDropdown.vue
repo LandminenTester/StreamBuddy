@@ -6,7 +6,10 @@ import { controlClasses } from '@renderer/components/ui/controlClasses'
 
 const props = defineProps<{
   modelValue: string
-  suggestions: string[]
+  /** Statische Vorschlagsliste, lokal gefiltert. Ignoriert, wenn `search` gesetzt ist. */
+  suggestions?: string[]
+  /** Asynchrone Suche (z.B. eine API) statt lokaler Filterung; debounced automatisch. */
+  search?: (query: string) => Promise<string[]>
   label?: string
   placeholder?: string
 }>()
@@ -15,18 +18,34 @@ const emit = defineEmits<{ 'update:modelValue': [value: string] }>()
 const fieldId = useFieldId('user-search')
 const rootRef = ref<HTMLElement | null>(null)
 const open = ref(false)
+const remoteResults = ref<string[]>([])
+let debounceTimer: ReturnType<typeof setTimeout> | null = null
+let requestId = 0
 
 const filtered = computed(() => {
+  if (props.search) return remoteResults.value
   const query = props.modelValue.trim().toLowerCase()
   const pool = query
-    ? props.suggestions.filter((login) => login.toLowerCase().includes(query))
-    : props.suggestions
+    ? (props.suggestions ?? []).filter((login) => login.toLowerCase().includes(query))
+    : (props.suggestions ?? [])
   return pool.slice(0, 20)
 })
 
+function runSearch(query: string): void {
+  if (!props.search) return
+  if (debounceTimer) clearTimeout(debounceTimer)
+  debounceTimer = setTimeout(async () => {
+    const currentRequest = ++requestId
+    const results = await props.search!(query)
+    if (currentRequest === requestId) remoteResults.value = results
+  }, 250)
+}
+
 function onInput(event: Event): void {
-  emit('update:modelValue', (event.target as HTMLInputElement).value)
+  const value = (event.target as HTMLInputElement).value
+  emit('update:modelValue', value)
   open.value = true
+  runSearch(value)
 }
 
 function select(login: string): void {
@@ -41,7 +60,15 @@ function handleClickOutside(event: MouseEvent): void {
 }
 
 onMounted(() => document.addEventListener('mousedown', handleClickOutside))
-onBeforeUnmount(() => document.removeEventListener('mousedown', handleClickOutside))
+onBeforeUnmount(() => {
+  document.removeEventListener('mousedown', handleClickOutside)
+  if (debounceTimer) clearTimeout(debounceTimer)
+})
+
+function onFocus(): void {
+  open.value = true
+  if (props.search) runSearch(props.modelValue)
+}
 </script>
 
 <template>
@@ -54,7 +81,7 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleClickOutsi
         autocomplete="off"
         :class="controlClasses()"
         @input="onInput"
-        @focus="open = true"
+        @focus="onFocus"
       />
     </AppField>
 

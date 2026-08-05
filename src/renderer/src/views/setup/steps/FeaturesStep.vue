@@ -3,6 +3,7 @@ import { onMounted } from 'vue'
 import AppToggle from '@renderer/components/ui/AppToggle.vue'
 import { useAuthStore } from '@renderer/stores/auth.store'
 import { labelForFeature } from '@renderer/views/settings/utils'
+import { isFeatureTemporarilyUnavailable } from '@shared/temporarilyUnavailable'
 
 const authStore = useAuthStore()
 
@@ -29,10 +30,17 @@ onMounted(() => {
       <div v-for="feature in authStore.features" :key="feature.featureKey" class="py-4">
         <AppToggle
           :model-value="feature.enabled"
+          :disabled="isFeatureTemporarilyUnavailable(feature.featureKey)"
           :label="labelForFeature(feature.featureKey)?.title ?? feature.featureKey"
           :description="labelForFeature(feature.featureKey)?.description"
           @update:model-value="authStore.setFeatureEnabled(feature.featureKey, $event)"
         />
+        <p
+          v-if="isFeatureTemporarilyUnavailable(feature.featureKey)"
+          class="mt-2 text-xs text-warning"
+        >
+          {{ $t('settings.features.temporarilyUnavailable') }}
+        </p>
       </div>
     </div>
   </div>

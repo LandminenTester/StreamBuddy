@@ -8,6 +8,7 @@ import { useLoyaltyStore } from '@renderer/stores/loyalty.store'
 import { useGreetingsStore } from '@renderer/stores/greetings.store'
 import { useShoutoutStore } from '@renderer/stores/shoutout.store'
 import { useI18n } from 'vue-i18n'
+import { isFeatureTemporarilyUnavailable } from '@shared/temporarilyUnavailable'
 import { labelForFeature } from '../utils'
 
 const { t } = useI18n()
@@ -31,10 +32,17 @@ onMounted(() => {
       <div v-for="feature in authStore.features" :key="feature.featureKey" class="py-4">
         <AppToggle
           :model-value="feature.enabled"
+          :disabled="isFeatureTemporarilyUnavailable(feature.featureKey)"
           :label="labelForFeature(feature.featureKey)?.title ?? feature.featureKey"
           :description="labelForFeature(feature.featureKey)?.description"
           @update:model-value="authStore.setFeatureEnabled(feature.featureKey, $event)"
         />
+        <p
+          v-if="isFeatureTemporarilyUnavailable(feature.featureKey)"
+          class="mt-2 text-xs text-warning"
+        >
+          {{ $t('settings.features.temporarilyUnavailable') }}
+        </p>
         <p v-if="feature.requiredScopes.length > 0" class="mt-2 font-mono text-xs text-fg-subtle">
           {{ $t('settings.features.requiredScopes', { scopes: feature.requiredScopes.join(', ') }) }}
         </p>

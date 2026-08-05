@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RefreshCw, Trophy } from 'lucide-vue-next'
 import AppButton from '@renderer/components/ui/AppButton.vue'
@@ -9,6 +9,7 @@ import AppSelect, { type SelectOption } from '@renderer/components/ui/AppSelect.
 import ConfirmModal from '@renderer/components/ui/ConfirmModal.vue'
 import EmptyState from '@renderer/components/ui/EmptyState.vue'
 import PageSection from '@renderer/components/ui/PageSection.vue'
+import Pagination from '@renderer/components/ui/Pagination.vue'
 import AccountEditModal from '@renderer/components/loyalty/AccountEditModal.vue'
 import CsvImportModal from '@renderer/components/loyalty/CsvImportModal.vue'
 import { useLoyaltyStore } from '@renderer/stores/loyalty.store'
@@ -49,6 +50,21 @@ const filtered = computed(() => {
   const query = searchQuery.value.trim().toLowerCase()
   if (!query) return store.leaderboard
   return store.leaderboard.filter((entry) => entry.userLogin.toLowerCase().includes(query))
+})
+
+const PAGE_SIZE = 10
+const page = ref(1)
+const pageCount = computed(() => Math.max(1, Math.ceil(filtered.value.length / PAGE_SIZE)))
+const paginated = computed(() => {
+  const start = (page.value - 1) * PAGE_SIZE
+  return filtered.value.slice(start, start + PAGE_SIZE)
+})
+
+watch(searchQuery, () => {
+  page.value = 1
+})
+watch(pageCount, (count) => {
+  if (page.value > count) page.value = count
 })
 
 const visibleSelectedCount = computed(
@@ -300,7 +316,7 @@ function formatBalance(balance: number): string {
 
     <ol v-else class="mt-4 divide-y divide-line border-t border-line">
       <li
-        v-for="entry in filtered"
+        v-for="entry in paginated"
         :key="entry.userLogin"
         class="flex items-center justify-between gap-4 py-2 text-sm"
       >
@@ -327,6 +343,8 @@ function formatBalance(balance: number): string {
         </span>
       </li>
     </ol>
+
+    <Pagination v-if="filtered.length > 0" v-model:page="page" :page-count="pageCount" />
 
     <AccountEditModal
       v-if="isEditModalOpen"

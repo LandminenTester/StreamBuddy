@@ -7,6 +7,7 @@ import { syncFeatureScopes } from './twitch/oauth/scopeRegistry'
 import { connectChatClient } from './twitch/chat/tmiClient'
 import { syncEventSubConnection } from './twitch/eventsub/eventSubClient'
 import { seedLoyaltyDefaults } from './loyalty/seedDefaults'
+import { enforceTemporarilyUnavailableDefaults } from './enforceTemporarilyUnavailable'
 import { checkForUpdate, initUpdater } from './updater'
 import { applyTheme, getTheme } from './theme'
 import { logger } from './logger'
@@ -14,6 +15,8 @@ import { setPresenceCallbacks } from './twitch/chat/presenceTracker'
 import { onUserJoined, onUserLeft } from './twitch/viewers/viewerSessionTracker'
 import { startFollowerSyncScheduler } from './twitch/followers/followerSync'
 import { handleViewerGreeting } from './loyalty/greetings'
+import { reconcileDanglingStreams } from './twitch/viewers/streamReconciliation'
+import { readTokens } from './twitch/oauth/tokenStore'
 
 app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.vinewoodlegacy.streambuddy')
@@ -26,6 +29,7 @@ app.whenReady().then(() => {
   applyTheme(getTheme())
   syncFeatureScopes()
   seedLoyaltyDefaults()
+  enforceTemporarilyUnavailableDefaults()
   registerIpcHandlers()
   createMainWindow()
 
@@ -37,6 +41,11 @@ app.whenReady().then(() => {
     onLeft: onUserLeft
   })
 
+  if (readTokens()) {
+    void reconcileDanglingStreams().catch((error) => {
+      logger.error('Abgleich verwaister Streams fehlgeschlagen', error)
+    })
+  }
   void connectChatClient()
   void syncEventSubConnection()
   startFollowerSyncScheduler()

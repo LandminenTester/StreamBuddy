@@ -8,7 +8,7 @@ import type {
   SetupState,
   UpdateStatus
 } from '../types/appInfo'
-import type { Command, CommandInput } from '../types/command'
+import type { BuiltInCommandInfo, Command, CommandInput } from '../types/command'
 import type {
   AuthStatus,
   DeviceAuthPrompt,
@@ -87,6 +87,11 @@ export interface IpcContracts {
     response: Command
   }
   [IpcChannels.commands.delete]: { request: { id: number }; response: void }
+  [IpcChannels.commands.listBuiltIn]: { request: void; response: BuiltInCommandInfo[] }
+  [IpcChannels.commands.setBuiltInEnabled]: {
+    request: { key: string; enabled: boolean }
+    response: BuiltInCommandInfo[]
+  }
 
   [IpcChannels.auth.startOAuth]: { request: void; response: AuthStatus }
   [IpcChannels.auth.getStatus]: { request: void; response: AuthStatus }
@@ -316,9 +321,17 @@ export interface IpcContracts {
   [IpcChannels.viewers.getStreamStats]: { request: { streamId: string }; response: StreamStats }
   [IpcChannels.viewers.onPresenceUpdate]: { request: void; response: string[] }
 
+  [IpcChannels.stream.getInfo]: {
+    request: void
+    response: { title: string | null; gameName: string | null } | null
+  }
   [IpcChannels.stream.updateInfo]: {
     request: { title?: string; gameName?: string }
     response: { success: boolean }
+  }
+  [IpcChannels.stream.searchCategories]: {
+    request: { query: string }
+    response: { id: string; name: string }[]
   }
 
   [IpcChannels.shoutout.getEnabled]: { request: void; response: boolean }

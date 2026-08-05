@@ -29,7 +29,9 @@ export const IpcChannels = {
     list: 'commands:list',
     create: 'commands:create',
     update: 'commands:update',
-    delete: 'commands:delete'
+    delete: 'commands:delete',
+    listBuiltIn: 'commands:listBuiltIn',
+    setBuiltInEnabled: 'commands:setBuiltInEnabled'
   },
   auth: {
     startOAuth: 'auth:startOAuth',
@@ -161,7 +163,9 @@ export const IpcChannels = {
     onPresenceUpdate: 'viewers:onPresenceUpdate'
   },
   stream: {
-    updateInfo: 'stream:updateInfo'
+    getInfo: 'stream:getInfo',
+    updateInfo: 'stream:updateInfo',
+    searchCategories: 'stream:searchCategories'
   },
   shoutout: {
     getEnabled: 'shoutout:getEnabled',

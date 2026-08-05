@@ -4,6 +4,33 @@ interface SearchCategoriesResponse {
   data: { id: string; name: string }[]
 }
 
+interface ChannelInformationResponse {
+  data: { title: string; game_name: string }[]
+}
+
+export interface ChannelInformation {
+  title: string | null
+  gameName: string | null
+}
+
+/**
+ * Liefert Titel + aktuelles Spiel unabhaengig vom Live-Status -- anders als die
+ * Streams-API (nur waehrend live) bleiben diese Werte auch offline gueltig.
+ * Braucht keinen eigenen Scope, jeder gueltige App-/User-Token reicht.
+ */
+export async function getChannelInformation(
+  broadcasterId: string
+): Promise<ChannelInformation> {
+  const response = await helixFetchJson<ChannelInformationResponse>(
+    `/channels?broadcaster_id=${encodeURIComponent(broadcasterId)}`
+  )
+  const channel = response.data[0]
+  return {
+    title: channel?.title || null,
+    gameName: channel?.game_name || null
+  }
+}
+
 /** Sucht Twitch-Kategorien (Spiele) per Namen, fuer die Aufloesung von Name -> game_id. */
 export async function searchCategories(
   query: string

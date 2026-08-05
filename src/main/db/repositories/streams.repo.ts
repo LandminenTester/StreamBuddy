@@ -34,6 +34,16 @@ export function endStream(streamId: string, endedAt: number): void {
     .run(endedAt, streamId)
 }
 
+/** Streams, die nie sauber beendet wurden (z.B. weil die App waehrend eines laufenden Streams beendet wurde). */
+export function getOpenStreams(): { streamId: string; startedAt: number }[] {
+  return getDb()
+    .prepare<[], { stream_id: string; started_at: number }>(
+      'SELECT stream_id, started_at FROM streams WHERE ended_at IS NULL'
+    )
+    .all()
+    .map((row) => ({ streamId: row.stream_id, startedAt: row.started_at }))
+}
+
 export function updateStreamPeakViewers(streamId: string, viewerCount: number): void {
   getDb()
     .prepare(

@@ -59,6 +59,16 @@ export function insertViewerCountSample(sample: ViewerCountSample): void {
     })
 }
 
+/** Letzter bekannter Sample-Zeitpunkt (ms) fuer einen Stream -- als Endzeit-Naeherung nutzbar. */
+export function getLastViewerSampleTime(streamId: string): number | null {
+  const row = getDb()
+    .prepare<[string], { sampled_at: number }>(
+      'SELECT sampled_at FROM viewer_count_samples WHERE stream_id = ? ORDER BY sampled_at DESC LIMIT 1'
+    )
+    .get(streamId)
+  return row?.sampled_at ?? null
+}
+
 export function getViewerCountSeries(sinceMs: number): ViewerCountSample[] {
   return getDb()
     .prepare<[number], ViewerSampleRow>(

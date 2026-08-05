@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { UserX } from 'lucide-vue-next'
 import AppButton from '@renderer/components/ui/AppButton.vue'
 import AppInput from '@renderer/components/ui/AppInput.vue'
 import EmptyState from '@renderer/components/ui/EmptyState.vue'
 import PageSection from '@renderer/components/ui/PageSection.vue'
+import Pagination from '@renderer/components/ui/Pagination.vue'
 import { useLoyaltyStore } from '@renderer/stores/loyalty.store'
 import { useGreetingsStore } from '@renderer/stores/greetings.store'
 
@@ -29,6 +30,18 @@ const descriptionKey = computed(() =>
     : 'loyalty.blacklist.description'
 )
 const manualUserLogin = ref('')
+
+const PAGE_SIZE = 10
+const page = ref(1)
+const pageCount = computed(() => Math.max(1, Math.ceil(store.value.blacklist.length / PAGE_SIZE)))
+const paginated = computed(() => {
+  const start = (page.value - 1) * PAGE_SIZE
+  return store.value.blacklist.slice(start, start + PAGE_SIZE)
+})
+
+watch(pageCount, (count) => {
+  if (page.value > count) page.value = count
+})
 
 onMounted(() => {
   void Promise.all([store.value.fetchBlacklist(), store.value.fetchKnownBots()])
@@ -74,7 +87,7 @@ async function addKnownBots(): Promise<void> {
 
     <ul v-else class="divide-y divide-line border-t border-line">
       <li
-        v-for="account in store.blacklist"
+        v-for="account in paginated"
         :key="account.userLogin"
         class="flex items-center justify-between gap-4 py-2.5 text-sm"
       >
@@ -88,5 +101,7 @@ async function addKnownBots(): Promise<void> {
         </AppButton>
       </li>
     </ul>
+
+    <Pagination v-if="store.blacklist.length > 0" v-model:page="page" :page-count="pageCount" />
   </PageSection>
 </template>

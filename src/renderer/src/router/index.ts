@@ -28,8 +28,20 @@ export const router = createRouter({
     },
     {
       path: '/commands',
-      name: 'commands',
-      component: () => import('@renderer/views/commands/CommandsView.vue')
+      component: () => import('@renderer/views/commands/CommandsView.vue'),
+      children: [
+        { path: '', redirect: { name: 'commands-custom' } },
+        {
+          path: 'custom',
+          name: 'commands-custom',
+          component: () => import('@renderer/views/commands/CustomCommandsView.vue')
+        },
+        {
+          path: 'builtin',
+          name: 'commands-builtin',
+          component: () => import('@renderer/views/commands/BuiltInCommandsView.vue')
+        }
+      ]
     },
     {
       path: '/automessages',

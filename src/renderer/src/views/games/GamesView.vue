@@ -6,6 +6,7 @@ import AppBadge from '@renderer/components/ui/AppBadge.vue'
 import EmptyState from '@renderer/components/ui/EmptyState.vue'
 import { useLoyaltyStore } from '@renderer/stores/loyalty.store'
 import { gameDisplayName } from '@renderer/views/loyalty/utils'
+import { isGameTemporarilyUnavailable } from '@shared/temporarilyUnavailable'
 
 const store = useLoyaltyStore()
 
@@ -37,7 +38,10 @@ onMounted(() => {
           </p>
         </div>
         <div class="flex shrink-0 items-center gap-3">
-          <AppBadge :variant="game.enabled ? 'success' : 'neutral'" dot>
+          <AppBadge v-if="isGameTemporarilyUnavailable(game.gameId)" variant="warning" dot>
+            {{ $t('games.general.temporarilyUnavailableShort') }}
+          </AppBadge>
+          <AppBadge v-else :variant="game.enabled ? 'success' : 'neutral'" dot>
             {{ game.enabled ? $t('common.enabled') : $t('common.disabled') }}
           </AppBadge>
           <ChevronRight class="h-4 w-4 text-fg-subtle" />

@@ -20,7 +20,12 @@
     "yes": "Yes",
     "no": "No",
     "search": "Search",
-    "unknown": "Unknown"
+    "unknown": "Unknown",
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "pageOf": "Page {page} of {pageCount}"
+    }
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -125,7 +130,8 @@
     "features": {
       "title": "Features",
       "description": "Each feature only requests the permissions it needs when connecting.",
-      "requiredScopes": "Requires: {scopes}"
+      "requiredScopes": "Requires: {scopes}",
+      "temporarilyUnavailable": "Temporarily unavailable -- Twitch currently restricts the interface this needs."
     },
     "shoutout": {
       "title": "Shoutouts",
@@ -187,6 +193,23 @@
     },
     "title": "Commands",
     "description": "Chat commands with permission, cooldown and aliases.",
+    "tabs": {
+      "custom": "Custom commands",
+      "builtin": "Built-in commands"
+    },
+    "builtin": {
+      "loyaltyTitle": "Loyalty core",
+      "gamesTitle": "Games",
+      "loyalty": {
+        "points": "Check point balance",
+        "rank": "Show leaderboard",
+        "givePoints": "Give points to others",
+        "pointsAdmin": "Adjust points as mod",
+        "cancelGames": "Cancel pending game request",
+        "commandList": "Show command list",
+        "blacklistMod": "Blacklist user as mod"
+      }
+    },
     "new": "New command",
     "edit": "Edit command",
     "columns": {
@@ -284,7 +307,8 @@
       "preroll": "Preroll free time",
       "snoozeCount": "Snoozes available",
       "noSchedule": "No ad schedule available.",
-      "scopeMissing": "Permission \"channel:read:ads\" is missing -- please enable the feature in settings and reauthorize the bot account."
+      "scopeMissing": "Permission \"channel:read:ads\" is missing -- please enable the feature in settings and reauthorize the bot account.",
+      "temporarilyUnavailable": "Temporarily unavailable -- Twitch currently restricts access to the ad schedule."
     }
   },
   "polls": {
@@ -594,7 +618,9 @@
       "displayName": "Display name",
       "displayNameHint": "Leave empty for the default name.",
       "state": "Status",
-      "edit": "Edit general"
+      "edit": "Edit general",
+      "temporarilyUnavailable": "This game is currently unavailable due to a Twitch API restriction (sending whispers to unverified bots is restricted).",
+      "temporarilyUnavailableShort": "Unavailable"
     },
     "config": {
       "edit": "Edit settings"
@@ -830,6 +856,10 @@
       "empty": "No messages received yet.",
       "emptyHint": "Once the bot is connected to the channel, messages appear here.",
       "newMessages": "Show new messages",
+      "liveMode": "Live",
+      "pausedMode": "Paused",
+      "backToLive": "Back to live chat",
+      "botBadge": "Bot",
       "actions": {
         "timeout10": "Timeout 10 minutes",
         "ban": "Ban",

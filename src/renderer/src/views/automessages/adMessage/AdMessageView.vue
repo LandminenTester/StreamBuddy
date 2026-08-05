@@ -146,7 +146,14 @@ async function save(): Promise<void> {
 
     <BaseModal v-if="isModalOpen" :title="$t('automessages.ad.edit')" @close="isModalOpen = false">
       <div class="space-y-5">
-        <AppToggle v-model="draftEnabled" :label="$t('automessages.ad.enabled')" />
+        <AppToggle
+          v-model="draftEnabled"
+          :disabled="draftEnabled === false"
+          :label="$t('automessages.ad.enabled')"
+        />
+        <p v-if="draftEnabled === false" class="-mt-3 text-xs text-warning">
+          {{ $t('automessages.ad.temporarilyUnavailable') }}
+        </p>
         <AppInput
           v-model="draftLeadSeconds"
           type="number"

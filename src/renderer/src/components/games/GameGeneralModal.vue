@@ -6,6 +6,7 @@ import AppToggle from '@renderer/components/ui/AppToggle.vue'
 import BaseModal from '@renderer/components/ui/BaseModal.vue'
 import type { LoyaltyGameInfo } from '@shared/types/loyalty'
 import { gameLabel } from '@renderer/views/loyalty/utils'
+import { isGameTemporarilyUnavailable } from '@shared/temporarilyUnavailable'
 
 const props = defineProps<{ game: LoyaltyGameInfo }>()
 const emit = defineEmits<{
@@ -15,6 +16,7 @@ const emit = defineEmits<{
 
 const displayName = ref(props.game.displayName ?? '')
 const enabled = ref(props.game.enabled)
+const unavailable = isGameTemporarilyUnavailable(props.game.gameId)
 </script>
 
 <template>
@@ -26,13 +28,17 @@ const enabled = ref(props.game.enabled)
         :placeholder="gameLabel(game.gameId)"
         :hint="$t('games.general.displayNameHint')"
       />
-      <AppToggle v-model="enabled" :label="$t('games.general.state')" />
+      <AppToggle v-model="enabled" :disabled="unavailable" :label="$t('games.general.state')" />
+      <p v-if="unavailable" class="-mt-4 text-xs text-warning">
+        {{ $t('games.general.temporarilyUnavailable') }}
+      </p>
     </div>
 
     <template #footer>
       <AppButton variant="ghost" @click="emit('close')">{{ $t('common.cancel') }}</AppButton>
       <AppButton
         variant="primary"
+        :disabled="unavailable"
         @click="emit('submit', { displayName: displayName.trim(), enabled })"
       >
         {{ $t('common.save') }}

@@ -20,7 +20,12 @@
     "yes": "Ja",
     "no": "Nein",
     "search": "Suchen",
-    "unknown": "Unbekannt"
+    "unknown": "Unbekannt",
+    "pagination": {
+      "previous": "Zurück",
+      "next": "Weiter",
+      "pageOf": "Seite {page} von {pageCount}"
+    }
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -125,7 +130,8 @@
     "features": {
       "title": "Features",
       "description": "Jedes Feature fordert bei der Verbindung nur die Berechtigungen an, die es braucht.",
-      "requiredScopes": "Benötigt: {scopes}"
+      "requiredScopes": "Benötigt: {scopes}",
+      "temporarilyUnavailable": "Vorübergehend nicht verfügbar -- Twitch schränkt die dafür nötige Schnittstelle aktuell ein."
     },
     "shoutout": {
       "title": "Shoutouts",
@@ -187,6 +193,23 @@
     },
     "title": "Commands",
     "description": "Chat-Befehle mit Berechtigung, Cooldown und Aliasen.",
+    "tabs": {
+      "custom": "Eigene Befehle",
+      "builtin": "Standard-Befehle"
+    },
+    "builtin": {
+      "loyaltyTitle": "Loyalty-Kern",
+      "gamesTitle": "Spiele",
+      "loyalty": {
+        "points": "Punktestand abfragen",
+        "rank": "Rangliste anzeigen",
+        "givePoints": "Punkte an andere geben",
+        "pointsAdmin": "Punkte per Mod anpassen",
+        "cancelGames": "Offene Spielanfrage abbrechen",
+        "commandList": "Befehlsliste anzeigen",
+        "blacklistMod": "Nutzer per Mod blacklisten"
+      }
+    },
     "new": "Neuer Command",
     "edit": "Command bearbeiten",
     "columns": {
@@ -284,7 +307,8 @@
       "preroll": "Preroll-Freiminuten",
       "snoozeCount": "Verfügbare Snoozes",
       "noSchedule": "Kein Werbeplan verfügbar.",
-      "scopeMissing": "Berechtigung „channel:read:ads“ fehlt -- bitte das Feature in den Einstellungen aktivieren und den Bot-Account neu autorisieren."
+      "scopeMissing": "Berechtigung „channel:read:ads“ fehlt -- bitte das Feature in den Einstellungen aktivieren und den Bot-Account neu autorisieren.",
+      "temporarilyUnavailable": "Vorübergehend nicht verfügbar -- Twitch schränkt den Zugriff auf den Werbe-Zeitplan aktuell ein."
     }
   },
   "polls": {
@@ -594,7 +618,9 @@
       "displayName": "Anzeigename",
       "displayNameHint": "Leer lassen für den Standardnamen.",
       "state": "Status",
-      "edit": "Allgemein bearbeiten"
+      "edit": "Allgemein bearbeiten",
+      "temporarilyUnavailable": "Dieses Spiel ist aktuell wegen einer Twitch-API-Einschränkung nicht verfügbar (Whisper-Versand an nicht verifizierte Bots eingeschränkt).",
+      "temporarilyUnavailableShort": "Nicht verfügbar"
     },
     "config": {
       "edit": "Einstellungen bearbeiten"
@@ -830,6 +856,10 @@
       "empty": "Noch keine Nachrichten empfangen.",
       "emptyHint": "Sobald der Bot mit dem Kanal verbunden ist, laufen die Nachrichten hier ein.",
       "newMessages": "Neue Nachrichten anzeigen",
+      "liveMode": "Live",
+      "pausedMode": "Pausiert",
+      "backToLive": "Zurück zum Live-Chat",
+      "botBadge": "Bot",
       "actions": {
         "timeout10": "Timeout 10 Minuten",
         "ban": "Bannen",

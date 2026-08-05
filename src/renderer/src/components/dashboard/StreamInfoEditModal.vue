@@ -3,6 +3,7 @@ import { reactive } from 'vue'
 import AppButton from '@renderer/components/ui/AppButton.vue'
 import AppInput from '@renderer/components/ui/AppInput.vue'
 import BaseModal from '@renderer/components/ui/BaseModal.vue'
+import UserSearchDropdown from '@renderer/components/shared/UserSearchDropdown.vue'
 
 const props = defineProps<{
   initialTitle: string
@@ -16,6 +17,12 @@ const emit = defineEmits<{
 }>()
 
 const form = reactive({ title: props.initialTitle, gameName: props.initialGameName })
+
+async function searchCategories(query: string): Promise<string[]> {
+  if (!query.trim()) return []
+  const results = await window.api.invoke('stream:searchCategories', { query })
+  return results.map((category) => category.name)
+}
 </script>
 
 <template>
@@ -26,8 +33,9 @@ const form = reactive({ title: props.initialTitle, gameName: props.initialGameNa
         :label="$t('dashboard.streamInfo.streamTitleLabel')"
         :placeholder="$t('dashboard.streamInfo.streamTitlePlaceholder')"
       />
-      <AppInput
+      <UserSearchDropdown
         v-model="form.gameName"
+        :search="searchCategories"
         :label="$t('dashboard.streamInfo.gameLabel')"
         :placeholder="$t('dashboard.streamInfo.gamePlaceholder')"
       />

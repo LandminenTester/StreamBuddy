@@ -7,6 +7,7 @@ import { useChatStore } from '@renderer/stores/chat.store'
 import { useFollowersStore } from '@renderer/stores/followers.store'
 import { useViewersStore } from '@renderer/stores/viewers.store'
 import { useAuthStore } from '@renderer/stores/auth.store'
+import { useLoyaltyStore } from '@renderer/stores/loyalty.store'
 import StatRow, { type StatItem } from '@renderer/components/ui/StatRow.vue'
 import AppButton from '@renderer/components/ui/AppButton.vue'
 import LineChart from '@renderer/components/shared/LineChart.vue'
@@ -23,14 +24,18 @@ const chatStore = useChatStore()
 const followersStore = useFollowersStore()
 const viewersStore = useViewersStore()
 const authStore = useAuthStore()
+const loyaltyStore = useLoyaltyStore()
 
 let unsubscribe: (() => void) | null = null
 let unsubscribeSync: (() => void) | null = null
 let unsubscribePresence: (() => void) | null = null
+let unsubscribeRoulette: (() => void) | null = null
+let tickTimer: ReturnType<typeof setInterval> | null = null
 
 const isStreamInfoEditOpen = ref(false)
 const isSavingStreamInfo = ref(false)
 const streamInfoError = ref<string | null>(null)
+const now = ref(Date.now())
 
 const isStreamInfoFeatureEnabled = computed(() =>
   authStore.features.some((feature) => feature.featureKey === 'stream_info' && feature.enabled)
@@ -40,14 +45,45 @@ onMounted(async () => {
   unsubscribe = await initDashboard(statsStore)
   unsubscribeSync = followersStore.subscribeToSyncComplete()
   unsubscribePresence = viewersStore.subscribeToPresenceUpdates()
+  unsubscribeRoulette = loyaltyStore.subscribeToRouletteUpdates()
+  tickTimer = setInterval(() => {
+    now.value = Date.now()
+  }, 1000)
   await Promise.all([
     chatStore.fetchStatus(),
     chatStore.fetchTargetChannel(),
     followersStore.fetchSyncStatus(),
     viewersStore.fetchPresent(),
-    authStore.fetchFeatures()
+    authStore.fetchFeatures(),
+    statsStore.fetchChannelInfo(),
+    loyaltyStore.fetchRouletteState()
   ])
 })
+
+const rouletteCountdownSeconds = computed(() => {
+  const endsAt = loyaltyStore.rouletteState.phaseEndsAt
+  if (endsAt === null) return null
+  return Math.max(0, Math.round((endsAt - now.value) / 1000))
+})
+
+const roulettePhaseLabelKey = computed(() => {
+  switch (loyaltyStore.rouletteState.phase) {
+    case 'betting':
+      return 'games.roulette.phase.betting'
+    case 'spinning':
+      return 'games.roulette.phase.spinning'
+    case 'cooldown':
+      return 'games.roulette.phase.cooldown'
+    default:
+      return 'games.roulette.phase.closed'
+  }
+})
+
+function formatCountdown(totalSeconds: number): string {
+  const minutes = Math.floor(totalSeconds / 60)
+  const seconds = totalSeconds % 60
+  return `${minutes}:${String(seconds).padStart(2, '0')}`
+}
 
 async function saveStreamInfo(payload: { title: string; gameName: string }): Promise<void> {
   isSavingStreamInfo.value = true
@@ -66,6 +102,8 @@ onUnmounted(() => {
   unsubscribe?.()
   unsubscribeSync?.()
   unsubscribePresence?.()
+  unsubscribeRoulette?.()
+  if (tickTimer) clearInterval(tickTimer)
 })
 
 const messageChart = computed(() => messageBucketsToChartData(statsStore.messageBuckets))
@@ -121,12 +159,12 @@ const stats = computed<StatItem[]>(() => [
             {{ $t('common.edit') }}
           </AppButton>
         </div>
-        <div v-if="statsStore.live.isLive" class="mt-3 space-y-0.5">
+        <div class="mt-3 space-y-0.5">
           <p class="text-sm font-medium text-fg">
-            {{ statsStore.live.streamTitle ?? $t('dashboard.streamInfo.noTitle') }}
+            {{ statsStore.channelInfo.title ?? $t('dashboard.streamInfo.noTitle') }}
           </p>
           <p class="text-xs text-fg-muted">
-            {{ statsStore.live.gameName ?? $t('dashboard.streamInfo.noGame') }}
+            {{ statsStore.channelInfo.gameName ?? $t('dashboard.streamInfo.noGame') }}
           </p>
         </div>
       </div>
@@ -160,6 +198,16 @@ const stats = computed<StatItem[]>(() => [
         </div>
       </section>
 
+      <section v-if="loyaltyStore.rouletteState.phase !== 'closed'" class="border-t border-line pt-6">
+        <h2 class="mb-3 text-base font-semibold text-fg">{{ $t('games.roulette.timerTitle') }}</h2>
+        <p class="text-2xl font-semibold tabular-nums text-fg">
+          {{
+            rouletteCountdownSeconds !== null ? formatCountdown(rouletteCountdownSeconds) : '--:--'
+          }}
+        </p>
+        <p class="mt-1 text-sm text-fg-muted">{{ $t(roulettePhaseLabelKey) }}</p>
+      </section>
+
       <ActivityFeedPanel />
 
       <section class="border-t border-line pt-6">
@@ -191,8 +239,8 @@ const stats = computed<StatItem[]>(() => [
 
     <StreamInfoEditModal
       v-if="isStreamInfoEditOpen"
-      :initial-title="statsStore.live.streamTitle ?? ''"
-      :initial-game-name="statsStore.live.gameName ?? ''"
+      :initial-title="statsStore.channelInfo.title ?? ''"
+      :initial-game-name="statsStore.channelInfo.gameName ?? ''"
       :is-saving="isSavingStreamInfo"
       :error="streamInfoError"
       @close="isStreamInfoEditOpen = false"

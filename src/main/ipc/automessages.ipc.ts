@@ -12,6 +12,7 @@ import { getAdSchedule, normalizeAdSchedule } from '../twitch/helix/adSchedule.a
 import { getUserIdByLogin } from '../twitch/helix/users.api'
 import { getSetting } from '../db/repositories/appSettings.repo'
 import { getAuthStatus } from '../twitch/oauth/authStatus'
+import { isFeatureTemporarilyUnavailable } from '@shared/temporarilyUnavailable'
 import { logger } from '../logger'
 
 function hasAdScheduleScope(): boolean {
@@ -41,6 +42,11 @@ export function registerAutomessagesIpc(): void {
   handleTyped(IpcChannels.automessages.getAdMessageSettings, () => getAdMessageSettings())
 
   handleTyped(IpcChannels.automessages.setAdMessageSettings, (settings) => {
+    if (isFeatureTemporarilyUnavailable('ad_schedule') && settings.enabled) {
+      throw new Error(
+        'Werbungsnachrichten sind aktuell wegen einer Twitch-API-Einschraenkung nicht verfuegbar.'
+      )
+    }
     setAdMessageSettings(settings)
   })
 

@@ -1,5 +1,6 @@
 import type { FeatureKey } from '@shared/types/auth'
 import { listFeatureScopes, upsertFeatureScope } from '../../db/repositories/authTokens.repo'
+import { isFeatureTemporarilyUnavailable } from '@shared/temporarilyUnavailable'
 
 /**
  * Zuordnung Feature -> benötigte Twitch-Scopes. `core_chat` deckt die
@@ -11,7 +12,10 @@ export const FEATURE_SCOPE_MAP: Record<FeatureKey, string[]> = {
     'chat:edit',
     'user:read:chat',
     'user:write:chat',
-    'user:manage:whispers'
+    'user:manage:whispers',
+    // Chat-befehlsbasierte Moderation (/timeout, /ban) hat Twitch Feb. 2023 abgeschafft --
+    // Ban/Timeout/Unban laufen seither ueber die Helix-Moderation-API (moderation.api.ts).
+    'moderator:manage:banned_users'
   ],
   channel_points: ['channel:read:redemptions', 'channel:manage:redemptions'],
   polls: ['channel:read:polls', 'channel:manage:polls'],
@@ -56,7 +60,7 @@ export function listOptionalFeatures(): FeatureKey[] {
 export function getRequiredScopesForEnabledFeatures(): string[] {
   const scopes = new Set<string>()
   for (const feature of listFeatureScopes()) {
-    if (feature.enabled) {
+    if (feature.enabled && !isFeatureTemporarilyUnavailable(feature.featureKey)) {
       feature.requiredScopes.forEach((scope) => scopes.add(scope))
     }
   }

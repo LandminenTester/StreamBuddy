@@ -40,6 +40,7 @@ import { logger } from '../../logger'
 import { sendWhisper } from '../helix/whispers.api'
 import { resolveBuiltInLoyaltyCommand } from './loyaltyCommandTriggers'
 import { buildCommandListSections, canUseCommand, chunkCommandSection } from './commandList'
+import { isBuiltInCommandEnabled } from './builtInCommands'
 
 /** Fixer, nicht umbenennbarer Trigger fuer den eingebauten Mod-Command. */
 const BLACKLIST_TRIGGER = '!blacklist'
@@ -201,6 +202,7 @@ export async function handleChatMessage(
   // Eingebauter Mod-Command, ausserhalb des Game-/Custom-Command-Systems, damit er nie
   // durch einen umbenannten Custom-Command ueberschattet werden kann.
   if (trigger === BLACKLIST_TRIGGER) {
+    if (!isBuiltInCommandEnabled('blacklistMod')) return
     if (!canUseCommand(getUserPermissionLevel(tags), 'moderator')) return
     const targetLogin = parts[1]?.replace(/^@/, '').toLowerCase()
     if (!targetLogin) return
@@ -211,7 +213,7 @@ export async function handleChatMessage(
   }
 
   if (loyaltyCommand === 'points') {
-    if (!getLoyaltyEnabled()) return
+    if (!isBuiltInCommandEnabled('points') || !getLoyaltyEnabled()) return
     const requester = getTagLogin(tags)
     if (!requester) return
     const requesterAccount = getOrCreateAccount(requester)
@@ -256,7 +258,7 @@ export async function handleChatMessage(
   }
 
   if (loyaltyCommand === 'rank') {
-    if (!getLoyaltyEnabled()) return
+    if (!isBuiltInCommandEnabled('rank') || !getLoyaltyEnabled()) return
     const login = getTagLogin(tags)
     if (!login) return
     const account = getOrCreateAccount(login)
@@ -283,7 +285,7 @@ export async function handleChatMessage(
   }
 
   if (loyaltyCommand === 'givePoints') {
-    if (!getLoyaltyEnabled()) return
+    if (!isBuiltInCommandEnabled('givePoints') || !getLoyaltyEnabled()) return
     const requester = getTagLogin(tags)
     if (!requester) return
     const requesterAccount = getOrCreateAccount(requester)
@@ -327,6 +329,7 @@ export async function handleChatMessage(
   }
 
   if (loyaltyCommand === 'pointsAdmin') {
+    if (!isBuiltInCommandEnabled('pointsAdmin')) return
     if (!canUseCommand(getUserPermissionLevel(tags), 'moderator')) return
     const targetLogin = parts[1]?.replace(/^@/, '').toLowerCase()
     const amount = Number(parts[2])
@@ -352,7 +355,7 @@ export async function handleChatMessage(
   }
 
   if (loyaltyCommand === 'cancelGames') {
-    if (!getLoyaltyEnabled()) return
+    if (!isBuiltInCommandEnabled('cancelGames') || !getLoyaltyEnabled()) return
     const login = getTagLogin(tags)
     if (!login || getOrCreateAccount(login).isBlacklisted) return
     const cancelled = cancelPendingGameRequests(login)
@@ -368,6 +371,7 @@ export async function handleChatMessage(
   }
 
   if (loyaltyCommand === 'commandList') {
+    if (!isBuiltInCommandEnabled('commandList')) return
     const login = getTagLogin(tags)
     if (!login) return
     const loyaltyEnabled = getLoyaltyEnabled()
@@ -396,6 +400,7 @@ export async function handleChatMessage(
   const match = getGameByTrigger(trigger)
   if (match) {
     const { game, command } = match
+    if (!isBuiltInCommandEnabled(`${game.id}.${command.key}`)) return
     if (!getLoyaltyEnabled() || !isGameEnabled(game.id)) return
     // Loyalty-Games laufen nur, waehrend der Stream live ist -- offline gibt es
     // stattdessen eine launige "geschlossen"-Meldung statt der Ausfuehrung.

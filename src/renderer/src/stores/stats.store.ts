@@ -18,6 +18,15 @@ export const useStatsStore = defineStore('stats', () => {
     streamTitle: null,
     gameName: null
   })
+  /**
+   * Titel/Spiel unabhaengig vom Live-Status (Get Channel Information bleibt auch
+   * offline gueltig, anders als `live.streamTitle`/`gameName`, die nur waehrend
+   * eines laufenden Streams gesetzt sind).
+   */
+  const channelInfo = ref<{ title: string | null; gameName: string | null }>({
+    title: null,
+    gameName: null
+  })
 
   async function fetchMessagesPerHour(): Promise<void> {
     messageBuckets.value = await window.api.invoke('stats:getMessagesPerHour', {
@@ -43,8 +52,15 @@ export const useStatsStore = defineStore('stats', () => {
     })
   }
 
+  async function fetchChannelInfo(): Promise<void> {
+    const info = await window.api.invoke('stream:getInfo', undefined)
+    if (info) channelInfo.value = info
+  }
+
   async function updateStreamInfo(title?: string, gameName?: string): Promise<void> {
     await window.api.invoke('stream:updateInfo', { title, gameName })
+    if (title !== undefined) channelInfo.value = { ...channelInfo.value, title }
+    if (gameName !== undefined) channelInfo.value = { ...channelInfo.value, gameName }
     if (title !== undefined) live.value = { ...live.value, streamTitle: title }
     if (gameName !== undefined) live.value = { ...live.value, gameName }
   }
@@ -53,9 +69,11 @@ export const useStatsStore = defineStore('stats', () => {
     messageBuckets,
     viewerSamples,
     live,
+    channelInfo,
     fetchMessagesPerHour,
     fetchViewerCountSeries,
     subscribeToLiveUpdates,
+    fetchChannelInfo,
     updateStreamInfo
   }
 })

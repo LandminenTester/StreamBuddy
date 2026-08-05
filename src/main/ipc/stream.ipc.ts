@@ -3,7 +3,11 @@ import { handleTyped } from './handleTyped'
 import { getSetting } from '../db/repositories/appSettings.repo'
 import { listFeatureScopes } from '../db/repositories/authTokens.repo'
 import { getUserIdByLogin } from '../twitch/helix/users.api'
-import { patchChannelInformation, searchCategories } from '../twitch/helix/channels.api'
+import {
+  getChannelInformation,
+  patchChannelInformation,
+  searchCategories
+} from '../twitch/helix/channels.api'
 import { getAutoShoutoutEnabled, setAutoShoutoutEnabled } from '../twitch/shoutouts/autoShoutout'
 import { syncEventSubConnection } from '../twitch/eventsub/eventSubClient'
 import { logger } from '../logger'
@@ -13,6 +17,30 @@ function isStreamInfoFeatureEnabled(): boolean {
 }
 
 export function registerStreamIpc(): void {
+  handleTyped(IpcChannels.stream.getInfo, async () => {
+    const targetChannel = getSetting('target_channel')
+    if (!targetChannel) return null
+
+    const broadcasterId = await getUserIdByLogin(targetChannel)
+    if (!broadcasterId) return null
+
+    try {
+      return await getChannelInformation(broadcasterId)
+    } catch (error) {
+      logger.error('Kanal-Info-Abruf fehlgeschlagen', error)
+      return null
+    }
+  })
+
+  handleTyped(IpcChannels.stream.searchCategories, async ({ query }) => {
+    try {
+      return await searchCategories(query)
+    } catch (error) {
+      logger.error('Kategorie-Suche fehlgeschlagen', error)
+      return []
+    }
+  })
+
   handleTyped(IpcChannels.stream.updateInfo, async ({ title, gameName }) => {
     if (!isStreamInfoFeatureEnabled()) {
       throw new Error('Feature "Stream-Titel & Kategorie bearbeiten" ist nicht aktiviert.')

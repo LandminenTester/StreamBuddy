@@ -5,6 +5,7 @@ import { rouletteGame } from './rouletteGame'
 import { sspGame } from './sspGame'
 import { listGameConfigs, seedDefaultGameConfig } from '../../db/repositories/loyalty.repo'
 import { getLoyaltyPointName } from '../loyaltySettings'
+import { isGameTemporarilyUnavailable } from '@shared/temporarilyUnavailable'
 
 const GAMES: readonly LoyaltyGame[] = [gambleGame, duelGame, rouletteGame, sspGame]
 
@@ -37,6 +38,7 @@ export function getGameByTrigger(
 }
 
 export function isGameEnabled(gameId: string): boolean {
+  if (isGameTemporarilyUnavailable(gameId)) return false
   const stored = listGameConfigs().find((c) => c.gameId === gameId)
   return stored?.enabled ?? true
 }

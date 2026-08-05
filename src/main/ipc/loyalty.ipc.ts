@@ -40,6 +40,7 @@ import { KNOWN_STREAMER_BOTS } from '@shared/knownStreamerBots'
 import { parseLoyaltyCsv, serializeLoyaltyCsv } from '../loyalty/csv'
 import { getChatStatus } from '../twitch/chat/tmiClient'
 import { getMainWindow } from '../window'
+import { isGameTemporarilyUnavailable } from '@shared/temporarilyUnavailable'
 import { logger } from '../logger'
 
 function listGamesWithInfo(): LoyaltyGameInfo[] {
@@ -48,7 +49,7 @@ function listGamesWithInfo(): LoyaltyGameInfo[] {
     const stored = configs.find((c) => c.gameId === game.id)
     return {
       gameId: game.id,
-      enabled: stored?.enabled ?? true,
+      enabled: isGameTemporarilyUnavailable(game.id) ? false : (stored?.enabled ?? true),
       config: getGameRuntimeConfig(game.id),
       displayName: stored?.displayName ?? null,
       commandTriggers: stored?.commandTriggers ?? {},
@@ -106,6 +107,11 @@ export function registerLoyaltyIpc(): void {
   handleTyped(IpcChannels.loyalty.listGames, () => listGamesWithInfo())
 
   handleTyped(IpcChannels.loyalty.setGameEnabled, ({ gameId, enabled }) => {
+    if (isGameTemporarilyUnavailable(gameId) && enabled) {
+      throw new Error(
+        'Dieses Spiel ist aktuell wegen einer Twitch-API-Einschraenkung nicht verfuegbar.'
+      )
+    }
     const config = getGameRuntimeConfig(gameId)
     upsertGameConfig(gameId, enabled, config)
     return listGamesWithInfo()

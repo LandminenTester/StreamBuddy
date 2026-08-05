@@ -62,11 +62,18 @@ watch(
       <h2 class="truncate text-sm font-semibold text-fg">
         {{ store.status.channel ? `#${store.status.channel}` : $t('dashboard.chat.title') }}
       </h2>
-      <AppBadge :variant="store.status.connected ? 'success' : 'neutral'" dot>
-        {{
-          store.status.connected ? $t('dashboard.chatConnected') : $t('dashboard.chatDisconnected')
-        }}
-      </AppBadge>
+      <span class="flex shrink-0 items-center gap-2">
+        <AppBadge :variant="isPinnedToBottom ? 'success' : 'neutral'" dot>
+          {{ isPinnedToBottom ? $t('dashboard.chat.liveMode') : $t('dashboard.chat.pausedMode') }}
+        </AppBadge>
+        <AppBadge :variant="store.status.connected ? 'success' : 'neutral'" dot>
+          {{
+            store.status.connected
+              ? $t('dashboard.chatConnected')
+              : $t('dashboard.chatDisconnected')
+          }}
+        </AppBadge>
+      </span>
     </div>
 
     <div
@@ -87,6 +94,9 @@ watch(
         :key="msg.id"
         class="relative py-1 text-sm leading-relaxed"
       >
+        <AppBadge v-if="msg.isBot" class="mr-1 align-middle" variant="accent">
+          {{ $t('dashboard.chat.botBadge') }}
+        </AppBadge>
         <span class="mr-1 inline-flex align-middle">
           <span
             v-for="badge in msg.badges"
@@ -158,9 +168,9 @@ watch(
       </div>
     </div>
 
-    <div v-if="hasNewMessages" class="border-t border-line px-4 py-2">
+    <div v-if="!isPinnedToBottom" class="border-t border-line px-4 py-2">
       <AppButton size="sm" class="w-full" @click="scrollToLatest">
-        {{ $t('dashboard.chat.newMessages') }}
+        {{ hasNewMessages ? $t('dashboard.chat.newMessages') : $t('dashboard.chat.backToLive') }}
       </AppButton>
     </div>
   </div>

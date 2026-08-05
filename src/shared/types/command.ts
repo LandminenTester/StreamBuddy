@@ -36,3 +36,17 @@ export type CommandInput = Omit<
 > & {
   trackerActions?: CommandTrackerAction[]
 }
+
+/** Vom Bot fest vorgegebener Command (Loyalty-Kern oder Spiel) -- getrennt von Custom-Commands. */
+export interface BuiltInCommandInfo {
+  /** Eindeutiger Schluessel, z.B. 'points' oder 'roulette.red'. */
+  key: string
+  /** Alle Trigger-Aliase (Loyalty-Kern) bzw. der aktuell wirksame Trigger (Spiele). */
+  triggers: string[]
+  scope: 'loyalty' | 'game'
+  /** Nur bei scope 'game' gesetzt. */
+  gameId?: string
+  enabled: boolean
+  /** True, wenn das Spiel dahinter wegen einer Twitch-API-Einschraenkung nicht nutzbar ist. */
+  temporarilyUnavailable: boolean
+}

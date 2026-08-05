@@ -19,11 +19,15 @@ import {
 import { startViewerCountPoller, stopViewerCountPoller } from '../../stats/viewerCountPoller'
 import { startAdSchedulePoller, stopAdSchedulePoller } from '../ads/adSchedulePoller'
 import { connectModChatClient, disconnectModChatClient } from './modTmiClient'
+import { readModTokens } from '../oauth/modTokenStore'
 import { setBroadcasterClientRef } from './chatClientAccessor'
 import { clearGreetingSession, startGreetingChecker } from '../../loyalty/greetings'
 import { prepareChatBadges, resolveChatBadges } from './chatBadges'
 import { prepareThirdPartyEmotes, applyThirdPartyEmotes } from './thirdPartyEmotes'
 import { formatChatSegments } from './chatMessageFormatter'
+import { resolvePreferredActor } from '../oauth/actorResolver'
+import { banUser, unbanUser } from '../helix/moderation.api'
+import { getUserIdByLogin } from '../helix/users.api'
 import { getMainWindow } from '../../window'
 import { IpcChannels } from '@shared/ipc/channels'
 import { logger } from '../../logger'
@@ -200,10 +204,36 @@ async function attemptConnect(
   })
 
   newClient.on('message', (channel, tags, message, self) => {
-    if (self || !client) return
+    if (!client) return
+
+    // Vom Bot selbst gesendete Nachrichten (Command-/Game-Antworten) trotzdem im
+    // Dashboard-Feed anzeigen -- nur nicht erneut als eingehende Nachricht verarbeiten
+    // (kein handleChatMessage, kein Presence-/Automessage-/Stats-Tracking), sonst
+    // koennten sich Commands theoretisch selbst re-triggern.
+    if (self) {
+      getMainWindow()?.webContents.send(IpcChannels.chat.onMessage, {
+        id: tags.id ?? `${Date.now()}-${Math.random()}`,
+        username: tags.username ?? twitchLogin,
+        displayName: tags['display-name'] ?? tags.username ?? twitchLogin,
+        color: tags.color ?? null,
+        message,
+        segments: applyThirdPartyEmotes(
+          formatChatSegments(message, tags.emotes as Record<string, string[]> | undefined)
+        ),
+        badges: resolveChatBadges(tags.badges as Record<string, string> | undefined),
+        timestamp: Date.now(),
+        isBot: true
+      })
+      return
+    }
+
     markPresent(tags.username ?? '')
     recordChatLineForAutomessages()
     recordChatMessageForStats((tags.username ?? '').toLowerCase())
+    // Sendet der verbundene Mod-Account eine Bot-Antwort, kommt sie hier als ganz
+    // normale eingehende Nachricht eines anderen Users an (self bezieht sich nur auf
+    // diesen Broadcaster-Client) -- am Login erkennen wir sie trotzdem als Bot-Antwort.
+    const isModBotMessage = readModTokens()?.twitchLogin.toLowerCase() === tags.username
     getMainWindow()?.webContents.send(IpcChannels.chat.onMessage, {
       id: tags.id ?? `${Date.now()}-${Math.random()}`,
       username: tags.username ?? '',
@@ -214,7 +244,8 @@ async function attemptConnect(
         formatChatSegments(message, tags.emotes as Record<string, string[]> | undefined)
       ),
       badges: resolveChatBadges(tags.badges as Record<string, string> | undefined),
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      isBot: isModBotMessage
     })
     void handleChatMessage(channel, tags, message)
   })
@@ -244,24 +275,46 @@ async function attemptConnect(
   }
 }
 
+/**
+ * Twitch hat chat-befehlsbasierte Moderation (/timeout, /ban, /unban als IRC-Chat-
+ * Nachricht) im Februar 2023 abgeschafft -- das laeuft seither ausschliesslich ueber
+ * die Helix-Moderation-API (siehe moderation.api.ts), daher hier kein tmi.js-Aufruf mehr.
+ */
 export async function moderateChatUser(
   action: 'timeout' | 'ban' | 'unban',
   targetLogin: string,
   durationSeconds?: number
 ): Promise<void> {
-  if (!client || !status.channel) {
+  if (!status.channel) {
     throw new Error('Chat ist nicht verbunden')
   }
 
-  const target = targetLogin.trim().replace(/^@/, '')
+  const target = targetLogin.trim().replace(/^@/, '').toLowerCase()
   if (!target) throw new Error('Kein Nutzer angegeben')
 
-  if (action === 'timeout') {
-    await client.timeout(status.channel, target, durationSeconds ?? 600)
-  } else if (action === 'ban') {
-    await client.ban(status.channel, target)
+  const actor = await resolvePreferredActor('moderator:manage:banned_users')
+  if (!actor) {
+    throw new Error(
+      'Kein Account mit der Berechtigung "moderator:manage:banned_users" verbunden. Feature in den Einstellungen aktivieren und neu autorisieren.'
+    )
+  }
+
+  const [broadcasterId, targetUserId] = await Promise.all([
+    getUserIdByLogin(status.channel),
+    getUserIdByLogin(target)
+  ])
+  if (!broadcasterId) throw new Error('Kanal-ID konnte nicht ermittelt werden.')
+  if (!targetUserId) throw new Error(`Nutzer "${target}" wurde bei Twitch nicht gefunden.`)
+
+  if (action === 'unban') {
+    await unbanUser(broadcasterId, actor.userId, targetUserId)
   } else {
-    await client.unban(status.channel, target)
+    await banUser(
+      broadcasterId,
+      actor.userId,
+      targetUserId,
+      action === 'timeout' ? (durationSeconds ?? 600) : undefined
+    )
   }
 }
 
