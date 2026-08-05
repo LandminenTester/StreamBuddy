@@ -26,7 +26,11 @@ async function searchCategories(query: string): Promise<string[]> {
 </script>
 
 <template>
-  <BaseModal :title="$t('dashboard.streamInfo.editTitle')" @close="emit('close')">
+  <BaseModal
+    :title="$t('dashboard.streamInfo.editTitle')"
+    max-width="max-w-2xl"
+    @close="emit('close')"
+  >
     <div class="space-y-4">
       <AppInput
         v-model="form.title"

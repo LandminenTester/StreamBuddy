@@ -17,10 +17,32 @@ const emit = defineEmits<{ 'update:modelValue': [value: string] }>()
 
 const fieldId = useFieldId('user-search')
 const rootRef = ref<HTMLElement | null>(null)
+const inputRef = ref<HTMLInputElement | null>(null)
+const menuRef = ref<HTMLElement | null>(null)
 const open = ref(false)
 const remoteResults = ref<string[]>([])
+const menuStyle = ref<{ left: string; top: string; width: string }>({
+  left: '0px',
+  top: '0px',
+  width: '0px'
+})
 let debounceTimer: ReturnType<typeof setTimeout> | null = null
 let requestId = 0
+
+/** Positioniert das per Teleport aus dem Modal-Overflow gelöste Dropdown relativ zum Input. */
+function updateMenuPosition(): void {
+  if (!inputRef.value) return
+  const rect = inputRef.value.getBoundingClientRect()
+  menuStyle.value = {
+    left: `${rect.left}px`,
+    top: `${rect.bottom + 4}px`,
+    width: `${rect.width}px`
+  }
+}
+
+function handleScrollOrResize(): void {
+  if (open.value) updateMenuPosition()
+}
 
 const filtered = computed(() => {
   if (props.search) return remoteResults.value
@@ -45,6 +67,7 @@ function onInput(event: Event): void {
   const value = (event.target as HTMLInputElement).value
   emit('update:modelValue', value)
   open.value = true
+  updateMenuPosition()
   runSearch(value)
 }
 
@@ -54,19 +77,29 @@ function select(login: string): void {
 }
 
 function handleClickOutside(event: MouseEvent): void {
-  if (rootRef.value && !rootRef.value.contains(event.target as Node)) {
+  const target = event.target as Node
+  const insideRoot = rootRef.value?.contains(target) ?? false
+  const insideMenu = menuRef.value?.contains(target) ?? false
+  if (!insideRoot && !insideMenu) {
     open.value = false
   }
 }
 
-onMounted(() => document.addEventListener('mousedown', handleClickOutside))
+onMounted(() => {
+  document.addEventListener('mousedown', handleClickOutside)
+  window.addEventListener('scroll', handleScrollOrResize, true)
+  window.addEventListener('resize', handleScrollOrResize)
+})
 onBeforeUnmount(() => {
   document.removeEventListener('mousedown', handleClickOutside)
+  window.removeEventListener('scroll', handleScrollOrResize, true)
+  window.removeEventListener('resize', handleScrollOrResize)
   if (debounceTimer) clearTimeout(debounceTimer)
 })
 
 function onFocus(): void {
   open.value = true
+  updateMenuPosition()
   if (props.search) runSearch(props.modelValue)
 }
 </script>
@@ -76,6 +109,7 @@ function onFocus(): void {
     <AppField :label="label" :field-id="fieldId">
       <input
         :id="fieldId"
+        ref="inputRef"
         :value="modelValue"
         :placeholder="placeholder"
         autocomplete="off"
@@ -85,19 +119,23 @@ function onFocus(): void {
       />
     </AppField>
 
-    <div
-      v-if="open && filtered.length > 0"
-      class="absolute left-0 top-full z-10 mt-1 max-h-56 w-full overflow-y-auto rounded-md border border-line bg-surface shadow-md"
-    >
-      <button
-        v-for="login in filtered"
-        :key="login"
-        type="button"
-        class="block w-full px-3 py-1.5 text-left text-sm text-fg hover:bg-surface-raised"
-        @click="select(login)"
+    <Teleport to="body">
+      <div
+        v-if="open && filtered.length > 0"
+        ref="menuRef"
+        class="fixed z-[60] max-h-56 overflow-y-auto rounded-md border border-line bg-surface shadow-md"
+        :style="menuStyle"
       >
-        {{ login }}
-      </button>
-    </div>
+        <button
+          v-for="login in filtered"
+          :key="login"
+          type="button"
+          class="block w-full px-3 py-1.5 text-left text-sm text-fg hover:bg-surface-raised"
+          @click="select(login)"
+        >
+          {{ login }}
+        </button>
+      </div>
+    </Teleport>
   </div>
 </template>
