@@ -16,15 +16,8 @@
 - Gamble: Cooldown zwischen Einsaetzen bzw. Runden ergaenzen.
 
 ## Geplante Funktionen
-
-- `!points`: Eigenen Punktestand im Chat abfragen.
-- `!rank`: Aktuelle Top 10 und eigenen Rang abfragen.
-- Punkte per Admin-Befehl oder ueber die Rangliste direkt an einen Nutzer vergeben, auch ohne bestehendes Konto.
-- Konfigurierte Commands automatisch in Automessages einsetzen.
-- Begruessungen schneller pruefen, idealerweise alle 15 bis 30 Sekunden.
-- Roulette-Gewinner im Chat mit `@user` und Gewinnbetrag markieren.
-- Roulette-Einsatz auf der eigenen Farbe nachtraeglich erhoehen koennen.
-- Sichtbaren Timer im Dashboard bis zum naechsten Roulette-Start anzeigen.
-- Offene Rangliste bei Aenderungen automatisch aktualisieren.
-- Earn Rules fuer Subs und View Time konfigurierbar und wirksam machen.
-- Streamer soll auch eigene Punkte bekommen.
+- Stream Titel Templates
+- SSP deaktivieren
+- Erst Features dann Twitch Account während Einrichtung
+- ClientID vorgeben für Twitch
+- Werte umbennen und schöner gestalten
