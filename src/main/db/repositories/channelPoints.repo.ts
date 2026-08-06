@@ -24,7 +24,7 @@ interface RewardRow {
 
 interface RedemptionRow {
   id: number
-  reward_id: number
+  reward_id: number | null
   reward_title?: string | null
   twitch_redemption_id: string
   user_login: string
