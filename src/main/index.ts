@@ -2,7 +2,7 @@ import { app, BrowserWindow } from 'electron'
 import { electronApp, optimizer } from '@electron-toolkit/utils'
 import { createMainWindow } from './window'
 import { registerIpcHandlers } from './ipc/registerIpcHandlers'
-import { getDb } from './db/connection'
+import { closeDb, getDb } from './db/connection'
 import { syncFeatureScopes } from './twitch/oauth/scopeRegistry'
 import { connectChatClient } from './twitch/chat/tmiClient'
 import { syncEventSubConnection } from './twitch/eventsub/eventSubClient'
@@ -65,6 +65,10 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
   }
+})
+
+app.on('before-quit', () => {
+  closeDb()
 })
 
 process.on('unhandledRejection', (reason) => {
