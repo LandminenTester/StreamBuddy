@@ -7,7 +7,7 @@ import type { LoyaltyGameInfo } from '@shared/types/loyalty'
 import { numericConfigEntries } from '@renderer/views/loyalty/utils'
 import { fieldHint, fieldLabel, fieldMeta } from '@renderer/views/games/fieldMeta'
 
-const props = defineProps<{ game: LoyaltyGameInfo }>()
+const props = defineProps<{ game: LoyaltyGameInfo; isSaving?: boolean; error?: string | null }>()
 const emit = defineEmits<{ close: []; submit: [config: Record<string, unknown>] }>()
 
 const entries = numericConfigEntries(props.game.config)
@@ -29,11 +29,16 @@ const draft = reactive<Record<string, number>>(Object.fromEntries(entries))
         :min="fieldMeta(key)?.min"
         :max="fieldMeta(key)?.max"
       />
+      <p v-if="error" class="text-xs text-danger">{{ error }}</p>
     </div>
 
     <template #footer>
       <AppButton variant="ghost" @click="emit('close')">{{ $t('common.cancel') }}</AppButton>
-      <AppButton variant="primary" @click="emit('submit', { ...game.config, ...draft })">
+      <AppButton
+        variant="primary"
+        :loading="isSaving"
+        @click="emit('submit', { ...game.config, ...draft })"
+      >
         {{ $t('common.save') }}
       </AppButton>
     </template>

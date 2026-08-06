@@ -30,12 +30,20 @@ import {
 import { selectGame } from '@renderer/views/loyalty/functions'
 import { fieldHint, fieldLabel, formatFieldValue } from './fieldMeta'
 import { isGameTemporarilyUnavailable } from '@shared/temporarilyUnavailable'
+import { translateError } from '@renderer/i18n/errors'
 
 const { t } = useI18n()
 const route = useRoute()
 const store = useLoyaltyStore()
 
 const openModal = ref<'general' | 'config' | 'commands' | 'texts' | null>(null)
+const isSaving = ref(false)
+const saveError = ref<string | null>(null)
+
+function closeModal(): void {
+  openModal.value = null
+  saveError.value = null
+}
 
 const gameId = computed(() => route.params.gameId as string)
 const game = computed(() => store.games.find((entry) => entry.gameId === gameId.value) ?? null)
@@ -162,34 +170,49 @@ function colorEmoji(color: string): string {
   return '🟢'
 }
 
+/** Fuehrt einen Speichervorgang aus; Fehler bleiben im Modal sichtbar statt es zu schliessen. */
+async function withSaveHandling(action: () => Promise<void>): Promise<void> {
+  isSaving.value = true
+  saveError.value = null
+  try {
+    await action()
+    openModal.value = null
+  } catch (error) {
+    saveError.value = translateError(error)
+  } finally {
+    isSaving.value = false
+  }
+}
+
 async function saveGeneral(payload: { displayName: string; enabled: boolean }): Promise<void> {
   if (!game.value) return
   const id = game.value.gameId
-  if (payload.displayName !== (game.value.displayName ?? '')) {
-    await store.renameGame(id, payload.displayName)
-  }
-  if (payload.enabled !== game.value.enabled) {
-    await store.setGameEnabled(id, payload.enabled)
-  }
-  openModal.value = null
+  await withSaveHandling(async () => {
+    if (payload.displayName !== (game.value!.displayName ?? '')) {
+      await store.renameGame(id, payload.displayName)
+    }
+    if (payload.enabled !== game.value!.enabled) {
+      await store.setGameEnabled(id, payload.enabled)
+    }
+  })
 }
 
 async function saveConfig(config: Record<string, unknown>): Promise<void> {
   if (!game.value) return
-  await store.updateGameConfig(game.value.gameId, config)
-  openModal.value = null
+  const id = game.value.gameId
+  await withSaveHandling(() => store.updateGameConfig(id, config))
 }
 
 async function saveCommands(triggers: Record<string, string>): Promise<void> {
   if (!game.value) return
-  await store.updateGameTriggers(game.value.gameId, triggers)
-  openModal.value = null
+  const id = game.value.gameId
+  await withSaveHandling(() => store.updateGameTriggers(id, triggers))
 }
 
 async function saveTexts(texts: Record<string, string[]>): Promise<void> {
   if (!game.value) return
-  await store.updateGameTexts(game.value.gameId, texts)
-  openModal.value = null
+  const id = game.value.gameId
+  await withSaveHandling(() => store.updateGameTexts(id, texts))
 }
 </script>
 
@@ -318,25 +341,33 @@ async function saveTexts(texts: Record<string, string[]>): Promise<void> {
     <GameGeneralModal
       v-if="openModal === 'general'"
       :game="game"
-      @close="openModal = null"
+      :is-saving="isSaving"
+      :error="saveError"
+      @close="closeModal"
       @submit="saveGeneral"
     />
     <GameConfigModal
       v-if="openModal === 'config'"
       :game="game"
-      @close="openModal = null"
+      :is-saving="isSaving"
+      :error="saveError"
+      @close="closeModal"
       @submit="saveConfig"
     />
     <GameCommandsModal
       v-if="openModal === 'commands'"
       :game="game"
-      @close="openModal = null"
+      :is-saving="isSaving"
+      :error="saveError"
+      @close="closeModal"
       @submit="saveCommands"
     />
     <GameTextsModal
       v-if="openModal === 'texts'"
       :game="game"
-      @close="openModal = null"
+      :is-saving="isSaving"
+      :error="saveError"
+      @close="closeModal"
       @submit="saveTexts"
     />
   </div>

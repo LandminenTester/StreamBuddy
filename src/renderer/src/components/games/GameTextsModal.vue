@@ -7,7 +7,7 @@ import PlaceholderHint from '@renderer/components/shared/PlaceholderHint.vue'
 import type { LoyaltyGameInfo } from '@shared/types/loyalty'
 import { gameTextSlots, resolvedTextVariants, textSlotLabel } from '@renderer/views/loyalty/utils'
 
-const props = defineProps<{ game: LoyaltyGameInfo }>()
+const props = defineProps<{ game: LoyaltyGameInfo; isSaving?: boolean; error?: string | null }>()
 const emit = defineEmits<{ close: []; submit: [texts: Record<string, string[]>] }>()
 
 const slots = gameTextSlots(props.game)
@@ -40,10 +40,13 @@ function submit(): void {
         <StringListInput v-model="draft[slot]" />
       </div>
     </div>
+    <p v-if="error" class="mt-4 text-xs text-danger">{{ error }}</p>
 
     <template #footer>
       <AppButton variant="ghost" @click="emit('close')">{{ $t('common.cancel') }}</AppButton>
-      <AppButton variant="primary" @click="submit">{{ $t('common.save') }}</AppButton>
+      <AppButton variant="primary" :loading="isSaving" @click="submit">
+        {{ $t('common.save') }}
+      </AppButton>
     </template>
   </BaseModal>
 </template>
