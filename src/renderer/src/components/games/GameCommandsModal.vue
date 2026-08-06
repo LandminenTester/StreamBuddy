@@ -6,7 +6,7 @@ import BaseModal from '@renderer/components/ui/BaseModal.vue'
 import type { LoyaltyGameInfo } from '@shared/types/loyalty'
 import { commandKeyLabel } from '@renderer/views/games/commandMeta'
 
-const props = defineProps<{ game: LoyaltyGameInfo; isSaving?: boolean; error?: string | null }>()
+const props = defineProps<{ game: LoyaltyGameInfo }>()
 const emit = defineEmits<{ close: []; submit: [triggers: Record<string, string>] }>()
 
 const draft = reactive<Record<string, string>>(
@@ -35,14 +35,11 @@ function submit(): void {
         :label="commandKeyLabel(command.key)"
         :placeholder="command.defaultTrigger"
       />
-      <p v-if="error" class="text-xs text-danger">{{ error }}</p>
     </div>
 
     <template #footer>
       <AppButton variant="ghost" @click="emit('close')">{{ $t('common.cancel') }}</AppButton>
-      <AppButton variant="primary" :loading="isSaving" @click="submit">
-        {{ $t('common.save') }}
-      </AppButton>
+      <AppButton variant="primary" @click="submit">{{ $t('common.save') }}</AppButton>
     </template>
   </BaseModal>
 </template>

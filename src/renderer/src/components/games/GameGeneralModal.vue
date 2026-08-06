@@ -8,11 +8,7 @@ import type { LoyaltyGameInfo } from '@shared/types/loyalty'
 import { gameLabel } from '@renderer/views/loyalty/utils'
 import { isGameTemporarilyUnavailable } from '@shared/temporarilyUnavailable'
 
-const props = defineProps<{
-  game: LoyaltyGameInfo
-  isSaving?: boolean
-  error?: string | null
-}>()
+const props = defineProps<{ game: LoyaltyGameInfo }>()
 const emit = defineEmits<{
   close: []
   submit: [payload: { displayName: string; enabled: boolean }]
@@ -36,7 +32,6 @@ const unavailable = isGameTemporarilyUnavailable(props.game.gameId)
       <p v-if="unavailable" class="-mt-4 text-xs text-warning">
         {{ $t('games.general.temporarilyUnavailable') }}
       </p>
-      <p v-if="error" class="text-xs text-danger">{{ error }}</p>
     </div>
 
     <template #footer>
@@ -44,7 +39,6 @@ const unavailable = isGameTemporarilyUnavailable(props.game.gameId)
       <AppButton
         variant="primary"
         :disabled="unavailable"
-        :loading="isSaving"
         @click="emit('submit', { displayName: displayName.trim(), enabled })"
       >
         {{ $t('common.save') }}

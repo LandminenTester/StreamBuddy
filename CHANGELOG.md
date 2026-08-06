@@ -1,12 +1,5 @@
 # Changelog
 
-## [2.10.32](https://github.com/LandminenTester/StreamingBot/compare/v2.10.31...v2.10.32) (2026-08-05)
-
-
-### Features
-
-* **dashboard:** Stream-Info-Modal vergroessern, Kategorie-Dropdown aus Modal loesen ([33b8aac](https://github.com/LandminenTester/StreamingBot/commit/33b8aacda6ac44f6ca706b5ab220c06088df5c26))
-
 ## [2.10.31](https://github.com/LandminenTester/StreamingBot/compare/v2.10.30...v2.10.31) (2026-08-05)
 
 
