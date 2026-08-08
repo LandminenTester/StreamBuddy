@@ -64,7 +64,7 @@ function ensureSchema(database: Database.Database): void {
   database.exec(`
     CREATE TABLE IF NOT EXISTS alert_rules (
       id         INTEGER PRIMARY KEY AUTOINCREMENT,
-      event_type TEXT    NOT NULL CHECK (event_type IN ('follow', 'sub', 'gift_sub', 'raid')),
+      event_type TEXT    NOT NULL CHECK (event_type IN ('follow', 'sub', 'raid')),
       condition  TEXT,
       media      TEXT    NOT NULL,
       audio      TEXT    NOT NULL,

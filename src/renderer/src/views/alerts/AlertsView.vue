@@ -22,7 +22,7 @@ function selectTab(key: string): void {
 </script>
 
 <template>
-  <div class="mx-auto max-w-4xl space-y-6">
+  <div class="mx-auto max-w-5xl space-y-6">
     <PageHeader :title="$t('alerts.title')" :description="$t('alerts.description')" />
     <AppTabs :tabs="tabs" :model-value="activeTab" @update:model-value="selectTab" />
     <RouterView />

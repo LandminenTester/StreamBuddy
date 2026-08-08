@@ -1013,6 +1013,7 @@
       "unmute": "Unmute",
       "clearQueue": "Clear Queue",
       "test": "Test",
+      "overlaySize": "Overlay size",
       "columns": {
         "event": "Event",
         "condition": "Condition",
@@ -1022,7 +1023,6 @@
       "events": {
         "follow": "Follow",
         "sub": "Sub",
-        "gift_sub": "Gift Subs",
         "raid": "Raid"
       },
       "tiers": {
@@ -1032,9 +1032,13 @@
         "prime": "Prime"
       },
       "condition": {
-        "giftSubLabel": "Minimum gift subs",
         "raidLabel": "Minimum viewers",
         "thresholdPlaceholder": "e.g. 5"
+      },
+      "queue": {
+        "title": "Queue",
+        "current": "Now playing",
+        "empty": "No alerts in the queue"
       },
       "form": {
         "createTitle": "New Alert Rule",
@@ -1062,7 +1066,12 @@
         "textTemplatePlaceholder": "e.g. {user} just followed!",
         "placeholdersHint": "Available placeholders:",
         "linkedEffect": "Also trigger effect",
-        "linkedEffectNone": "No effect"
+        "linkedEffectNone": "No effect",
+        "timelineSection": "Timeline",
+        "subGiftThresholds": "Gift sub thresholds",
+        "addGiftThreshold": "Add threshold",
+        "noGiftThresholds": "No gift sub thresholds yet",
+        "giftThresholdAmount": "Minimum gifted subs"
       },
       "timeline": {
         "startLabel": "Start",

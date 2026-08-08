@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import type { Effect, EffectInput } from '@shared/types/alert'
-import type { AlertRule, AlertRuleInput } from '@shared/types/alertRule'
+import type { AlertQueueState, AlertRule, AlertRuleInput } from '@shared/types/alertRule'
 
 export const useAlertsStore = defineStore('alerts', () => {
   const effects = ref<Effect[]>([])
@@ -11,6 +11,9 @@ export const useAlertsStore = defineStore('alerts', () => {
 
   const rules = ref<AlertRule[]>([])
   const isMuted = ref(false)
+  const overlayWidth = ref(1920)
+  const overlayHeight = ref(1080)
+  const queueState = ref<AlertQueueState>({ current: null, pending: [] })
 
   async function fetchEffects(): Promise<void> {
     isLoading.value = true
@@ -83,7 +86,11 @@ export const useAlertsStore = defineStore('alerts', () => {
   async function createAlertRule(input: AlertRuleInput): Promise<void> {
     isSaving.value = true
     try {
-      const created = await window.api.invoke('alerts:manager:create', input)
+      // Deep-Clone auf reine JSON-Werte -- form.media/audio/text kommen als Vue-reactive()-Proxies
+      // an, die der Structured-Clone-Algorithmus von ipcRenderer.invoke nicht klonen kann
+      // ("An object could not be cloned").
+      const plainInput = JSON.parse(JSON.stringify(input)) as AlertRuleInput
+      const created = await window.api.invoke('alerts:manager:create', plainInput)
       rules.value.push(created)
     } finally {
       isSaving.value = false
@@ -93,7 +100,8 @@ export const useAlertsStore = defineStore('alerts', () => {
   async function updateAlertRule(id: number, patch: Partial<AlertRuleInput>): Promise<void> {
     isSaving.value = true
     try {
-      const updated = await window.api.invoke('alerts:manager:update', { id, patch })
+      const plainPatch = JSON.parse(JSON.stringify(patch)) as Partial<AlertRuleInput>
+      const updated = await window.api.invoke('alerts:manager:update', { id, patch: plainPatch })
       const index = rules.value.findIndex((r) => r.id === id)
       if (index !== -1) rules.value[index] = updated
     } finally {
@@ -131,6 +139,24 @@ export const useAlertsStore = defineStore('alerts', () => {
     return window.api.invoke('alerts:manager:pickAudioFile', undefined)
   }
 
+  async function fetchOverlaySize(): Promise<void> {
+    const size = await window.api.invoke('alerts:manager:getOverlaySize', undefined)
+    overlayWidth.value = size.width
+    overlayHeight.value = size.height
+  }
+
+  async function setOverlaySize(width: number, height: number): Promise<void> {
+    await window.api.invoke('alerts:manager:setOverlaySize', { width, height })
+    overlayWidth.value = width
+    overlayHeight.value = height
+  }
+
+  function subscribeToQueueUpdates(): () => void {
+    return window.api.on('alerts:manager:onQueueUpdate', (state) => {
+      queueState.value = state
+    })
+  }
+
   return {
     effects,
     serverPort,
@@ -148,6 +174,9 @@ export const useAlertsStore = defineStore('alerts', () => {
     pickAudioFile,
     rules,
     isMuted,
+    overlayWidth,
+    overlayHeight,
+    queueState,
     fetchAlertRules,
     createAlertRule,
     updateAlertRule,
@@ -157,6 +186,9 @@ export const useAlertsStore = defineStore('alerts', () => {
     setMuted,
     clearAlertQueue,
     pickManagerMediaFile,
-    pickManagerAudioFile
+    pickManagerAudioFile,
+    fetchOverlaySize,
+    setOverlaySize,
+    subscribeToQueueUpdates
   }
 })

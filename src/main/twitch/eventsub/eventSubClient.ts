@@ -163,10 +163,7 @@ async function onSessionWelcome(session: {
   // Erweiterung würden Follow-/Sub-/Gift-Sub-Alerts lautlos nie feuern, wenn der Nutzer nur
   // den Alert Manager nutzt und sonst kein anderes EventSub-abhängiges Feature aktiviert hat.
   const needsFollowSubEvents =
-    loyaltyFollowSubEnabled ||
-    hasEnabledAlertRules('follow') ||
-    hasEnabledAlertRules('sub') ||
-    hasEnabledAlertRules('gift_sub')
+    loyaltyFollowSubEnabled || hasEnabledAlertRules('follow') || hasEnabledAlertRules('sub')
   if (needsFollowSubEvents) {
     if (moderatorId) {
       await subscribeToFollowEvents(sessionId, broadcasterId, moderatorId)
@@ -175,11 +172,14 @@ async function onSessionWelcome(session: {
   }
   if (activityFeedEnabled) {
     void backfillRecentActivity(broadcasterId)
+    // !needsFollowSubEvents (nicht nur !loyaltyFollowSubEnabled) -- sonst abonniert diese Funktion
+    // Follow/Subscribe/Gift-Sub ein zweites Mal, sobald der Alert Manager sie bereits oben
+    // abonniert hat, und Twitch liefert jedes Ereignis doppelt aus (doppelte Aktivitäten-Feed-Eintraege).
     await subscribeToActivityFeedEvents(
       sessionId,
       broadcasterId,
       moderatorId ?? null,
-      !loyaltyFollowSubEnabled
+      !needsFollowSubEvents
     )
   }
   // Raids braucht der Aktivitaetenfeed ebenso wie der Auto-Shoutout und der Alert Manager --

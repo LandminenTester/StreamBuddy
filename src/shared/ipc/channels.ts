@@ -190,7 +190,10 @@ export const IpcChannels = {
       setMuted: 'alerts:manager:setMuted',
       clearQueue: 'alerts:manager:clearQueue',
       pickMediaFile: 'alerts:manager:pickMediaFile',
-      pickAudioFile: 'alerts:manager:pickAudioFile'
+      pickAudioFile: 'alerts:manager:pickAudioFile',
+      getOverlaySize: 'alerts:manager:getOverlaySize',
+      setOverlaySize: 'alerts:manager:setOverlaySize',
+      onQueueUpdate: 'alerts:manager:onQueueUpdate'
     }
   }
 } as const

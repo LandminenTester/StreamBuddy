@@ -19,6 +19,10 @@ import {
 } from '../db/repositories/alertRules.repo'
 import { buildInstance } from '../alerts/alertRuleMatching'
 import { clearQueue, enqueueAlert, isMuted, setMuted } from '../alerts/alertManagerService'
+import { getSetting, setSetting } from '../db/repositories/appSettings.repo'
+
+const OVERLAY_WIDTH_KEY = 'alertManager.overlayWidth'
+const OVERLAY_HEIGHT_KEY = 'alertManager.overlayHeight'
 
 export function registerAlertsIpc(): void {
   handleTyped(IpcChannels.alerts.list, () => listEffects())
@@ -67,7 +71,8 @@ export function registerAlertsIpc(): void {
   handleTyped(IpcChannels.alerts.manager.test, ({ id }) => {
     const rule = getAlertRuleById(id)
     const sample = { user: 'TestUser', subcount: '5', viewers: '10' }
-    enqueueAlert(buildInstance(rule, sample))
+    const subContext = rule.eventType === 'sub' ? { tier: '1000' as const } : undefined
+    enqueueAlert(buildInstance(rule, sample, subContext))
   })
   handleTyped(IpcChannels.alerts.manager.getMuted, () => isMuted())
   handleTyped(IpcChannels.alerts.manager.setMuted, ({ muted }) => {
@@ -101,5 +106,15 @@ export function registerAlertsIpc(): void {
       properties: ['openFile']
     })
     return result.canceled || !result.filePaths[0] ? null : result.filePaths[0]
+  })
+
+  handleTyped(IpcChannels.alerts.manager.getOverlaySize, () => ({
+    width: Number(getSetting(OVERLAY_WIDTH_KEY) ?? '1920'),
+    height: Number(getSetting(OVERLAY_HEIGHT_KEY) ?? '1080')
+  }))
+
+  handleTyped(IpcChannels.alerts.manager.setOverlaySize, ({ width, height }) => {
+    setSetting(OVERLAY_WIDTH_KEY, String(width))
+    setSetting(OVERLAY_HEIGHT_KEY, String(height))
   })
 }

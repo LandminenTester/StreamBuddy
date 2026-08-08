@@ -1,5 +1,6 @@
-export type AlertRuleEventType = 'follow' | 'sub' | 'gift_sub' | 'raid'
+export type AlertRuleEventType = 'follow' | 'sub' | 'raid'
 export type MediaType = 'video' | 'gif' | 'image'
+export type SubTier = '1000' | '2000' | '3000' | 'prime'
 
 export interface AlertMediaLayer {
   mediaType: MediaType
@@ -17,8 +18,23 @@ export interface AlertAudioLayer {
   durationMs: number
 }
 
-export interface AlertTextLayer {
+export interface SubTierText {
+  tier: SubTier
   template: string
+}
+
+export interface SubGiftThreshold {
+  minAmount: number
+  template: string
+}
+
+export interface AlertTextLayer {
+  /** Nur für 'follow'/'raid': einzelne Textvorlage. */
+  template?: string
+  /** Nur für 'sub': ein Text pro Tier. */
+  subTierTexts?: SubTierText[]
+  /** Nur für 'sub': Text pro Mindestanzahl gespendeter Subs, größte Schwelle ≤ tatsächlicher Menge gewinnt. */
+  subGiftThresholds?: SubGiftThreshold[]
   startMs: number
   durationMs: number
   fadeInMs: number
@@ -28,7 +44,13 @@ export interface AlertTextLayer {
 export interface AlertRule {
   id: number
   eventType: AlertRuleEventType
-  /** null für 'follow'; '1000'|'2000'|'3000'|'prime' für 'sub'; numerischer Schwellenwert als String für 'gift_sub'/'raid'. */
+  /**
+   * Nur für 'raid' genutzt: numerischer Mindest-Zuschauer-Schwellenwert als String, mehrere
+   * Raid-Regeln mit unterschiedlichen Schwellen sind erlaubt (größte Schwelle ≤ tatsächlicher Wert
+   * gewinnt, siehe findBestThresholdRule). Für 'follow' und 'sub' immer null -- pro Ereignistyp
+   * existiert dort genau eine Regel; bei 'sub' unterscheidet stattdessen text.subTierTexts /
+   * text.subGiftThresholds die Ausgabe.
+   */
   condition: string | null
   media: AlertMediaLayer
   audio: AlertAudioLayer
@@ -45,6 +67,7 @@ export type AlertRuleInput = Omit<AlertRule, 'id' | 'createdAt' | 'updatedAt'>
 export interface AlertInstance {
   id: string
   ruleId: number
+  eventType: AlertRuleEventType
   media: AlertMediaLayer
   audio: AlertAudioLayer
   text: {
@@ -55,4 +78,15 @@ export interface AlertInstance {
     resolvedText: string
   }
   linkedEffectId: number | null
+}
+
+export interface AlertQueueEntry {
+  id: string
+  eventType: AlertRuleEventType
+  label: string
+}
+
+export interface AlertQueueState {
+  current: AlertQueueEntry | null
+  pending: AlertQueueEntry[]
 }

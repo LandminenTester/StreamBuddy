@@ -1013,6 +1013,7 @@
       "unmute": "Stummschaltung aufheben",
       "clearQueue": "Warteschlange leeren",
       "test": "Testen",
+      "overlaySize": "Overlay-Größe",
       "columns": {
         "event": "Ereignis",
         "condition": "Bedingung",
@@ -1022,7 +1023,6 @@
       "events": {
         "follow": "Follow",
         "sub": "Sub",
-        "gift_sub": "Gift-Subs",
         "raid": "Raid"
       },
       "tiers": {
@@ -1032,9 +1032,13 @@
         "prime": "Prime"
       },
       "condition": {
-        "giftSubLabel": "Mindestanzahl Gift-Subs",
         "raidLabel": "Mindestanzahl Zuschauer",
         "thresholdPlaceholder": "z. B. 5"
+      },
+      "queue": {
+        "title": "Warteschlange",
+        "current": "Aktuell",
+        "empty": "Keine Alerts in der Warteschlange"
       },
       "form": {
         "createTitle": "Neue Alert-Regel",
@@ -1062,7 +1066,12 @@
         "textTemplatePlaceholder": "z. B. {user} ist gerade gefolgt!",
         "placeholdersHint": "Verfügbare Platzhalter:",
         "linkedEffect": "Zusätzlichen Effekt auslösen",
-        "linkedEffectNone": "Kein Effekt"
+        "linkedEffectNone": "Kein Effekt",
+        "timelineSection": "Timeline",
+        "subGiftThresholds": "Gift-Sub-Schwellen",
+        "addGiftThreshold": "Schwelle hinzufügen",
+        "noGiftThresholds": "Noch keine Gift-Sub-Schwellen angelegt",
+        "giftThresholdAmount": "Mindestanzahl gespendeter Subs"
       },
       "timeline": {
         "startLabel": "Start",

@@ -53,7 +53,7 @@ import type { CommandTracker, TrackerInput } from '../types/tracker'
 import type { SettingsFileResult } from '../types/settings'
 import type { CsvDelimiter, LoyaltyCsvMapping } from '../utils/loyaltyCsv'
 import type { Effect, EffectInput } from '../types/alert'
-import type { AlertRule, AlertRuleInput } from '../types/alertRule'
+import type { AlertRule, AlertRuleInput, AlertQueueState } from '../types/alertRule'
 
 /**
  * Request/Response-Typen pro IPC-Channel. Single-Source-of-Truth für Main- und
@@ -364,4 +364,13 @@ export interface IpcContracts {
   [IpcChannels.alerts.manager.clearQueue]: { request: void; response: void }
   [IpcChannels.alerts.manager.pickMediaFile]: { request: void; response: string | null }
   [IpcChannels.alerts.manager.pickAudioFile]: { request: void; response: string | null }
+  [IpcChannels.alerts.manager.getOverlaySize]: {
+    request: void
+    response: { width: number; height: number }
+  }
+  [IpcChannels.alerts.manager.setOverlaySize]: {
+    request: { width: number; height: number }
+    response: void
+  }
+  [IpcChannels.alerts.manager.onQueueUpdate]: { request: void; response: AlertQueueState }
 }

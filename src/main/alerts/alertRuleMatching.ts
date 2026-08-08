@@ -1,12 +1,9 @@
 import { randomUUID } from 'node:crypto'
-import type { AlertInstance, AlertRule, AlertRuleEventType } from '@shared/types/alertRule'
+import type { AlertInstance, AlertRule, AlertTextLayer, SubTier } from '@shared/types/alertRule'
 import { listAlertRules } from '../db/repositories/alertRules.repo'
 
-/** Matched per "größte Schwelle ≤ tatsächlicher Wert" -- für gift_sub/raid, deren `condition` ein Zahlenstring ist. */
-export function findBestThresholdRule(
-  eventType: Extract<AlertRuleEventType, 'gift_sub' | 'raid'>,
-  value: number
-): AlertRule | null {
+/** Matched per "größte Schwelle ≤ tatsächlicher Wert" -- für raid, dessen `condition` ein Zahlenstring ist. */
+export function findBestThresholdRule(eventType: 'raid', value: number): AlertRule | null {
   const candidates = listAlertRules()
     .filter((rule) => rule.enabled && rule.eventType === eventType && rule.condition !== null)
     .map((rule) => ({ rule, threshold: Number(rule.condition) }))
@@ -16,8 +13,32 @@ export function findBestThresholdRule(
   return candidates[0]?.rule ?? null
 }
 
-export function buildInstance(rule: AlertRule, placeholders: Record<string, string>): AlertInstance {
-  let resolvedText = rule.text.template
+export interface SubContext {
+  tier?: SubTier
+  giftAmount?: number
+}
+
+/**
+ * Löst die passende Textvorlage auf: für 'follow'/'raid' das einzelne `template`; für 'sub' entweder
+ * den Tier-Text (`ctx.tier`) oder den Gift-Schwellen-Text mit der größten Schwelle ≤ `ctx.giftAmount`.
+ */
+function resolveTemplate(text: AlertTextLayer, ctx?: SubContext): string {
+  if (ctx?.giftAmount !== undefined) {
+    const sorted = [...(text.subGiftThresholds ?? [])].sort((a, b) => b.minAmount - a.minAmount)
+    return sorted.find((t) => t.minAmount <= ctx.giftAmount!)?.template ?? ''
+  }
+  if (ctx?.tier) {
+    return text.subTierTexts?.find((t) => t.tier === ctx.tier)?.template ?? ''
+  }
+  return text.template ?? ''
+}
+
+export function buildInstance(
+  rule: AlertRule,
+  placeholders: Record<string, string>,
+  subContext?: SubContext
+): AlertInstance {
+  let resolvedText = resolveTemplate(rule.text, subContext)
   for (const [key, value] of Object.entries(placeholders)) {
     resolvedText = resolvedText.replaceAll(`{${key}}`, value)
   }
@@ -25,6 +46,7 @@ export function buildInstance(rule: AlertRule, placeholders: Record<string, stri
   return {
     id: randomUUID(),
     ruleId: rule.id,
+    eventType: rule.eventType,
     media: { ...rule.media },
     audio: { ...rule.audio },
     text: {

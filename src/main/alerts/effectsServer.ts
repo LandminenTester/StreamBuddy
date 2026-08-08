@@ -4,7 +4,10 @@ import { extname } from 'node:path'
 import type { AddressInfo } from 'node:net'
 import { getEffectById } from '../db/repositories/effects.repo'
 import type { AlertInstance } from '@shared/types/alertRule'
+import { getSetting, setSetting } from '../db/repositories/appSettings.repo'
 import { logger } from '../logger'
+
+const PORT_SETTING_KEY = 'effectsServer.port'
 
 let serverPort = 0
 let activeServer: ReturnType<typeof createServer> | null = null
@@ -345,15 +348,51 @@ export function getServerPort(): number {
   return serverPort
 }
 
+/**
+ * Bindet den HTTP-Server auf den angegebenen Port (0 = zufällig vom OS vergeben).
+ * Wird über 'error' statt 'listening' abgelehnt, damit ein belegter gespeicherter Port
+ * (z.B. durch eine haengengebliebene alte Instanz) sauber als Fehlschlag erkannt wird.
+ */
+function listen(httpServer: ReturnType<typeof createServer>, port: number): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
+    const onError = (err: NodeJS.ErrnoException): void => {
+      httpServer.removeListener('listening', onListening)
+      reject(err)
+    }
+    const onListening = (): void => {
+      httpServer.removeListener('error', onError)
+      resolve()
+    }
+    httpServer.once('error', onError)
+    httpServer.once('listening', onListening)
+    httpServer.listen(port, '127.0.0.1')
+  })
+}
+
+/**
+ * Startet den Overlay-Server auf einem persistenten Port, damit die Browser-Source-URLs in OBS
+ * über App-Neustarts und Updates hinweg stabil bleiben (der Port wird in app_settings gespeichert
+ * und ändert sich nur, wenn er belegt ist oder alle Daten zurückgesetzt wurden -- app_settings ist
+ * Teil des generischen Einstellungs-Exports/-Imports, der Port wandert also automatisch mit).
+ */
 export async function startEffectsServer(): Promise<void> {
   const httpServer = createServer(handleRequest)
-  await new Promise<void>((resolve) => {
-    httpServer.listen(0, '127.0.0.1', () => {
-      serverPort = (httpServer.address() as AddressInfo).port
-      logger.info(`Overlay-Server läuft auf Port ${serverPort}`)
-      resolve()
-    })
-  })
+  const storedPort = Number(getSetting(PORT_SETTING_KEY) ?? '0') || 0
+
+  try {
+    await listen(httpServer, storedPort)
+  } catch (err) {
+    if (storedPort === 0) throw err
+    logger.warn(
+      `Overlay-Server: gespeicherter Port ${storedPort} nicht verfügbar, wähle neuen Port`,
+      err
+    )
+    await listen(httpServer, 0)
+  }
+
+  serverPort = (httpServer.address() as AddressInfo).port
+  setSetting(PORT_SETTING_KEY, String(serverPort))
+  logger.info(`Overlay-Server läuft auf Port ${serverPort}`)
   activeServer = httpServer
 }
 
