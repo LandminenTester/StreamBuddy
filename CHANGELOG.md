@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.1](https://github.com/LandminenTester/StreamingBot/compare/v3.0.0...v3.0.1) (2026-08-08)
+
+
+### Bug Fixes
+
+* **db:** DB-Backup vor Migrationen anlegen ([cfc8b2f](https://github.com/LandminenTester/StreamingBot/commit/cfc8b2f75bdfae206b052ebe3b6585717193ecd4))
+
 ## [3.0.0](https://github.com/LandminenTester/StreamingBot/compare/v2.10.32...v3.0.0) (2026-08-08)
 
 
