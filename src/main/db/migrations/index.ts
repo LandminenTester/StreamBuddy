@@ -21,8 +21,21 @@ import migration019 from './019_activity_events.sql?raw'
 import migration020 from './020_redemption_action_processed.sql?raw'
 import migration021 from './021_greeted_users.sql?raw'
 import migration022 from './022_greeting_blacklist.sql?raw'
-import migration023 from './023_effects.sql?raw'
 import { logger } from '../../logger'
+
+// Inline SQL statt ?raw-Import, damit der String garantiert im Bundle landet
+// unabhaengig vom Build-Tooling-Verhalten (electron-vite + externalizeDepsPlugin).
+const migration023 = `
+CREATE TABLE effects (
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  name       TEXT    NOT NULL,
+  video_path TEXT,
+  audio_path TEXT,
+  width      INTEGER NOT NULL DEFAULT 1920,
+  height     INTEGER NOT NULL DEFAULT 1080,
+  created_at INTEGER NOT NULL
+);
+`
 
 /** Migrationen in Reihenfolge, Index+1 entspricht der Ziel-`user_version`. */
 export const MIGRATIONS: readonly string[] = [
@@ -57,14 +70,26 @@ export const MIGRATIONS: readonly string[] = [
  */
 export function runMigrations(db: Database.Database): void {
   const currentVersion = db.pragma('user_version', { simple: true }) as number
+  logger.info(`DB-Schema-Version: ${currentVersion}, verfügbare Migrationen: ${MIGRATIONS.length}`)
 
   for (let version = currentVersion; version < MIGRATIONS.length; version++) {
     const sql = MIGRATIONS[version]
     logger.info(`Führe DB-Migration auf Version ${version + 1} aus`)
 
-    db.transaction(() => {
-      db.exec(sql)
-      db.pragma(`user_version = ${version + 1}`)
-    })()
+    if (!sql) {
+      logger.error(`Migration ${version + 1}: SQL-String ist leer oder undefined – übersprungen`)
+      continue
+    }
+
+    try {
+      db.transaction(() => {
+        db.exec(sql)
+        db.pragma(`user_version = ${version + 1}`)
+      })()
+      logger.info(`DB-Migration ${version + 1} erfolgreich`)
+    } catch (err) {
+      logger.error(`DB-Migration ${version + 1} fehlgeschlagen`, err)
+      throw err
+    }
   }
 }

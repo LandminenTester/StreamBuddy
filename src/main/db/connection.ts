@@ -28,6 +28,25 @@ function backupDb(dbPath: string, currentVersion: number): void {
   }
 }
 
+/**
+ * Stellt sicher, dass alle Tabellen existieren, die neuere Migrationen anlegen.
+ * Sicherheitsnetz für den Fall, dass eine Migration im Installer-Build nicht
+ * korrekt ausgeführt wurde (z. B. durch ein Build-Tooling-Problem mit ?raw-Imports).
+ */
+function ensureSchema(database: Database.Database): void {
+  database.exec(`
+    CREATE TABLE IF NOT EXISTS effects (
+      id         INTEGER PRIMARY KEY AUTOINCREMENT,
+      name       TEXT    NOT NULL,
+      video_path TEXT,
+      audio_path TEXT,
+      width      INTEGER NOT NULL DEFAULT 1920,
+      height     INTEGER NOT NULL DEFAULT 1080,
+      created_at INTEGER NOT NULL
+    )
+  `)
+}
+
 /** Liefert die (lazily initialisierte) Singleton-Datenbankverbindung. */
 export function getDb(): Database.Database {
   if (db) return db
@@ -43,6 +62,7 @@ export function getDb(): Database.Database {
   }
 
   runMigrations(db)
+  ensureSchema(db)
 
   // Checkpointet regelmaessig ins Haupt-File, damit bei einem Absturz/Kill zwischen
   // zwei App-Starts moeglichst wenig ungesicherter WAL-Inhalt verloren gehen kann.
