@@ -1,9 +1,32 @@
 import { join } from 'path'
+import { copyFileSync, existsSync, mkdirSync } from 'node:fs'
 import { app } from 'electron'
 import Database from 'better-sqlite3'
-import { runMigrations } from './migrations'
+import { MIGRATIONS, runMigrations } from './migrations'
+import { logger } from '../logger'
 
 let db: Database.Database | null = null
+
+function backupDb(dbPath: string, currentVersion: number): void {
+  try {
+    const backupDir = join(app.getPath('userData'), 'backups')
+    mkdirSync(backupDir, { recursive: true })
+
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)
+    const backupPath = join(backupDir, `streamingbot_v${currentVersion}_${timestamp}.sqlite`)
+
+    // WAL-Checkpoint vor dem Kopieren, damit das Backup vollständig ist
+    db?.pragma('wal_checkpoint(PASSIVE)')
+    copyFileSync(dbPath, backupPath)
+
+    const walPath = `${dbPath}-wal`
+    if (existsSync(walPath)) copyFileSync(walPath, `${backupPath}-wal`)
+
+    logger.info(`DB-Backup vor Migration erstellt: ${backupPath}`)
+  } catch (err) {
+    logger.error('DB-Backup fehlgeschlagen – Migration wird trotzdem fortgesetzt', err)
+  }
+}
 
 /** Liefert die (lazily initialisierte) Singleton-Datenbankverbindung. */
 export function getDb(): Database.Database {
@@ -13,6 +36,11 @@ export function getDb(): Database.Database {
   db = new Database(dbPath)
   db.pragma('journal_mode = WAL')
   db.pragma('foreign_keys = ON')
+
+  const currentVersion = db.pragma('user_version', { simple: true }) as number
+  if (currentVersion < MIGRATIONS.length) {
+    backupDb(dbPath, currentVersion)
+  }
 
   runMigrations(db)
 
