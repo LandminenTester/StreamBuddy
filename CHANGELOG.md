@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.2](https://github.com/LandminenTester/StreamingBot/compare/v3.0.1...v3.0.2) (2026-08-08)
+
+
+### Bug Fixes
+
+* **db:** effects-Tabelle garantiert anlegen, unabhaengig vom Build ([dd0171b](https://github.com/LandminenTester/StreamingBot/commit/dd0171ba408efb0c1660ee22ce5b1060f9b40ec0))
+
 ## [3.0.1](https://github.com/LandminenTester/StreamingBot/compare/v3.0.0...v3.0.1) (2026-08-08)
 
 
