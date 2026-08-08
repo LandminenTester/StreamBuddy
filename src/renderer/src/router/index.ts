@@ -154,6 +154,11 @@ export const router = createRouter({
       ]
     },
     {
+      path: '/alerts',
+      name: 'alerts',
+      component: () => import('@renderer/views/alerts/AlertsView.vue')
+    },
+    {
       path: '/settings',
       component: () => import('@renderer/views/settings/SettingsView.vue'),
       children: [

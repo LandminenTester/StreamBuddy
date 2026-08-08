@@ -2,6 +2,7 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import {
+  Clapperboard,
   Coins,
   Dices,
   Gauge,
@@ -62,6 +63,10 @@ const NAV_GROUPS: NavGroup[] = [
   {
     key: 'engagement',
     items: [{ to: '/greetings', labelKey: 'nav.greetings', icon: MessageCircleMore }]
+  },
+  {
+    key: 'production',
+    items: [{ to: '/alerts', labelKey: 'nav.alerts', icon: Clapperboard }]
   },
   {
     key: 'system',

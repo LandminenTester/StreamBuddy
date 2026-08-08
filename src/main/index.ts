@@ -17,6 +17,7 @@ import { startFollowerSyncScheduler } from './twitch/followers/followerSync'
 import { handleViewerGreeting } from './loyalty/greetings'
 import { reconcileDanglingStreams } from './twitch/viewers/streamReconciliation'
 import { readTokens } from './twitch/oauth/tokenStore'
+import { startEffectsServer, stopEffectsServer } from './alerts/effectsServer'
 
 app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.vinewoodlegacy.streambuddy')
@@ -31,6 +32,7 @@ app.whenReady().then(() => {
   seedLoyaltyDefaults()
   enforceTemporarilyUnavailableDefaults()
   registerIpcHandlers()
+  void startEffectsServer()
   createMainWindow()
 
   setPresenceCallbacks({
@@ -68,6 +70,7 @@ app.on('window-all-closed', () => {
 })
 
 app.on('before-quit', () => {
+  stopEffectsServer()
   closeDb()
 })
 

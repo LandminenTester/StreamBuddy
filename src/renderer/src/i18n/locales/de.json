@@ -39,7 +39,8 @@
     "audience": "Zuschauer",
     "settings": "Einstellungen",
     "about": "Über StreamBuddy",
-    "updateAvailable": "Update verfügbar!"
+    "updateAvailable": "Update verfügbar!",
+    "alerts": "Alerts & Effekte"
   },
   "settings": {
     "language": {
@@ -958,6 +959,40 @@
         "uniqueChatters": "Unique Chatter",
         "avgDuration": "Ø Sehzeit"
       }
+    }
+  },
+  "alerts": {
+    "title": "Alerts & Effekte",
+    "description": "Videoeffekte und Sounds als Browser-Source für OBS.",
+    "new": "Neuer Effekt",
+    "empty": "Noch keine Effekte angelegt",
+    "emptyHint": "Lege einen Effekt an und füge die Overlay-URL als Browser-Source in OBS ein.",
+    "overlayUrl": "Overlay-URL",
+    "showUrl": "URL anzeigen",
+    "hideUrl": "URL verbergen",
+    "copyUrl": "URL kopieren",
+    "copied": "Kopiert!",
+    "test": "Testen",
+    "columns": {
+      "name": "Name",
+      "size": "Größe",
+      "url": "URL",
+      "actions": ""
+    },
+    "form": {
+      "createTitle": "Neuer Effekt",
+      "editTitle": "Effekt bearbeiten",
+      "name": "Name",
+      "namePlaceholder": "z. B. Hype-Alert",
+      "videoFile": "Videodatei",
+      "noVideoFile": "Keine Datei ausgewählt",
+      "chooseVideo": "Datei auswählen",
+      "audioFile": "Audiodatei",
+      "noAudioFile": "Keine Datei ausgewählt",
+      "chooseAudio": "Datei auswählen",
+      "width": "Breite (px)",
+      "height": "Höhe (px)",
+      "preview": "Vorschau"
     }
   }
 }

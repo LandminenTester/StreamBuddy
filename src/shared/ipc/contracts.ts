@@ -52,6 +52,7 @@ import type { StreamSummary, StreamStats, ViewerSession } from '../types/viewers
 import type { CommandTracker, TrackerInput } from '../types/tracker'
 import type { SettingsFileResult } from '../types/settings'
 import type { CsvDelimiter, LoyaltyCsvMapping } from '../utils/loyaltyCsv'
+import type { Effect, EffectInput } from '../types/alert'
 
 /**
  * Request/Response-Typen pro IPC-Channel. Single-Source-of-Truth für Main- und
@@ -336,4 +337,16 @@ export interface IpcContracts {
 
   [IpcChannels.shoutout.getEnabled]: { request: void; response: boolean }
   [IpcChannels.shoutout.setEnabled]: { request: { enabled: boolean }; response: boolean }
+
+  [IpcChannels.alerts.list]: { request: void; response: Effect[] }
+  [IpcChannels.alerts.create]: { request: EffectInput; response: Effect }
+  [IpcChannels.alerts.update]: {
+    request: { id: number; patch: Partial<EffectInput> }
+    response: Effect
+  }
+  [IpcChannels.alerts.delete]: { request: { id: number }; response: void }
+  [IpcChannels.alerts.trigger]: { request: { id: number }; response: void }
+  [IpcChannels.alerts.getServerPort]: { request: void; response: number }
+  [IpcChannels.alerts.pickVideoFile]: { request: void; response: string | null }
+  [IpcChannels.alerts.pickAudioFile]: { request: void; response: string | null }
 }

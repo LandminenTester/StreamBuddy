@@ -14,6 +14,7 @@ import { registerViewersIpc } from './viewers.ipc'
 import { registerTrackersIpc } from './trackers.ipc'
 import { registerActivityIpc } from './activity.ipc'
 import { registerStreamIpc } from './stream.ipc'
+import { registerAlertsIpc } from './alerts.ipc'
 
 /**
  * Zentrale Registrierungsstelle für alle IPC-Handler.
@@ -37,4 +38,5 @@ export function registerIpcHandlers(): void {
   registerTrackersIpc()
   registerActivityIpc()
   registerStreamIpc()
+  registerAlertsIpc()
 }

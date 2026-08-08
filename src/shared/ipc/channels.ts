@@ -170,5 +170,15 @@ export const IpcChannels = {
   shoutout: {
     getEnabled: 'shoutout:getEnabled',
     setEnabled: 'shoutout:setEnabled'
+  },
+  alerts: {
+    list: 'alerts:list',
+    create: 'alerts:create',
+    update: 'alerts:update',
+    delete: 'alerts:delete',
+    trigger: 'alerts:trigger',
+    getServerPort: 'alerts:getServerPort',
+    pickVideoFile: 'alerts:pickVideoFile',
+    pickAudioFile: 'alerts:pickAudioFile'
   }
 } as const
