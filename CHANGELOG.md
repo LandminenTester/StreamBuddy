@@ -1,5 +1,21 @@
 # Changelog
 
+## [3.0.0](https://github.com/LandminenTester/StreamingBot/compare/v2.10.32...v3.0.0) (2026-08-08)
+
+
+### Features
+
+* **alerts:** Alerts & Effekte Grundgerüst mit Overlay-Server ([c4193e1](https://github.com/LandminenTester/StreamingBot/commit/c4193e145b228f9a2c8e874d0158163a940bedfc))
+
+### Bug Fixes
+
+* **settings:** doppelte Zeilen beim Einstellungs-Import ueberspringen ([caca53b](https://github.com/LandminenTester/StreamingBot/commit/caca53bb7c11ec91589c1974333f296c0b599702))
+* **db:** WAL beim Beenden checkpointen statt Datenverlust/Korruption zu riskieren ([09a9821](https://github.com/LandminenTester/StreamingBot/commit/09a982134dfe5a5deae45802bb41eb643bc270ee))
+* **loyalty:** CHECK-Constraint um channel_point_exchange erweitern ([7252339](https://github.com/LandminenTester/StreamingBot/commit/72523392a3cca3a6dea45db6b08d1e4faf6b6c1c))
+* todo update ([8b9131f](https://github.com/LandminenTester/StreamingBot/commit/8b9131f4c2d2b94f0a753e18a2b6ed6bca57d403))
+* **channelPoints:** Loeschen von Rewards mit Redemption-Historie ermoeglichen ([b64b39f](https://github.com/LandminenTester/StreamingBot/commit/b64b39ffefe56803cccc47ee640d945f4851451c))
+* **games:** Speicherfehler in Games-Einstellungen sichtbar machen ([23d3bf2](https://github.com/LandminenTester/StreamingBot/commit/23d3bf2f2565e50de3046b02b61bb477fc52c6f8))
+
 ## [2.10.31](https://github.com/LandminenTester/StreamingBot/compare/v2.10.30...v2.10.31) (2026-08-05)
 
 
