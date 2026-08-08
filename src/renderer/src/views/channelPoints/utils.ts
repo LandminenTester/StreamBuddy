@@ -7,7 +7,13 @@ import type { SelectOption } from '@renderer/components/ui/AppSelect.vue'
 import { t } from '@renderer/i18n'
 import type { RewardFormState } from './types'
 
-const ACTION_TYPES: RewardActionType[] = ['none', 'chat_message', 'trigger_command', 'loyalty_exchange']
+const ACTION_TYPES: RewardActionType[] = [
+  'none',
+  'chat_message',
+  'trigger_command',
+  'loyalty_exchange',
+  'trigger_effect'
+]
 
 export function actionTypeLabel(type: RewardActionType): string {
   return t(`channelPoints.actionType.${type}`)
@@ -32,6 +38,7 @@ export function rewardToFormState(reward: ChannelPointReward): RewardFormState {
     actionType: reward.actionType,
     actionMessage: reward.actionPayload?.message ?? '',
     actionCommandId: reward.actionPayload?.commandId ?? null,
+    actionEffectId: reward.actionPayload?.effectId ?? null,
     backgroundColor: reward.backgroundColor ?? '#9146FF',
     loyaltyExchangeMode: reward.actionPayload?.loyaltyExchangeMode ?? 'rate',
     loyaltyExchangeValue: reward.actionPayload?.loyaltyExchangeValue ?? 10

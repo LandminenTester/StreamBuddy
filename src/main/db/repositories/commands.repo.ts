@@ -17,6 +17,7 @@ interface CommandRow {
   tracker_id: number | null
   tracker_action: TrackerAction | null
   tracker_actions?: string | null
+  effect_id: number | null
 }
 
 function parseTrackerActions(row: CommandRow): CommandTrackerAction[] {
@@ -69,7 +70,8 @@ function toDomain(row: CommandRow): Command {
     updatedAt: row.updated_at,
     trackerId: firstAction?.trackerId ?? row.tracker_id ?? null,
     trackerAction: firstAction?.action ?? row.tracker_action ?? null,
-    trackerActions
+    trackerActions,
+    effectId: row.effect_id
   }
 }
 
@@ -87,8 +89,8 @@ export function createCommand(input: CommandInput): Command {
       : [])
   const result = getDb()
     .prepare(
-      `INSERT INTO commands (trigger, response, aliases, permission_level, cooldown_seconds, delivery_mode, enabled, tracker_id, tracker_action, tracker_actions, created_at, updated_at)
-       VALUES (@trigger, @response, @aliases, @permissionLevel, @cooldownSeconds, @deliveryMode, @enabled, @trackerId, @trackerAction, @trackerActions, @now, @now)`
+      `INSERT INTO commands (trigger, response, aliases, permission_level, cooldown_seconds, delivery_mode, enabled, tracker_id, tracker_action, tracker_actions, effect_id, created_at, updated_at)
+       VALUES (@trigger, @response, @aliases, @permissionLevel, @cooldownSeconds, @deliveryMode, @enabled, @trackerId, @trackerAction, @trackerActions, @effectId, @now, @now)`
     )
     .run({
       trigger: input.trigger,
@@ -101,6 +103,7 @@ export function createCommand(input: CommandInput): Command {
       trackerId: trackerActions[0]?.trackerId ?? input.trackerId ?? null,
       trackerAction: trackerActions[0]?.action ?? input.trackerAction ?? null,
       trackerActions: JSON.stringify(trackerActions),
+      effectId: input.effectId,
       now
     })
 
@@ -122,7 +125,7 @@ export function updateCommand(id: number, patch: Partial<CommandInput>): Command
          permission_level = @permissionLevel, cooldown_seconds = @cooldownSeconds,
          delivery_mode = @deliveryMode, enabled = @enabled,
          tracker_id = @trackerId, tracker_action = @trackerAction, tracker_actions = @trackerActions,
-         updated_at = @now
+         effect_id = @effectId, updated_at = @now
        WHERE id = @id`
     )
     .run({
@@ -137,6 +140,7 @@ export function updateCommand(id: number, patch: Partial<CommandInput>): Command
       trackerId: trackerActions[0]?.trackerId ?? merged.trackerId ?? null,
       trackerAction: trackerActions[0]?.action ?? merged.trackerAction ?? null,
       trackerActions: JSON.stringify(trackerActions),
+      effectId: merged.effectId,
       now: Date.now()
     })
 

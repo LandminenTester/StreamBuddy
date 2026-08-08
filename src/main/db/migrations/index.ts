@@ -21,6 +21,9 @@ import migration019 from './019_activity_events.sql?raw'
 import migration020 from './020_redemption_action_processed.sql?raw'
 import migration021 from './021_greeted_users.sql?raw'
 import migration022 from './022_greeting_blacklist.sql?raw'
+import migration024 from './024_effects_volume.sql?raw'
+import migration025 from './025_commands_effect_and_reward_trigger_effect.sql?raw'
+import migration026 from './026_alert_rules.sql?raw'
 import { logger } from '../../logger'
 
 // Inline SQL statt ?raw-Import, damit der String garantiert im Bundle landet
@@ -61,7 +64,10 @@ export const MIGRATIONS: readonly string[] = [
   migration020,
   migration021,
   migration022,
-  migration023
+  migration023,
+  migration024,
+  migration025,
+  migration026
 ]
 
 /**

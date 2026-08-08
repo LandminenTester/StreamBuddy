@@ -5,6 +5,7 @@ export interface Effect {
   audioPath: string | null
   width: number
   height: number
+  volume: number
   createdAt: number
 }
 

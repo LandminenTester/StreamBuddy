@@ -41,6 +41,7 @@ import { sendWhisper } from '../helix/whispers.api'
 import { resolveBuiltInLoyaltyCommand } from './loyaltyCommandTriggers'
 import { buildCommandListSections, canUseCommand, chunkCommandSection } from './commandList'
 import { isBuiltInCommandEnabled } from './builtInCommands'
+import { triggerEffect } from '../../alerts/effectsService'
 
 /** Fixer, nicht umbenennbarer Trigger fuer den eingebauten Mod-Command. */
 const BLACKLIST_TRIGGER = '!blacklist'
@@ -463,6 +464,7 @@ export async function handleChatMessage(
     const resolvedResponse = resolveResponse(command.response, oldValues, newValues)
     await sendCommandResponse(channel, tags.username ?? '', command, resolvedResponse)
     incrementCommandUseCount(command.id)
+    if (command.effectId) triggerEffect(command.effectId)
   } catch (error) {
     logger.error(`Konnte Command-Response für "${command.trigger}" nicht senden`, error)
   }

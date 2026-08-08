@@ -1,8 +1,14 @@
-export type RewardActionType = 'none' | 'chat_message' | 'trigger_command' | 'loyalty_exchange'
+export type RewardActionType =
+  | 'none'
+  | 'chat_message'
+  | 'trigger_command'
+  | 'loyalty_exchange'
+  | 'trigger_effect'
 
 export interface RewardActionPayload {
   message?: string
   commandId?: number
+  effectId?: number
   loyaltyExchangeMode?: 'rate' | 'fixed'
   loyaltyExchangeValue?: number
 }

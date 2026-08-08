@@ -29,6 +29,21 @@ function backupDb(dbPath: string, currentVersion: number): void {
 }
 
 /**
+ * Fügt eine Spalte nur hinzu, wenn sie noch nicht existiert -- SQLite wirft bei einem
+ * doppelten ADD COLUMN einen Fehler, ADD COLUMN IF NOT EXISTS gibt es erst ab 3.35.
+ */
+function addColumnIfMissing(
+  database: Database.Database,
+  table: string,
+  column: string,
+  columnDef: string
+): void {
+  const columns = database.pragma(`table_info(${table})`) as Array<{ name: string }>
+  if (columns.some((c) => c.name === column)) return
+  database.exec(`ALTER TABLE ${table} ADD COLUMN ${columnDef}`)
+}
+
+/**
  * Stellt sicher, dass alle Tabellen existieren, die neuere Migrationen anlegen.
  * Sicherheitsnetz für den Fall, dass eine Migration im Installer-Build nicht
  * korrekt ausgeführt wurde (z. B. durch ein Build-Tooling-Problem mit ?raw-Imports).
@@ -45,6 +60,24 @@ function ensureSchema(database: Database.Database): void {
       created_at INTEGER NOT NULL
     )
   `)
+
+  database.exec(`
+    CREATE TABLE IF NOT EXISTS alert_rules (
+      id         INTEGER PRIMARY KEY AUTOINCREMENT,
+      event_type TEXT    NOT NULL CHECK (event_type IN ('follow', 'sub', 'gift_sub', 'raid')),
+      condition  TEXT,
+      media      TEXT    NOT NULL,
+      audio      TEXT    NOT NULL,
+      text       TEXT    NOT NULL,
+      effect_id  INTEGER REFERENCES effects (id),
+      enabled    INTEGER NOT NULL DEFAULT 1,
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL
+    )
+  `)
+
+  addColumnIfMissing(database, 'effects', 'volume', 'volume INTEGER NOT NULL DEFAULT 100')
+  addColumnIfMissing(database, 'commands', 'effect_id', 'effect_id INTEGER REFERENCES effects (id)')
 }
 
 /** Liefert die (lazily initialisierte) Singleton-Datenbankverbindung. */

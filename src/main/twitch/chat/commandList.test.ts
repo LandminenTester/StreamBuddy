@@ -17,7 +17,8 @@ function command(trigger: string, permissionLevel: PermissionLevel, enabled = tr
     updatedAt: 0,
     trackerId: null,
     trackerAction: null,
-    trackerActions: []
+    trackerActions: [],
+    effectId: null
   }
 }
 

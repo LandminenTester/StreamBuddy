@@ -19,7 +19,8 @@ export async function submitCommandForm(
     enabled: form.enabled,
     trackerId: firstAction?.trackerId ?? null,
     trackerAction: firstAction?.action ?? null,
-    trackerActions: form.trackerActions
+    trackerActions: form.trackerActions,
+    effectId: form.effectId
   }
 
   if (form.id === null) {

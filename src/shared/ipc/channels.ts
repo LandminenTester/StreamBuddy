@@ -179,6 +179,18 @@ export const IpcChannels = {
     trigger: 'alerts:trigger',
     getServerPort: 'alerts:getServerPort',
     pickVideoFile: 'alerts:pickVideoFile',
-    pickAudioFile: 'alerts:pickAudioFile'
+    pickAudioFile: 'alerts:pickAudioFile',
+    manager: {
+      list: 'alerts:manager:list',
+      create: 'alerts:manager:create',
+      update: 'alerts:manager:update',
+      delete: 'alerts:manager:delete',
+      test: 'alerts:manager:test',
+      getMuted: 'alerts:manager:getMuted',
+      setMuted: 'alerts:manager:setMuted',
+      clearQueue: 'alerts:manager:clearQueue',
+      pickMediaFile: 'alerts:manager:pickMediaFile',
+      pickAudioFile: 'alerts:manager:pickAudioFile'
+    }
   }
 } as const

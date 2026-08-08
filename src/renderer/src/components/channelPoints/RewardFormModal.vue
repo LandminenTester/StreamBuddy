@@ -8,6 +8,7 @@ import AppTextarea from '@renderer/components/ui/AppTextarea.vue'
 import AppToggle from '@renderer/components/ui/AppToggle.vue'
 import BaseModal from '@renderer/components/ui/BaseModal.vue'
 import { useCommandsStore } from '@renderer/stores/commands.store'
+import { useAlertsStore } from '@renderer/stores/alerts.store'
 import type { RewardFormState } from '@renderer/views/channelPoints/types'
 import { actionTypeOptions } from '@renderer/views/channelPoints/utils'
 import type { SelectOption } from '@renderer/components/ui/AppSelect.vue'
@@ -18,10 +19,14 @@ const emit = defineEmits<{ close: []; submit: [form: RewardFormState] }>()
 const { t } = useI18n()
 const form = reactive<RewardFormState>({ ...props.initial })
 const commandsStore = useCommandsStore()
+const alertsStore = useAlertsStore()
 
 onMounted(() => {
   if (commandsStore.commands.length === 0) {
     void commandsStore.fetchCommands()
+  }
+  if (alertsStore.effects.length === 0) {
+    void alertsStore.fetchEffects()
   }
 })
 
@@ -36,6 +41,20 @@ const selectedCommandId = computed({
   get: () => (form.actionCommandId === null ? '' : String(form.actionCommandId)),
   set: (value: string) => {
     form.actionCommandId = value ? Number(value) : null
+  }
+})
+
+const effectOptions = computed(() =>
+  alertsStore.effects.map((effect) => ({
+    value: String(effect.id),
+    label: effect.name
+  }))
+)
+
+const selectedEffectId = computed({
+  get: () => (form.actionEffectId === null ? '' : String(form.actionEffectId)),
+  set: (value: string) => {
+    form.actionEffectId = value ? Number(value) : null
   }
 })
 
@@ -105,6 +124,13 @@ const exchangePreview = computed<string>(() => {
         v-model="selectedCommandId"
         :label="$t('channelPoints.form.actionCommand')"
         :options="commandOptions"
+      />
+
+      <AppSelect
+        v-if="form.actionType === 'trigger_effect'"
+        v-model="selectedEffectId"
+        :label="$t('channelPoints.form.actionEffect')"
+        :options="effectOptions"
       />
 
       <template v-if="form.actionType === 'loyalty_exchange'">

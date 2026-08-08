@@ -155,8 +155,20 @@ export const router = createRouter({
     },
     {
       path: '/alerts',
-      name: 'alerts',
-      component: () => import('@renderer/views/alerts/AlertsView.vue')
+      component: () => import('@renderer/views/alerts/AlertsView.vue'),
+      children: [
+        { path: '', redirect: { name: 'alerts-effects' } },
+        {
+          path: 'effects',
+          name: 'alerts-effects',
+          component: () => import('@renderer/views/alerts/effects/EffectsListView.vue')
+        },
+        {
+          path: 'manager',
+          name: 'alerts-manager',
+          component: () => import('@renderer/views/alerts/manager/AlertManagerView.vue')
+        }
+      ]
     },
     {
       path: '/settings',

@@ -233,7 +233,9 @@
       "delivery": "Zustellart",
       "whisperWarning": "Wird als privater Whisper im Twitch-Chat gesendet und ist nur fuer den Sender sichtbar. Twitch schraenkt Whispers fuer viele Bot-Accounts ein -- unbedingt testen.",
       "enabled": "Aktiv",
-      "responseTab": "Antwort"
+      "responseTab": "Antwort",
+      "effect": "Effekt auslösen",
+      "effectNone": "Kein Effekt"
     },
     "werte": {
       "title": "Werte",
@@ -363,7 +365,8 @@
       "none": "Keine Aktion",
       "chat_message": "Chat-Nachricht senden",
       "trigger_command": "Command auslösen",
-      "loyalty_exchange": "Loyalty-Punkte vergeben"
+      "loyalty_exchange": "Loyalty-Punkte vergeben",
+      "trigger_effect": "Effekt auslösen"
     },
     "loyaltyExchange": {
       "mode": "Modus",
@@ -405,7 +408,8 @@
       "autoFulfill": "Automatisch als erledigt markieren",
       "actionType": "Aktion",
       "actionMessage": "Nachricht",
-      "actionCommand": "Command"
+      "actionCommand": "Command",
+      "actionEffect": "Effekt"
     }
   },
   "loyalty": {
@@ -973,6 +977,10 @@
     "copyUrl": "URL kopieren",
     "copied": "Kopiert!",
     "test": "Testen",
+    "tabs": {
+      "effects": "Effekte",
+      "manager": "Alert Manager"
+    },
     "columns": {
       "name": "Name",
       "size": "Größe",
@@ -990,9 +998,82 @@
       "audioFile": "Audiodatei",
       "noAudioFile": "Keine Datei ausgewählt",
       "chooseAudio": "Datei auswählen",
+      "volume": "Lautstärke",
       "width": "Breite (px)",
       "height": "Höhe (px)",
       "preview": "Vorschau"
+    },
+    "manager": {
+      "title": "Alert Manager",
+      "description": "Automatische Alerts für Follows, Subs, Gift-Subs und Raids.",
+      "new": "Neue Regel",
+      "empty": "Noch keine Alert-Regeln angelegt",
+      "emptyHint": "Lege eine Regel für ein Twitch-Ereignis an.",
+      "mute": "Stummschalten",
+      "unmute": "Stummschaltung aufheben",
+      "clearQueue": "Warteschlange leeren",
+      "test": "Testen",
+      "columns": {
+        "event": "Ereignis",
+        "condition": "Bedingung",
+        "enabled": "Aktiv",
+        "actions": ""
+      },
+      "events": {
+        "follow": "Follow",
+        "sub": "Sub",
+        "gift_sub": "Gift-Subs",
+        "raid": "Raid"
+      },
+      "tiers": {
+        "1000": "Tier 1",
+        "2000": "Tier 2",
+        "3000": "Tier 3",
+        "prime": "Prime"
+      },
+      "condition": {
+        "giftSubLabel": "Mindestanzahl Gift-Subs",
+        "raidLabel": "Mindestanzahl Zuschauer",
+        "thresholdPlaceholder": "z. B. 5"
+      },
+      "form": {
+        "createTitle": "Neue Alert-Regel",
+        "editTitle": "Alert-Regel bearbeiten",
+        "eventType": "Ereignistyp",
+        "condition": "Bedingung",
+        "enabled": "Aktiv",
+        "mediaSection": "Medien",
+        "mediaFile": "Mediendatei",
+        "noMediaFile": "Keine Datei ausgewählt",
+        "chooseMedia": "Datei auswählen",
+        "mediaTypeLabel": "Medientyp",
+        "mediaType": {
+          "video": "Video",
+          "gif": "GIF",
+          "image": "Bild"
+        },
+        "audioSection": "Ton",
+        "audioFile": "Audiodatei",
+        "noAudioFile": "Keine Datei ausgewählt",
+        "chooseAudio": "Datei auswählen",
+        "volume": "Lautstärke",
+        "textSection": "Text",
+        "textTemplate": "Textvorlage",
+        "textTemplatePlaceholder": "z. B. {user} ist gerade gefolgt!",
+        "placeholdersHint": "Verfügbare Platzhalter:",
+        "linkedEffect": "Zusätzlichen Effekt auslösen",
+        "linkedEffectNone": "Kein Effekt"
+      },
+      "timeline": {
+        "startLabel": "Start",
+        "durationLabel": "Dauer",
+        "fadeInLabel": "Einblenden",
+        "fadeOutLabel": "Ausblenden",
+        "fadeReadout": "Fade",
+        "mediaTrack": "Medien",
+        "audioTrack": "Ton",
+        "textTrack": "Text"
+      }
     }
   }
 }

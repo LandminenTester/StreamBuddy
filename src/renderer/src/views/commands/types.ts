@@ -14,6 +14,7 @@ export interface CommandFormState {
   trackerId: number | null
   trackerAction: TrackerAction | null
   trackerActions: CommandTrackerAction[]
+  effectId: number | null
 }
 
 export function emptyCommandForm(): CommandFormState {
@@ -28,6 +29,7 @@ export function emptyCommandForm(): CommandFormState {
     enabled: true,
     trackerId: null,
     trackerAction: null,
-    trackerActions: []
+    trackerActions: [],
+    effectId: null
   }
 }

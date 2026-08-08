@@ -13,6 +13,7 @@ import PlaceholderHint from '@renderer/components/shared/PlaceholderHint.vue'
 import type { CommandFormState } from '@renderer/views/commands/types'
 import { deliveryModeOptions, permissionOptions } from '@renderer/views/commands/utils'
 import { useTrackersStore } from '@renderer/stores/trackers.store'
+import { useAlertsStore } from '@renderer/stores/alerts.store'
 import type { SelectOption } from '@renderer/components/ui/AppSelect.vue'
 import type { CommandTrackerAction, CommandTrackerActionType } from '@shared/types/command'
 
@@ -22,10 +23,24 @@ const { t } = useI18n()
 
 const form = reactive<CommandFormState>({ ...props.initial })
 const trackersStore = useTrackersStore()
+const alertsStore = useAlertsStore()
 const activeTab = ref('response')
 
 onMounted(() => {
   if (trackersStore.trackers.length === 0) void trackersStore.fetchTrackers()
+  if (alertsStore.effects.length === 0) void alertsStore.fetchEffects()
+})
+
+const effectOptions = computed<SelectOption[]>(() => [
+  { value: '', label: t('commands.form.effectNone') },
+  ...alertsStore.effects.map((effect) => ({ value: String(effect.id), label: effect.name }))
+])
+
+const selectedEffectId = computed<string>({
+  get: () => (form.effectId === null ? '' : String(form.effectId)),
+  set: (value: string) => {
+    form.effectId = value ? Number(value) : null
+  }
 })
 
 const tabs = computed(() => [
@@ -148,6 +163,12 @@ function removeTrackerAction(index: number): void {
               <AppToggle v-model="form.enabled" :label="$t('commands.form.enabled')" />
             </div>
           </div>
+
+          <AppSelect
+            v-model="selectedEffectId"
+            :label="$t('commands.form.effect')"
+            :options="effectOptions"
+          />
         </div>
       </div>
 

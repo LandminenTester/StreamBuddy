@@ -14,6 +14,7 @@ import { getSetting } from '../db/repositories/appSettings.repo'
 import { getActiveChatClient } from './chat/chatClientAccessor'
 import { logger } from '../logger'
 import { sendWhisper } from './helix/whispers.api'
+import { triggerEffect } from '../alerts/effectsService'
 
 function resolveCommandResponse(
   response: string,
@@ -84,6 +85,7 @@ async function runCommandRewardAction(command: Command, userLogin: string): Prom
   const resolvedResponse = resolveCommandResponse(command.response, oldValues, newValues)
   await sendRewardCommandResponse(command, userLogin, resolvedResponse)
   incrementCommandUseCount(command.id)
+  if (command.effectId) triggerEffect(command.effectId)
 }
 
 /** Fuehrt die konfigurierte Aktion eines Custom Rewards nach einer Redemption aus. */
@@ -105,6 +107,17 @@ export async function runRedemptionAction(
       return true
     } catch (error) {
       logger.error(`Redemption-Aktion: Command nicht gefunden fuer Reward "${reward.title}"`, error)
+      return false
+    }
+  }
+
+  if (reward.actionType === 'trigger_effect' && reward.actionPayload?.effectId) {
+    try {
+      triggerEffect(reward.actionPayload.effectId)
+      logger.info(`Redemption-Aktion: Effekt fuer Reward "${reward.title}" ausgeloest`)
+      return true
+    } catch (error) {
+      logger.error(`Redemption-Aktion: Effekt nicht gefunden fuer Reward "${reward.title}"`, error)
       return false
     }
   }

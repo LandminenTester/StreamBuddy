@@ -53,6 +53,7 @@ import type { CommandTracker, TrackerInput } from '../types/tracker'
 import type { SettingsFileResult } from '../types/settings'
 import type { CsvDelimiter, LoyaltyCsvMapping } from '../utils/loyaltyCsv'
 import type { Effect, EffectInput } from '../types/alert'
+import type { AlertRule, AlertRuleInput } from '../types/alertRule'
 
 /**
  * Request/Response-Typen pro IPC-Channel. Single-Source-of-Truth für Main- und
@@ -349,4 +350,18 @@ export interface IpcContracts {
   [IpcChannels.alerts.getServerPort]: { request: void; response: number }
   [IpcChannels.alerts.pickVideoFile]: { request: void; response: string | null }
   [IpcChannels.alerts.pickAudioFile]: { request: void; response: string | null }
+
+  [IpcChannels.alerts.manager.list]: { request: void; response: AlertRule[] }
+  [IpcChannels.alerts.manager.create]: { request: AlertRuleInput; response: AlertRule }
+  [IpcChannels.alerts.manager.update]: {
+    request: { id: number; patch: Partial<AlertRuleInput> }
+    response: AlertRule
+  }
+  [IpcChannels.alerts.manager.delete]: { request: { id: number }; response: void }
+  [IpcChannels.alerts.manager.test]: { request: { id: number }; response: void }
+  [IpcChannels.alerts.manager.getMuted]: { request: void; response: boolean }
+  [IpcChannels.alerts.manager.setMuted]: { request: { muted: boolean }; response: void }
+  [IpcChannels.alerts.manager.clearQueue]: { request: void; response: void }
+  [IpcChannels.alerts.manager.pickMediaFile]: { request: void; response: string | null }
+  [IpcChannels.alerts.manager.pickAudioFile]: { request: void; response: string | null }
 }

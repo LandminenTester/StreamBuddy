@@ -10,6 +10,7 @@ export interface RewardFormState {
   actionType: RewardActionType
   actionMessage: string
   actionCommandId: number | null
+  actionEffectId: number | null
   backgroundColor: string
   loyaltyExchangeMode: 'rate' | 'fixed'
   loyaltyExchangeValue: number
@@ -26,6 +27,7 @@ export function emptyRewardForm(): RewardFormState {
     actionType: 'none',
     actionMessage: '',
     actionCommandId: null,
+    actionEffectId: null,
     backgroundColor: '#9146FF',
     loyaltyExchangeMode: 'rate',
     loyaltyExchangeValue: 10

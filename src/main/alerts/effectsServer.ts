@@ -3,17 +3,25 @@ import { createReadStream, statSync } from 'node:fs'
 import { extname } from 'node:path'
 import type { AddressInfo } from 'node:net'
 import { getEffectById } from '../db/repositories/effects.repo'
+import type { AlertInstance } from '@shared/types/alertRule'
 import { logger } from '../logger'
 
 let serverPort = 0
 let activeServer: ReturnType<typeof createServer> | null = null
 const sseClients = new Map<number, Set<ServerResponse>>()
+const alertsOverlayClients = new Set<ServerResponse>()
+let currentAlertInstance: AlertInstance | null = null
 
 const MIME_TYPES: Record<string, string> = {
   '.mp4': 'video/mp4',
   '.webm': 'video/webm',
   '.mov': 'video/quicktime',
   '.mkv': 'video/x-matroska',
+  '.gif': 'image/gif',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.webp': 'image/webp',
   '.mp3': 'audio/mpeg',
   '.wav': 'audio/wav',
   '.ogg': 'audio/ogg',
@@ -40,6 +48,10 @@ const OVERLAY_HTML = `<!DOCTYPE html>
     const effectId = new URLSearchParams(location.search).get('effectId')
     const video = document.getElementById('overlay-video')
     const audio = document.getElementById('overlay-audio')
+    let volume = 1
+    fetch('/overlay/config/' + effectId).then(function(r) { return r.json() }).then(function(cfg) {
+      volume = (cfg.volume ?? 100) / 100
+    }).catch(function(){})
     const es = new EventSource('/overlay/events?effectId=' + effectId)
 
     es.onmessage = function(e) {
@@ -47,6 +59,7 @@ const OVERLAY_HTML = `<!DOCTYPE html>
       if (data.type !== 'trigger') return
       video.src = '/overlay/media/video/' + effectId
       audio.src = '/overlay/media/audio/' + effectId
+      audio.volume = volume
       video.style.opacity = '1'
       Promise.all([video.play().catch(function(){}), audio.play().catch(function(){})]).catch(function(){})
     }
@@ -56,6 +69,95 @@ const OVERLAY_HTML = `<!DOCTYPE html>
       video.src = ''
       audio.src = ''
     })
+  </script>
+</body>
+</html>`
+
+const OVERLAY_MANAGER_HTML = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: transparent; overflow: hidden; width: 100vw; height: 100vh; }
+    #am-video, #am-image {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: contain; opacity: 0; display: none;
+    }
+    #am-text {
+      position: absolute; left: 0; right: 0; bottom: 8%; text-align: center;
+      font-family: sans-serif; font-size: 3rem; font-weight: 700; color: #fff;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.8); opacity: 0;
+    }
+  </style>
+</head>
+<body>
+  <video id="am-video" playsinline muted></video>
+  <img id="am-image" />
+  <audio id="am-audio"></audio>
+  <div id="am-text"></div>
+  <script>
+    const videoEl = document.getElementById('am-video')
+    const imageEl = document.getElementById('am-image')
+    const audioEl = document.getElementById('am-audio')
+    const textEl = document.getElementById('am-text')
+    let pendingTimeouts = []
+
+    function clearAll() {
+      pendingTimeouts.forEach(function(id) { clearTimeout(id) })
+      pendingTimeouts = []
+      videoEl.style.opacity = '0'; videoEl.style.display = 'none'; videoEl.pause(); videoEl.src = ''
+      imageEl.style.opacity = '0'; imageEl.style.display = 'none'; imageEl.src = ''
+      audioEl.pause(); audioEl.src = ''
+      textEl.style.opacity = '0'; textEl.textContent = ''
+    }
+
+    function schedule(fn, delayMs) {
+      const id = setTimeout(fn, Math.max(0, delayMs))
+      pendingTimeouts.push(id)
+    }
+
+    const es = new EventSource('/alerts-overlay/events')
+    es.onmessage = function(e) {
+      const data = JSON.parse(e.data)
+      if (data.type === 'clear') { clearAll(); return }
+      if (data.type !== 'alert') return
+      clearAll()
+      const payload = data.payload
+
+      const mediaEl = payload.media.mediaType === 'video' ? videoEl : imageEl
+      const mediaSrc = '/alerts-overlay/media/' + payload.id + '/media'
+      schedule(function() {
+        mediaEl.style.display = 'block'
+        mediaEl.style.transition = 'opacity ' + (payload.media.fadeInMs / 1000) + 's'
+        if (payload.media.mediaType === 'video') { videoEl.src = mediaSrc; videoEl.play().catch(function(){}) }
+        else { imageEl.src = mediaSrc }
+        requestAnimationFrame(function() { mediaEl.style.opacity = '1' })
+      }, payload.media.startMs)
+      schedule(function() {
+        mediaEl.style.transition = 'opacity ' + (payload.media.fadeOutMs / 1000) + 's'
+        mediaEl.style.opacity = '0'
+      }, payload.media.startMs + payload.media.durationMs)
+
+      schedule(function() {
+        audioEl.src = '/alerts-overlay/media/' + payload.id + '/audio'
+        audioEl.volume = (payload.audio.volume ?? 100) / 100
+        audioEl.play().catch(function(){})
+      }, payload.audio.startMs)
+      schedule(function() {
+        audioEl.pause()
+      }, payload.audio.startMs + payload.audio.durationMs)
+
+      schedule(function() {
+        textEl.textContent = payload.text.resolvedText
+        textEl.style.transition = 'opacity ' + (payload.text.fadeInMs / 1000) + 's'
+        requestAnimationFrame(function() { textEl.style.opacity = '1' })
+      }, payload.text.startMs)
+      schedule(function() {
+        textEl.style.transition = 'opacity ' + (payload.text.fadeOutMs / 1000) + 's'
+        textEl.style.opacity = '0'
+      }, payload.text.startMs + payload.text.durationMs)
+    }
   </script>
 </body>
 </html>`
@@ -121,6 +223,20 @@ function handleRequest(req: IncomingMessage, res: ServerResponse): void {
     return
   }
 
+  const configMatch = /^\/overlay\/config\/(\d+)$/.exec(path)
+  if (configMatch && req.method === 'GET') {
+    const id = parseInt(configMatch[1])
+    try {
+      const effect = getEffectById(id)
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify({ volume: effect.volume }))
+    } catch {
+      res.writeHead(404)
+      res.end('Not Found')
+    }
+    return
+  }
+
   if (path === '/overlay/events' && req.method === 'GET') {
     const effectId = parseInt(url.searchParams.get('effectId') ?? '')
     if (!effectId) {
@@ -168,6 +284,40 @@ function handleRequest(req: IncomingMessage, res: ServerResponse): void {
     return
   }
 
+  if (path === '/alerts-overlay' && req.method === 'GET') {
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' })
+    res.end(OVERLAY_MANAGER_HTML)
+    return
+  }
+
+  if (path === '/alerts-overlay/events' && req.method === 'GET') {
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      Connection: 'keep-alive'
+    })
+    res.write(': connected\n\n')
+    alertsOverlayClients.add(res)
+    req.on('close', () => {
+      alertsOverlayClients.delete(res)
+    })
+    return
+  }
+
+  const alertMediaMatch = /^\/alerts-overlay\/media\/([^/]+)\/(media|audio)$/.exec(path)
+  if (alertMediaMatch && req.method === 'GET') {
+    const [, instanceId, layer] = alertMediaMatch
+    if (!currentAlertInstance || currentAlertInstance.id !== instanceId) {
+      res.writeHead(404)
+      res.end('Not Found')
+      return
+    }
+    const filePath =
+      layer === 'media' ? currentAlertInstance.media.mediaPath : currentAlertInstance.audio.audioPath
+    serveMedia(res, filePath, req)
+    return
+  }
+
   res.writeHead(404)
   res.end('Not Found')
 }
@@ -177,6 +327,18 @@ export function broadcastTrigger(effectId: number): void {
   if (!clients?.size) return
   const payload = JSON.stringify({ type: 'trigger', effectId })
   clients.forEach((res) => res.write(`data: ${payload}\n\n`))
+}
+
+export function broadcastAlertsOverlay(instance: AlertInstance): void {
+  currentAlertInstance = instance
+  const payload = JSON.stringify({ type: 'alert', payload: instance })
+  alertsOverlayClients.forEach((res) => res.write(`data: ${payload}\n\n`))
+}
+
+export function broadcastAlertsClear(): void {
+  currentAlertInstance = null
+  const payload = JSON.stringify({ type: 'clear' })
+  alertsOverlayClients.forEach((res) => res.write(`data: ${payload}\n\n`))
 }
 
 export function getServerPort(): number {
@@ -198,6 +360,8 @@ export async function startEffectsServer(): Promise<void> {
 export function stopEffectsServer(): void {
   sseClients.forEach((set) => set.forEach((res) => res.end()))
   sseClients.clear()
+  alertsOverlayClients.forEach((res) => res.end())
+  alertsOverlayClients.clear()
   activeServer?.close()
   activeServer = null
 }

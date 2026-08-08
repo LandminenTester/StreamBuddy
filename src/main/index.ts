@@ -18,6 +18,7 @@ import { handleViewerGreeting } from './loyalty/greetings'
 import { reconcileDanglingStreams } from './twitch/viewers/streamReconciliation'
 import { readTokens } from './twitch/oauth/tokenStore'
 import { startEffectsServer, stopEffectsServer } from './alerts/effectsServer'
+import { initAlertManagerRuntime } from './alerts/alertManagerService'
 
 app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.vinewoodlegacy.streambuddy')
@@ -33,6 +34,7 @@ app.whenReady().then(() => {
   enforceTemporarilyUnavailableDefaults()
   registerIpcHandlers()
   void startEffectsServer()
+  initAlertManagerRuntime()
   createMainWindow()
 
   setPresenceCallbacks({

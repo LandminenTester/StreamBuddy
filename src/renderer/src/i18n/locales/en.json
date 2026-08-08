@@ -233,7 +233,9 @@
       "delivery": "Delivery",
       "whisperWarning": "Sent as a private Twitch whisper and only visible to the sender. Twitch restricts whispers for many bot accounts -- be sure to test.",
       "enabled": "Enabled",
-      "responseTab": "Response"
+      "responseTab": "Response",
+      "effect": "Trigger effect",
+      "effectNone": "No effect"
     },
     "werte": {
       "title": "Values",
@@ -363,7 +365,8 @@
       "none": "No action",
       "chat_message": "Send chat message",
       "trigger_command": "Trigger command",
-      "loyalty_exchange": "Grant loyalty points"
+      "loyalty_exchange": "Grant loyalty points",
+      "trigger_effect": "Trigger effect"
     },
     "loyaltyExchange": {
       "mode": "Mode",
@@ -405,7 +408,8 @@
       "autoFulfill": "Mark as fulfilled automatically",
       "actionType": "Action",
       "actionMessage": "Message",
-      "actionCommand": "Command"
+      "actionCommand": "Command",
+      "actionEffect": "Effect"
     }
   },
   "loyalty": {
@@ -973,6 +977,10 @@
     "copyUrl": "Copy URL",
     "copied": "Copied!",
     "test": "Test",
+    "tabs": {
+      "effects": "Effects",
+      "manager": "Alert Manager"
+    },
     "columns": {
       "name": "Name",
       "size": "Size",
@@ -990,9 +998,82 @@
       "audioFile": "Audio file",
       "noAudioFile": "No file selected",
       "chooseAudio": "Choose file",
+      "volume": "Volume",
       "width": "Width (px)",
       "height": "Height (px)",
       "preview": "Preview"
+    },
+    "manager": {
+      "title": "Alert Manager",
+      "description": "Automatic alerts for follows, subs, gift subs, and raids.",
+      "new": "New Rule",
+      "empty": "No alert rules yet",
+      "emptyHint": "Create a rule for a Twitch event.",
+      "mute": "Mute",
+      "unmute": "Unmute",
+      "clearQueue": "Clear Queue",
+      "test": "Test",
+      "columns": {
+        "event": "Event",
+        "condition": "Condition",
+        "enabled": "Enabled",
+        "actions": ""
+      },
+      "events": {
+        "follow": "Follow",
+        "sub": "Sub",
+        "gift_sub": "Gift Subs",
+        "raid": "Raid"
+      },
+      "tiers": {
+        "1000": "Tier 1",
+        "2000": "Tier 2",
+        "3000": "Tier 3",
+        "prime": "Prime"
+      },
+      "condition": {
+        "giftSubLabel": "Minimum gift subs",
+        "raidLabel": "Minimum viewers",
+        "thresholdPlaceholder": "e.g. 5"
+      },
+      "form": {
+        "createTitle": "New Alert Rule",
+        "editTitle": "Edit Alert Rule",
+        "eventType": "Event type",
+        "condition": "Condition",
+        "enabled": "Enabled",
+        "mediaSection": "Media",
+        "mediaFile": "Media file",
+        "noMediaFile": "No file selected",
+        "chooseMedia": "Choose file",
+        "mediaTypeLabel": "Media type",
+        "mediaType": {
+          "video": "Video",
+          "gif": "GIF",
+          "image": "Image"
+        },
+        "audioSection": "Sound",
+        "audioFile": "Audio file",
+        "noAudioFile": "No file selected",
+        "chooseAudio": "Choose file",
+        "volume": "Volume",
+        "textSection": "Text",
+        "textTemplate": "Text template",
+        "textTemplatePlaceholder": "e.g. {user} just followed!",
+        "placeholdersHint": "Available placeholders:",
+        "linkedEffect": "Also trigger effect",
+        "linkedEffectNone": "No effect"
+      },
+      "timeline": {
+        "startLabel": "Start",
+        "durationLabel": "Duration",
+        "fadeInLabel": "Fade in",
+        "fadeOutLabel": "Fade out",
+        "fadeReadout": "Fade",
+        "mediaTrack": "Media",
+        "audioTrack": "Sound",
+        "textTrack": "Text"
+      }
     }
   }
 }

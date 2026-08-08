@@ -15,6 +15,7 @@ export interface EffectFormState {
   audioPath: string | null
   width: number
   height: number
+  volume: number
 }
 
 const props = defineProps<{
@@ -79,6 +80,17 @@ function submit(): void {
             {{ $t('alerts.form.chooseAudio') }}
           </AppButton>
         </div>
+      </AppField>
+
+      <AppField field-id="effect-volume" :label="`${$t('alerts.form.volume')}: ${form.volume}%`">
+        <input
+          id="effect-volume"
+          v-model.number="form.volume"
+          type="range"
+          min="0"
+          max="100"
+          class="w-full accent-accent"
+        />
       </AppField>
 
       <div class="grid grid-cols-2 gap-4">

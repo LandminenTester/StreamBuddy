@@ -37,6 +37,13 @@ import {
   resetReconnectBackoff,
   cancelScheduledReconnect
 } from './reconnectManager'
+import {
+  handleFollowAlert,
+  handleGiftSubAlert,
+  handleRaidAlert,
+  handleSubAlert
+} from '../../alerts/alertManagerHandlers'
+import { hasEnabledAlertRules } from '../../db/repositories/alertRules.repo'
 import { logger } from '../../logger'
 
 const DEFAULT_EVENTSUB_URL = 'wss://eventsub.wss.twitch.tv/ws'
@@ -152,11 +159,19 @@ async function onSessionWelcome(session: {
   if (isPollsFeatureEnabled()) {
     await subscribeToPollEvents(sessionId, broadcasterId)
   }
-  if (loyaltyFollowSubEnabled) {
+  // Alert-Manager-Regeln brauchen die gleichen Events wie loyalty_follow_sub -- ohne diese
+  // Erweiterung würden Follow-/Sub-/Gift-Sub-Alerts lautlos nie feuern, wenn der Nutzer nur
+  // den Alert Manager nutzt und sonst kein anderes EventSub-abhängiges Feature aktiviert hat.
+  const needsFollowSubEvents =
+    loyaltyFollowSubEnabled ||
+    hasEnabledAlertRules('follow') ||
+    hasEnabledAlertRules('sub') ||
+    hasEnabledAlertRules('gift_sub')
+  if (needsFollowSubEvents) {
     if (moderatorId) {
       await subscribeToFollowEvents(sessionId, broadcasterId, moderatorId)
-      await subscribeToSubscriptionEvents(sessionId, broadcasterId)
     }
+    await subscribeToSubscriptionEvents(sessionId, broadcasterId)
   }
   if (activityFeedEnabled) {
     void backfillRecentActivity(broadcasterId)
@@ -167,8 +182,9 @@ async function onSessionWelcome(session: {
       !loyaltyFollowSubEnabled
     )
   }
-  // Raids braucht der Aktivitaetenfeed ebenso wie der Auto-Shoutout -- nur einmal abonnieren.
-  if (activityFeedEnabled || isShoutoutFeatureEnabled()) {
+  // Raids braucht der Aktivitaetenfeed ebenso wie der Auto-Shoutout und der Alert Manager --
+  // nur einmal abonnieren.
+  if (activityFeedEnabled || isShoutoutFeatureEnabled() || hasEnabledAlertRules('raid')) {
     await subscribeToRaidEvents(sessionId, broadcasterId)
   }
   logger.info('EventSub verbunden und Subscriptions registriert')
@@ -219,18 +235,22 @@ function handleMessage(raw: string): void {
     } else if (eventType === 'channel.follow') {
       if (isActivityFeedFeatureEnabled()) handleFollowActivityEvent(eventData)
       handleFollowEarnEvent(eventData)
+      handleFollowAlert(eventData)
     } else if (eventType === 'channel.subscribe') {
       if (isActivityFeedFeatureEnabled()) handleSubActivityEvent(eventData)
       handleSubEarnEvent(eventData)
+      handleSubAlert(eventData)
     } else if (eventType === 'channel.subscription.gift') {
       if (isActivityFeedFeatureEnabled()) handleGiftSubActivityEvent(eventData)
       handleGiftSubEarnEvent(eventData)
+      handleGiftSubAlert(eventData)
     } else if (eventType === 'channel.subscription.message') {
       if (isActivityFeedFeatureEnabled()) handleResubActivityEvent(eventData)
     } else if (eventType === 'channel.cheer') {
       if (isActivityFeedFeatureEnabled()) handleCheerActivityEvent(eventData)
     } else if (eventType === 'channel.raid') {
       if (isActivityFeedFeatureEnabled()) handleRaidActivityEvent(eventData)
+      handleRaidAlert(eventData)
       if (broadcasterId) {
         const raiderId = String(eventData.from_broadcaster_user_id ?? '')
         const raiderLogin = String(eventData.from_broadcaster_user_login ?? raiderId)
@@ -329,7 +349,8 @@ export async function syncEventSubConnection(): Promise<void> {
       isPollsFeatureEnabled() ||
       isLoyaltyFollowSubFeatureEnabled() ||
       isActivityFeedFeatureEnabled() ||
-      isShoutoutFeatureEnabled())
+      isShoutoutFeatureEnabled() ||
+      hasEnabledAlertRules())
 
   if (shouldRun) {
     stopEventSub()

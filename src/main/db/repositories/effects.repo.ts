@@ -8,6 +8,7 @@ interface EffectRow {
   audio_path: string | null
   width: number
   height: number
+  volume: number
   created_at: number
 }
 
@@ -19,6 +20,7 @@ function toDomain(row: EffectRow): Effect {
     audioPath: row.audio_path,
     width: row.width,
     height: row.height,
+    volume: row.volume,
     createdAt: row.created_at
   }
 }
@@ -37,8 +39,8 @@ export function getEffectById(id: number): Effect {
 export function createEffect(input: EffectInput): Effect {
   const result = getDb()
     .prepare(
-      `INSERT INTO effects (name, video_path, audio_path, width, height, created_at)
-       VALUES (@name, @videoPath, @audioPath, @width, @height, @now)`
+      `INSERT INTO effects (name, video_path, audio_path, width, height, volume, created_at)
+       VALUES (@name, @videoPath, @audioPath, @width, @height, @volume, @now)`
     )
     .run({
       name: input.name,
@@ -46,6 +48,7 @@ export function createEffect(input: EffectInput): Effect {
       audioPath: input.audioPath,
       width: input.width,
       height: input.height,
+      volume: input.volume,
       now: Date.now()
     })
   return getEffectById(Number(result.lastInsertRowid))
@@ -57,7 +60,7 @@ export function updateEffect(id: number, patch: Partial<EffectInput>): Effect {
   getDb()
     .prepare(
       `UPDATE effects SET name = @name, video_path = @videoPath, audio_path = @audioPath,
-         width = @width, height = @height WHERE id = @id`
+         width = @width, height = @height, volume = @volume WHERE id = @id`
     )
     .run({
       id,
@@ -65,7 +68,8 @@ export function updateEffect(id: number, patch: Partial<EffectInput>): Effect {
       videoPath: merged.videoPath,
       audioPath: merged.audioPath,
       width: merged.width,
-      height: merged.height
+      height: merged.height,
+      volume: merged.volume
     })
   return getEffectById(id)
 }

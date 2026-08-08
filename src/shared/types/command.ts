@@ -28,6 +28,7 @@ export interface Command {
   trackerId: number | null
   trackerAction: CommandTrackerActionType | null
   trackerActions: CommandTrackerAction[]
+  effectId: number | null
 }
 
 export type CommandInput = Omit<
