@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.3](https://github.com/LandminenTester/StreamingBot/compare/v3.0.2...v3.0.3) (2026-08-08)
+
+
+### Features
+
+* Alert Manager mit Warteschlange, Timeline-Editor und Effekt-Trigger fuer Commands/Kanalpunkte ([f623e73](https://github.com/LandminenTester/StreamingBot/commit/f623e73f2a057fb88393482a7b36692088c5b1bf))
+
 ## [3.0.2](https://github.com/LandminenTester/StreamingBot/compare/v3.0.1...v3.0.2) (2026-08-08)
 
 
